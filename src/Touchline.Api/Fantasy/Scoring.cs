@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Touchline.Api.Business;
 
 namespace Touchline.Api.Fantasy;
@@ -86,16 +87,20 @@ public sealed record PointsBreakdown
 public sealed class PlayerScoring(FantasyRules rules)
 {
     /// <summary>
-    /// Minutes on the pitch: from 0 if he started or from the minute he came on, until the
-    /// minute he went off (sub or red card) or the end of the match so far.
+    /// Minutes on the pitch, counted inclusively (team decision, 2026-11-23): a player coming on in
+    /// minute m plays from the start of that minute, and a player going off in minute m (sub or red
+    /// card) plays until the end of minute m − 1. So coming on at m gives (length − m + 1) minutes,
+    /// going off at m gives (m − 1), and on at m1 then off at m2 gives (m2 − m1). A half-time sub,
+    /// recorded at 46', plays 45 minutes. Starters play from minute 0; the end of the match so far is
+    /// the fixture length when finished, or the current minute when live.
     /// </summary>
     public static int Minutes(PlayerFixtureFacts f)
     {
-        int? from = f.Started ? 0 : f.CameOnMinute;
+        int? from = f.Started ? 0 : f.CameOnMinute - 1;
         if (from is null) return 0;
 
         var start = Math.Clamp(from.Value, 0, f.MatchEndMinute);
-        var end = Math.Clamp(f.WentOffMinute ?? f.MatchEndMinute, start, f.MatchEndMinute);
+        var end = Math.Clamp(f.WentOffMinute is { } off ? off - 1 : f.MatchEndMinute, start, f.MatchEndMinute);
         return end - start;
     }
 
@@ -237,4 +242,28 @@ public static class CaptaincyRules
 
         return selection with { CaptainId = captain, ViceCaptainId = vice };
     }
+}
+
+/// <summary>
+/// The JSON stored in app.points_results.breakdown: every PointsBreakdown field (camelCase, e.g.
+/// "minutes", "appearance", "goals", "goalPoints", "yellowPoints") plus how the pick counted for the team.
+/// </summary>
+public static class PointsBreakdownJson
+{
+    private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web);
+
+    public static string Write(PointsBreakdown breakdown, PickScore pick)
+    {
+        var node = JsonSerializer.SerializeToNode(breakdown, Json)!.AsObject();
+        node["multiplier"] = pick.Multiplier;
+        node["counted"] = pick.Counted;
+        node["contribution"] = pick.Contribution;
+        return node.ToJsonString();
+    }
+
+    /// <summary>Reads a stored breakdown back. Falls back to just the total when the JSON is missing.</summary>
+    public static PointsBreakdown Read(string? json, int points) =>
+        string.IsNullOrWhiteSpace(json)
+            ? new PointsBreakdown { Total = points }
+            : JsonSerializer.Deserialize<PointsBreakdown>(json, Json) ?? new PointsBreakdown { Total = points };
 }

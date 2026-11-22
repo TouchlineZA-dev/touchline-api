@@ -33,7 +33,7 @@ Money is in millions of rand with one decimal (7.5 = R7.5m). The API returns the
 - **Bench Boost:** bench points count. **Triple Captain:** captain ×4. **Wildcard:** unlimited free transfers. Each chip once per season, at most one per gameweek.
 
 ### Scoring (per player, per fixture, added up over the gameweek)
-- **Minutes** (our plan has none, so they're worked out): from 0 if he started or the minute he came on, until the minute he was subbed off or sent off, else the end of the match (fixture length, or 90; for live matches, the current minute).
+- **Minutes** (our plan has none, so they're worked out, counting inclusively): a starter plays from minute 0; a player coming on in minute m plays from the start of that minute, (length − m + 1) minutes; a player going off in minute m (sub or red card) plays (m − 1). So a half-time sub at 46' plays 45 minutes, and the two players in a substitution always add up to the match length. The end is the fixture length (90 if null), or the current minute for live matches.
 - **Appearance:** 45+ minutes = 1; on the pitch from kickoff to the final whistle = 2 in total.
 - **Goal** (types 14 and 16) +3. **Assist** (the goal event's related player) +2, switchable with `AssistsEnabled`. Rescinded events are ignored.
 - **Clean sheet** +2 for GK and DEF with 60+ minutes whose team conceded 0 in that fixture.

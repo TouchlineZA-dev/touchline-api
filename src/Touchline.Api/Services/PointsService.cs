@@ -1,5 +1,3 @@
-using System.Text.Json;
-using System.Text.Json.Nodes;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
@@ -32,8 +30,6 @@ public sealed class PointsService(
     IMemoryCache cache,
     IOptions<FantasyRules> options)
 {
-    private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web);
-
     private readonly FantasyRules _rules = options.Value;
     private readonly PlayerScoring _playerScoring = new(options.Value);
     private readonly TeamScoring _teamScoring = new(options.Value);
@@ -67,7 +63,7 @@ public sealed class PointsService(
         if (final)
         {
             var rows = await db.PointsResults.Where(r => r.FantasyTeamId == team.Id && r.GameweekId == gameweek.Id).ToListAsync(ct);
-            var saved = rows.GroupBy(r => r.PlayerId).ToDictionary(g => g.Key, g => ReadBreakdown(g.First().Breakdown, g.First().Points));
+            var saved = rows.GroupBy(r => r.PlayerId).ToDictionary(g => g.Key, g => PointsBreakdownJson.Read(g.First().Breakdown, g.First().Points));
             breakdowns = squad.Picks.ToDictionary(p => p.PlayerId, p => saved.GetValueOrDefault(p.PlayerId, PointsBreakdown.None));
         }
         else
@@ -215,7 +211,7 @@ public sealed class PointsService(
                     db.PointsResults.Add(row);
                 }
                 row.Points = pick.BasePoints;
-                row.Breakdown = WriteBreakdown(breakdowns[pick.PlayerId], pick);
+                row.Breakdown = PointsBreakdownJson.Write(breakdowns[pick.PlayerId], pick);
             }
 
             squad.Entry.Points = score.Total;
@@ -272,17 +268,5 @@ public sealed class PointsService(
         return result;
     }
 
-    private static string WriteBreakdown(PointsBreakdown breakdown, PickScore pick)
-    {
-        var node = JsonSerializer.SerializeToNode(breakdown, Json)!.AsObject();
-        node["multiplier"] = pick.Multiplier;
-        node["counted"] = pick.Counted;
-        node["contribution"] = pick.Contribution;
-        return node.ToJsonString();
-    }
 
-    private static PointsBreakdown ReadBreakdown(string? json, int points) =>
-        string.IsNullOrWhiteSpace(json)
-            ? new PointsBreakdown { Total = points }
-            : JsonSerializer.Deserialize<PointsBreakdown>(json, Json) ?? new PointsBreakdown { Total = points };
 }
