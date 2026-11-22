@@ -32,23 +32,26 @@ Services are registered as concrete classes. Add an interface only when a second
 
 `tests/Touchline.Api.Tests` holds the unit tests. Keep `Business/` and `Fantasy/` free of database code so they can be tested without one.
 
+The auth tests in `tests/Touchline.Api.Tests/Auth` run the real pipeline with test-signed Supabase-style tokens. The `/api/v1/me` tests also use a throwaway PostgreSQL container (Testcontainers), built from the Flyway `app.users` DDL plus `docs/migrations/002_users_auth_link.sql`. They need Docker. Without it they are skipped locally, and CI sets `TOUCHLINE_REQUIRE_DB_TESTS=true` so they fail instead.
+
 ## Run locally
 
 Prerequisite: the .NET 10 SDK.
 
 ```bash
+cp .env.example .env    # then fill in the connection string and Supabase URL
 cd src/Touchline.Api
-dotnet user-secrets set "ConnectionStrings:Touchline" "Host=aws-0-eu-west-3.pooler.supabase.com;Port=6543;Database=postgres;Username=app_api_user.<project-ref>;Password=<from password manager>;SSL Mode=Require"
-dotnet user-secrets set "Supabase:Url" "https://<project-ref>.supabase.co"
 dotnet run
 ```
+
+In Development, `AddDotEnv()` in `Program.cs` reads the nearest `.env` (searching up from the current directory) into configuration. `.env` is gitignored; `.env.example` is the committed template. Real environment variables take precedence over the file. `dotnet user-secrets` still works if you prefer it, e.g. `dotnet user-secrets set "ConnectionStrings:Touchline" "..."`.
 
 Then open http://localhost:5147/scalar for interactive API docs. The OpenAPI JSON is at `/openapi/v1.json`. Both are served only in Development.
 
 Notes on these settings:
 
-- **Never commit secrets.** Use user-secrets locally. When hosting, use environment variables such as `ConnectionStrings__Touchline` and `Supabase__Url`.
-- **Port 6543** is the Supabase transaction pooler, which suits a web API. Connect as `app_api_user`. That role can only read `football` and `sync`, and can read, insert and update `app`. It has no DELETE anywhere.
+- **Never commit secrets.** Use `.env` (or user-secrets) locally. When hosting, use environment variables such as `ConnectionStrings__Touchline` and `Supabase__Url`.
+- **Port 6543** is the Supabase transaction pooler, which suits a web API. Connect as `app_api_user`. `Program.cs` sets `No Reset On Close`, because the pooler hangs on the reset Npgsql otherwise sends when reusing a connection. That role can only read `football` and `sync`, and can read, insert and update `app`. It has no DELETE anywhere.
 - **Legacy JWT secret.** If the Supabase project still signs tokens with the legacy shared secret instead of JWT signing keys, also set `Supabase:JwtSecret`.
 
 ## Endpoints (v1)
@@ -116,7 +119,20 @@ The API checks each token in three ways:
 
 The user id always comes from the token's `sub` claim, never from the request body.
 
-`app.users` had no column for the Supabase user id and required `password_hash`. [`docs/migrations/002_users_auth_link.sql`](docs/migrations/002_users_auth_link.sql) adds `auth_user_id` and makes `password_hash` nullable. Until it is applied, `/api/v1/me` returns 503 with "Schema not ready". The football endpoints work without it.
+**Google and Apple.** Both are configured in the Supabase dashboard, not in this API. Provider client secrets, the Apple `.p8` key and the generated Apple client secret never belong here. The API only sees the Supabase access token, whichever provider the fan used.
+
+**One profile per Supabase user.** `/api/v1/me` finds the `app.users` row by `auth_user_id = sub` and creates it on first sign-in; the fantasy endpoints do the same. The unique constraint on `auth_user_id` makes simultaneous first requests resolve to one row. Account linking is done in Supabase: a fan who links Apple to a Google account keeps the same `sub`, so they get the same profile and keep their teams. The stored email is not rewritten from later tokens, so Apple private relay addresses work.
+
+**Email conflicts are 409, never auto-linked.** If the token's email (compared case-insensitively) already belongs to another row, nothing is written and the response is a problem-details `409` with a `code`:
+
+| `code` | Meaning | Recovery |
+|---|---|---|
+| `legacy_email_unlinked` | A pre-Supabase row with no `auth_user_id` holds the email | Support links the row (sets `auth_user_id`), then the fan retries |
+| `email_in_use` | Another signed-in Supabase user holds the email | Sign in the original way and link the new provider in Supabase |
+
+To check a staging deployment end to end, see [`docs/staging-smoke-test-social-sign-in.md`](docs/staging-smoke-test-social-sign-in.md).
+
+`app.users` (Flyway V014) had no column for the Supabase user id and required `password_hash`. [`docs/migrations/002_users_auth_link.sql`](docs/migrations/002_users_auth_link.sql) adds a unique `auth_user_id` and makes `password_hash` nullable (already applied to the shared Supabase database). Without it, `/api/v1/me` returns 503 with "Schema not ready"; the same happens if `auth_user_id` exists but `password_hash` is still `NOT NULL`. The football endpoints work without it.
 
 ## Database rules
 

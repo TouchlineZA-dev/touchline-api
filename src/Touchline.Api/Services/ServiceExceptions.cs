@@ -4,7 +4,14 @@ namespace Touchline.Api.Services;
 public sealed class SchemaNotReadyException(string message, Exception? inner = null) : Exception(message, inner);
 
 /// <summary>A unique value (e.g. email) already belongs to another user.</summary>
-public sealed class UserConflictException(string message, Exception? inner = null) : Exception(message, inner);
+/// <param name="code">Stable machine-readable reason, returned to clients as problem-details "code".</param>
+public sealed class UserConflictException(string message, string code, Exception? inner = null) : Exception(message, inner)
+{
+    public const string LegacyEmailUnlinked = "legacy_email_unlinked";
+    public const string EmailInUse = "email_in_use";
+
+    public string Code { get; } = code;
+}
 
 /// <summary>One or more fantasy rules are broken. Returned as 400 listing every broken rule.</summary>
 public sealed class RuleViolationException(IReadOnlyList<string> errors, string title = "Some rules aren't met")

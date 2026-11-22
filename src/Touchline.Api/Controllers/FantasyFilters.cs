@@ -24,7 +24,8 @@ public sealed class FantasyExceptionFilter(ProblemDetailsFactory problems) : IEx
             ConflictException e => e.Current is null
                 ? Problem(http, 409, e.Title, e.Message)
                 : Problem(http, 409, e.Title, e.Message, ("current", e.Current)),
-            UserConflictException e => Problem(http, 409, "Account conflict", e.Message),
+            // Same body as /api/v1/me: a stable "code" (legacy_email_unlinked / email_in_use) the app can act on.
+            UserConflictException e => Problem(http, 409, "Account conflict", e.Message, ("code", e.Code)),
             SchemaNotReadyException e => Problem(http, 503, "Schema not ready", e.Message),
             SportmonksCodesNotConfirmedException e => Problem(http, 503, "Sportmonks codes not confirmed", e.Message),
             _ when MissingSchema(context.Exception) => Problem(http, 503, "Schema not ready",
