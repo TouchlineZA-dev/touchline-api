@@ -57,7 +57,7 @@ Notes on these settings:
 |---|---|---|
 | `GET /api/v1/health` | none | Whether the database is reachable, plus the latest sync job |
 | `GET /api/v1/seasons/current` | none | The current PSL season (Sportmonks competition 806) |
-| `GET /api/v1/teams` | none | Clubs, excluding placeholder teams |
+| `GET /api/v1/teams` | none | Clubs playing in the current PSL season (teams with a fixture in it) |
 | `GET /api/v1/players` | none | Players with position, current club and price |
 | `GET /api/v1/fixtures?from=&to=` | none | Current-season fixtures with a status (Scheduled, Live, Finished or NoResult) |
 | `GET /api/v1/gameweeks?seasonId=` | none | Gameweeks from `app.gameweeks`, with `readyToScore` taken from `sync.gameweek_sync_status` |
@@ -65,7 +65,7 @@ Notes on these settings:
 
 ### Fantasy (Bearer; the user always comes from the token)
 
-All need migrations 001–004 (`docs/migrations`). Rules: [`src/Touchline.Api/Fantasy/README.md`](src/Touchline.Api/Fantasy/README.md).
+All need migrations 001–005 (`docs/migrations`). Rules: [`src/Touchline.Api/Fantasy/README.md`](src/Touchline.Api/Fantasy/README.md).
 
 | Method and path | What it does |
 |---|---|
@@ -130,7 +130,7 @@ The user id always comes from the token's `sub` claim, never from the request bo
 
 The rules, settings and tests are done; see [`src/Touchline.Api/Fantasy/README.md`](src/Touchline.Api/Fantasy/README.md). The fantasy tables are in [`docs/migrations/003_fantasy_core.sql`](docs/migrations/003_fantasy_core.sql). The frontend's `20261122090000_fantasy_api.sql` is not our schema.
 
-Before fantasy works end to end, run `docs/migrations` 001 (price-table grants), 002 (auth link), 003 (fantasy core) and 004 (2026/27 gameweeks) in the Supabase SQL Editor. Until then the fantasy endpoints return 503 "Schema not ready", and `/players` fails until 001 is run.
+Before fantasy works end to end, run `docs/migrations` 001 (price-table grants), 002 (auth link), 003 (fantasy core) 004 (2026/27 gameweeks) and 005 (row-level security policies for the API) in the Supabase SQL Editor. Until then the fantasy endpoints return 503 "Schema not ready", and `/players` fails until 001 is run.
 
 The Sportmonks lineup and substitution codes were confirmed against the database on 2026-11-22 (see `Business/SportmonksCodes.cs`).
 

@@ -113,4 +113,4 @@ Worked example (unit-tested): a midfielder with R1 = 6, R2 = 5, R3 = 4 and M = 2
 
 - **Sportmonks codes:** confirmed against the database on 2026-11-22: lineup type 11 = starting XI, 12 = bench; in a substitution, `sportmonks_player_id` comes on. The proof is in `Business/SportmonksCodes.cs`.
 - **Live data:** the sync currently writes events and lineups in daily batches (around 23:00 UTC, about a day after kickoff), so provisional points update once a day, not minute by minute.
-- **Schema:** the fantasy endpoints need `docs/migrations` 001–004, applied by hand in the Supabase SQL Editor in number order. Until then they return 503 "Schema not ready".
+- **Schema:** the fantasy endpoints need `docs/migrations` 001–005, applied by hand in the Supabase SQL Editor in number order. Until then they return 503 "Schema not ready".

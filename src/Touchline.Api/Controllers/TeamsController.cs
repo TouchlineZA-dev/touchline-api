@@ -7,10 +7,14 @@ namespace Touchline.Api.Controllers;
 [Route("api/v1/teams")]
 public sealed class TeamsController(FootballService football) : TouchlineControllerBase
 {
+    /// <summary>Clubs playing in the current PSL season.</summary>
     [HttpGet]
     public async Task<IActionResult> GetAll(CancellationToken ct)
     {
-        var teams = await football.GetTeamsAsync(ct);
-        return Ok(new { count = teams.Count, teams });
+        var season = await football.GetCurrentPslSeasonAsync(ct);
+        if (season is null) return NoCurrentSeason();
+
+        var teams = await football.GetTeamsAsync(season.Id, ct);
+        return Ok(new { season = new { season.Id, season.Name }, count = teams.Count, teams });
     }
 }

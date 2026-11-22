@@ -29,10 +29,16 @@ public sealed class FootballService(
             .FirstOrDefaultAsync(ct);
     }
 
-    public async Task<IReadOnlyList<TeamSummary>> GetTeamsAsync(CancellationToken ct = default)
+    /// <summary>
+    /// Clubs in a season: teams that play at least one of its fixtures. football.teams also holds
+    /// clubs from other leagues the sync has seen (311 rows on 2026-11-22), so it isn't filtered by itself.
+    /// </summary>
+    public async Task<IReadOnlyList<TeamSummary>> GetTeamsAsync(int seasonId, CancellationToken ct = default)
     {
+        var seasonFixtures = db.Fixtures.Where(f => f.SeasonId == seasonId && !f.IsPlaceholder);
         var teams = await db.Teams
-            .Where(t => !t.IsPlaceholder)
+            .Where(t => !t.IsPlaceholder
+                && seasonFixtures.Any(f => f.HomeTeamId == t.Id || f.AwayTeamId == t.Id))
             .OrderBy(t => t.Name)
             .ToListAsync(ct);
 
