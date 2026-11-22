@@ -1,12 +1,19 @@
 using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
 using Scalar.AspNetCore;
+using Touchline.Api;
 using Touchline.Api.Data;
 using Touchline.Api.Fantasy;
 using Touchline.Api.Services;
 using Touchline.Api.Users;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Local development: settings such as ConnectionStrings__Touchline from .env (gitignored).
+if (builder.Environment.IsDevelopment())
+{
+    builder.Configuration.AddDotEnv();
+}
 
 builder.Services
     .AddControllers()
@@ -20,9 +27,9 @@ var connectionString = builder.Configuration.GetConnectionString("Touchline");
 if (string.IsNullOrWhiteSpace(connectionString))
 {
     throw new InvalidOperationException(
-        "ConnectionStrings:Touchline is not set. Locally use `dotnet user-secrets set " +
-        "\"ConnectionStrings:Touchline\" \"...\"` in src/Touchline.Api; in hosting set the " +
-        "ConnectionStrings__Touchline environment variable. Never commit it.");
+        "ConnectionStrings:Touchline is not set. Locally copy .env.example to .env at the repo " +
+        "root and fill in ConnectionStrings__Touchline (or use `dotnet user-secrets`); in " +
+        "hosting set the ConnectionStrings__Touchline environment variable. Never commit it.");
 }
 
 builder.Services.AddDbContext<TouchlineDbContext>(options => options
