@@ -1,5 +1,6 @@
 using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
+using Npgsql;
 using Scalar.AspNetCore;
 using Touchline.Api.Data;
 using Touchline.Api.Fantasy;
@@ -25,8 +26,13 @@ if (string.IsNullOrWhiteSpace(connectionString))
         "ConnectionStrings__Touchline environment variable. Never commit it.");
 }
 
+// Supabase's transaction pooler (port 6543) hangs on the DISCARD ALL that Npgsql sends when it
+// reuses a pooled connection, so every second query timed out. With transaction pooling there is no
+// session state to reset anyway, so turn the reset off.
+var npgsql = new NpgsqlConnectionStringBuilder(connectionString) { NoResetOnClose = true };
+
 builder.Services.AddDbContext<TouchlineDbContext>(options => options
-    .UseNpgsql(connectionString)
+    .UseNpgsql(npgsql.ConnectionString)
     // Most requests only read. Call AsTracking() or Add/Update explicitly when writing.
     .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking));
 

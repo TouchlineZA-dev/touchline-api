@@ -48,36 +48,27 @@ public static class SportmonksCodes
     }
 
     /// <summary>
-    /// football.player_lineups.type_id. NOT YET CONFIRMED against the database, so both are null
-    /// and minutes can't be worked out from the data yet (scoring and pricing return 503 until set).
-    ///
-    /// Lead to verify: Touchline_Main's matches.js treats 11 = starting XI and 12 = bench. Confirm with:
-    ///   SELECT type_id, count(*), count(DISTINCT fixture_id) FROM football.player_lineups GROUP BY type_id;
-    /// Expect about 11 starters per team per fixture for the starting-XI code.
+    /// football.player_lineups.type_id. Confirmed against the database on 2026-11-22:
+    /// type 11 averages 11.0 rows per team per fixture (starting XI), type 12 averages 9.1 (bench),
+    /// over 294 fixtures.
     /// </summary>
     public static class LineupTypes
     {
-        public static readonly short? StartingXi = null;
-        public static readonly short? Bench = null;
+        public static readonly short? StartingXi = 11;
+        public static readonly short? Bench = 12;
     }
 
     /// <summary>
-    /// Which player in a substitution event (type 18) is coming ON. NOT YET CONFIRMED against the database.
-    ///
-    /// Lead to verify: Touchline_Main's Pitch.tsx and MatchDetail.tsx treat sportmonks_player_id as the
-    /// player coming on and sportmonks_related_player_id as the player going off. Confirm with:
-    ///   SELECT e.minute, e.sportmonks_player_id, e.sportmonks_related_player_id, on_l.type_id AS player_lineup_type,
-    ///          off_l.type_id AS related_lineup_type
-    ///   FROM football.match_events e
-    ///   LEFT JOIN football.player_lineups on_l  ON on_l.fixture_id = e.fixture_id AND on_l.sportmonks_player_id = e.sportmonks_player_id
-    ///   LEFT JOIN football.player_lineups off_l ON off_l.fixture_id = e.fixture_id AND off_l.sportmonks_player_id = e.sportmonks_related_player_id
-    ///   WHERE e.type_id = 18 LIMIT 50;
-    /// The player coming on should be a bench player; the player going off a starter (or an earlier sub).
+    /// Which player in a substitution event (type 18) is coming ON. Confirmed against the database on
+    /// 2026-11-22: in 2,489 substitution events, sportmonks_player_id was a bench player (lineup type 12)
+    /// 2,393 times, and sportmonks_related_player_id was a starter (type 11) 2,394 times. So
+    /// sportmonks_player_id comes on and sportmonks_related_player_id goes off. The few exceptions
+    /// fit a substitute who was later subbed off himself, or players missing from the lineup.
     /// </summary>
     public static class Substitutions
     {
-        /// <summary>True: sportmonks_player_id is coming on. False: sportmonks_related_player_id is coming on. Null: unconfirmed.</summary>
-        public static readonly bool? PlayerIdIsComingOn = null;
+        /// <summary>True: sportmonks_player_id is coming on and sportmonks_related_player_id going off.</summary>
+        public static readonly bool? PlayerIdIsComingOn = true;
     }
 
     /// <summary>True once the lineup and substitution codes above have been confirmed and filled in.</summary>

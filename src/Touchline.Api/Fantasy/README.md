@@ -104,5 +104,6 @@ Worked example (unit-tested): a midfielder with R1 = 6, R2 = 5, R3 = 4 and M = 2
 
 ## Not ready yet
 
-- **Sportmonks codes:** which `player_lineups.type_id` is the starting XI and which player in a substitution comes on are not confirmed against the database. They're null in `Business/SportmonksCodes.cs`, which includes the SQL to confirm them. Until they're set, scoring, live points and pricing return 503; squads, transfers, chips and leagues work.
-- **Schema:** the fantasy endpoints need proposed migrations V033 and V034 (`docs/proposed-migrations`). Until then they return 503 "Schema not ready".
+- **Sportmonks codes:** confirmed against the database on 2026-11-22: lineup type 11 = starting XI, 12 = bench; in a substitution, `sportmonks_player_id` comes on. The proof is in `Business/SportmonksCodes.cs`.
+- **Live data:** the sync currently writes events and lineups in daily batches (around 23:00 UTC, about a day after kickoff), so provisional points update once a day, not minute by minute.
+- **Schema:** the fantasy endpoints need the `app.users.auth_user_id` link (proposed V033) and V034 (`docs/proposed-migrations`). Until then they return 503 "Schema not ready".

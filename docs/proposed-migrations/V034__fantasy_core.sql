@@ -13,6 +13,8 @@
 --      (fantasy_team_id, gameweek_id, player_id).
 --   2. The updated_at trigger function from V002 is callable as set_updated_at(). Schema-qualify
 --      it below if it lives outside the search_path Flyway uses.
+--   0. URGENT, can be applied on its own: the price-table GRANTs in section 5. Without them
+--      GET /api/v1/players returns 500 today.
 --   3. app.points_results has no unique key on (fantasy_team_id, player_id, gameweek_id) yet; one is
 --      added here so re-scoring updates rows instead of duplicating them. If duplicates already
 --      exist, the index creation fails: clean them up first.
@@ -178,6 +180,13 @@ GRANT SELECT, INSERT, UPDATE ON
     app.transfer_windows,
     app.player_price_overrides
 TO app_api_user;
+
+-- Existing price tables: on 2026-11-22 app_api_user had no privileges on these at all, so
+-- GET /api/v1/players failed with "permission denied for table player_prices".
+-- player_price_changes is append-only: no UPDATE.
+GRANT SELECT, INSERT, UPDATE ON app.player_prices TO app_api_user;
+GRANT SELECT, INSERT ON app.player_price_changes TO app_api_user;
+GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA app TO app_api_user;
 
 GRANT USAGE, SELECT ON SEQUENCE
     app.fantasy_gameweek_entries_id_seq,

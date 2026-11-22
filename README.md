@@ -130,9 +130,10 @@ The user id always comes from the token's `sub` claim, never from the request bo
 
 The rules, settings and tests are done; see [`src/Touchline.Api/Fantasy/README.md`](src/Touchline.Api/Fantasy/README.md). This API maps the sync repo's Flyway `app` tables, plus proposed [`V034__fantasy_core.sql`](docs/proposed-migrations/V034__fantasy_core.sql). The frontend's `20261122090000_fantasy_api.sql` is not our schema.
 
-Two things are still needed before fantasy works end to end:
+Before fantasy works end to end, the `app.users.auth_user_id` link (proposed V033, whose file has since been removed from this repo) and V034 must be applied through touchline-sync. Until then the fantasy endpoints return 503 "Schema not ready".
 
-- **Migrations V033 and V034** applied through touchline-sync. Until then the fantasy endpoints return 503 "Schema not ready".
-- **Sportmonks lineup and substitution codes** confirmed against the database and filled in `Business/SportmonksCodes.cs`. Until then scoring, live points and pricing return 503.
+The Sportmonks lineup and substitution codes were confirmed against the database on 2026-11-22 (see `Business/SportmonksCodes.cs`).
+
+Live points can only be as fresh as the football data. As of 2026-11-22 the sync writes fixtures, events and lineups in daily batches around 23:00 UTC, about a day after kickoff, so "live" points currently update once a day.
 
 Prices: a player with no `app.player_prices` row now shows his position's minimum price (Fantasy:Pricing) instead of the old 50.0, which couldn't work with a R100.0m budget.
