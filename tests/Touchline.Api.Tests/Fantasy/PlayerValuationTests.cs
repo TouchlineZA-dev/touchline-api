@@ -229,6 +229,26 @@ public class PlayerValuationTests
     }
 
     [Fact]
+    public void Price_scale_multiplies_the_ranges()
+    {
+        var tripled = new PlayerValuation(new PricingRules { PriceScale = 3.0m });
+        var range = new PricingRules { PriceScale = 3.0m }.RangeFor(Position.MID);
+
+        Assert.Equal(13.5m, range.Min);
+        Assert.Equal(36.0m, range.Max);
+        Assert.Equal(13.5m, tripled.Price(0m, Position.MID));
+        Assert.Equal(36.0m, tripled.Price(1m, Position.MID));
+    }
+
+    [Fact]
+    public void Default_budget_and_price_scale_agree()
+    {
+        var rules = new FantasyRules();
+        Assert.Equal(100.0m, rules.Budget);
+        Assert.Equal(1.0m, rules.Pricing.PriceScale);
+    }
+
+    [Fact]
     public void Backtest_reports_bands_and_correlation()
     {
         var report = PlayerValuation.Backtest(Position.MID, [(4.5m, 20m), (5.0m, 30m), (8.0m, 80m), (11.5m, 140m)]);

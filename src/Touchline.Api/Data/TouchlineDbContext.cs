@@ -9,8 +9,9 @@ namespace Touchline.Api.Data;
 /// One context over the shared Supabase Postgres database.
 /// - football, sync: read-only (owned by the sync worker; the DB role cannot write them).
 /// - app: read/write (owned by this API).
-/// The schema is created by Flyway in the touchline-sync repo. This context does NOT
-/// create or migrate tables — do not run EF migrations against the shared database.
+/// The football and sync tables come from touchline-sync's Flyway migrations; the API's app-schema
+/// SQL is in docs/migrations, applied by hand in the Supabase SQL Editor. This context does NOT
+/// create or migrate tables: never run EF migrations against the shared database.
 /// </summary>
 public class TouchlineDbContext(DbContextOptions<TouchlineDbContext> options) : DbContext(options)
 {
@@ -39,7 +40,7 @@ public class TouchlineDbContext(DbContextOptions<TouchlineDbContext> options) : 
     public DbSet<PlayerPrice> PlayerPrices => Set<PlayerPrice>();
     public DbSet<PlayerPriceChange> PlayerPriceChanges => Set<PlayerPriceChange>();
 
-    // app, added by touchline-sync V035 (read/write)
+    // app, added by docs/migrations/003 (read/write)
     public DbSet<FantasyGameweekEntry> GameweekEntries => Set<FantasyGameweekEntry>();
     public DbSet<FantasyTransfer> Transfers => Set<FantasyTransfer>();
     public DbSet<FantasyChipUsage> ChipUsage => Set<FantasyChipUsage>();

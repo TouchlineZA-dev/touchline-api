@@ -2,7 +2,7 @@
 
 The user-facing API for Touchline, the PSL fantasy football app. It's written in C# on ASP.NET Core (.NET 10).
 
-The API reads match data that the sync worker writes. It owns the fantasy game state: users, teams, squads, points, leaderboards and prices.
+The API reads match data that the sync worker writes to the database. It owns the fantasy game state: users, teams, squads, points, leaderboards and prices.
 
 ```
 Sportmonks ─► touchline-sync (FastAPI / Netlify) ─writes─► Supabase Postgres ◄─reads/writes─ touchline-api ◄── React frontend
@@ -11,7 +11,7 @@ Sportmonks ─► touchline-sync (FastAPI / Netlify) ─writes─► Supabase Po
                                                            app       (API-owned, READ/WRITE)
 ```
 
-The API and the sync worker never call each other over HTTP. They share the database, and database grants enforce who can write what. See `BACKEND_INTEGRATION.md` in the Touchline_Main and touchline-sync repos.
+**The API talks only to the Supabase database** (plus Supabase Auth's public signing keys to check tokens). It never calls touchline-sync, its API or its Netlify functions, and never asks it to refresh data. The two share the database and nothing else: the sync writes `football` and `sync`, the API reads them and owns `app`. Database grants enforce who can write what. Live points are only as fresh as the last data the sync wrote.
 
 ## Layout
 
@@ -61,11 +61,11 @@ Notes on these settings:
 | `GET /api/v1/players` | none | Players with position, current club and price |
 | `GET /api/v1/fixtures?from=&to=` | none | Current-season fixtures with a status (Scheduled, Live, Finished or NoResult) |
 | `GET /api/v1/gameweeks?seasonId=` | none | Gameweeks from `app.gameweeks`, with `readyToScore` taken from `sync.gameweek_sync_status` |
-| `GET /api/v1/me` | Bearer | The caller's `app.users` row, created on first sign-in. Needs touchline-sync V033. |
+| `GET /api/v1/me` | Bearer | The caller's `app.users` row, created on first sign-in. Needs migration 002. |
 
 ### Fantasy (Bearer; the user always comes from the token)
 
-All need touchline-sync migrations V033 to V036. Rules: [`src/Touchline.Api/Fantasy/README.md`](src/Touchline.Api/Fantasy/README.md).
+All need migrations 001–004 (`docs/migrations`). Rules: [`src/Touchline.Api/Fantasy/README.md`](src/Touchline.Api/Fantasy/README.md).
 
 | Method and path | What it does |
 |---|---|
@@ -115,11 +115,11 @@ The API checks each token in three ways:
 
 The user id always comes from the token's `sub` claim, never from the request body.
 
-`app.users` (Flyway V014) had no column for the Supabase user id and required `password_hash`. touchline-sync migration V033 adds `auth_user_id` and makes `password_hash` nullable. Until it is applied, `/api/v1/me` returns 503 with "Schema not ready". The football endpoints work without it.
+`app.users` had no column for the Supabase user id and required `password_hash`. [`docs/migrations/002_users_auth_link.sql`](docs/migrations/002_users_auth_link.sql) adds `auth_user_id` and makes `password_hash` nullable. Until it is applied, `/api/v1/me` returns 503 with "Schema not ready". The football endpoints work without it.
 
 ## Database rules
 
-- **The schema comes from Flyway** in `touchline-sync/db/migrations`. Do not run EF Core migrations against the shared database. To change `app`, add a Flyway migration there.
+- **The API's app-schema SQL lives in [`docs/migrations`](docs/migrations)** and is applied by hand in the Supabase SQL Editor, by an owner account, in number order (001, 002, …). Every file is safe to run twice. The `football` and `sync` tables come from touchline-sync's Flyway migrations; anyone running Flyway in touchline-sync must not recreate the tables these files create. Never run EF Core migrations against the shared database, and the API's own role can't create tables anyway.
 - **`football` and `sync` are read-only.** `TouchlineDbContext` throws before saving any change to them, and the database role would reject the write anyway.
 - **Two ID spaces.** App tables reference `football.players.id`. `match_events` and `player_lineups` reference `players.sportmonks_player_id`. Always join through `football.players`.
 - **Final scores only.** Score a fixture only when `state_id` is 5, 7 or 8 (`MatchStatusExtensions.IsFinal`).
@@ -128,9 +128,9 @@ The user id always comes from the token's `sub` claim, never from the request bo
 
 ## Fantasy status
 
-The rules, settings and tests are done; see [`src/Touchline.Api/Fantasy/README.md`](src/Touchline.Api/Fantasy/README.md). This API maps the sync repo's Flyway `app` tables, including the fantasy tables from touchline-sync `db/migrations/V035__fantasy_core.sql`. The frontend's `20261122090000_fantasy_api.sql` is not our schema.
+The rules, settings and tests are done; see [`src/Touchline.Api/Fantasy/README.md`](src/Touchline.Api/Fantasy/README.md). The fantasy tables are in [`docs/migrations/003_fantasy_core.sql`](docs/migrations/003_fantasy_core.sql). The frontend's `20261122090000_fantasy_api.sql` is not our schema.
 
-Before fantasy works end to end, touchline-sync migrations V033 (auth link), V034 (price-table grants), V035 (fantasy core) and V036 (2026/27 gameweeks) must be applied. Until then the fantasy endpoints return 503 "Schema not ready".
+Before fantasy works end to end, run `docs/migrations` 001 (price-table grants), 002 (auth link), 003 (fantasy core) and 004 (2026/27 gameweeks) in the Supabase SQL Editor. Until then the fantasy endpoints return 503 "Schema not ready", and `/players` fails until 001 is run.
 
 The Sportmonks lineup and substitution codes were confirmed against the database on 2026-11-22 (see `Business/SportmonksCodes.cs`).
 

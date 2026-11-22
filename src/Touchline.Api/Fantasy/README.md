@@ -99,11 +99,18 @@ Worked example (unit-tested): a midfielder with R1 = 6, R2 = 5, R3 = 4 and M = 2
 | `Pricing:ShrinkMinutes` | 900 | K |
 | `Pricing:WeightLastSeason` / `WeightTwoSeasonsAgo` / `WeightThreeSeasonsAgo` | 0.6 / 0.3 / 0.1 | |
 | `Pricing:MidSeasonMinMinutes` | 450 | |
+| `Pricing:PriceScale` | 1.0 | Multiplies every price range; must match the budget (100.0 → 1.0, 300.0 → 3.0) |
 | `Pricing:PriceStep` | 0.5 | Rounding step |
 | `Pricing:Goalkeeper` / `Defender` / `Midfielder` / `Attacker` (`Min`, `Max`) | 4.0–6.0 / 4.0–7.0 / 4.5–12.0 / 4.5–12.5 | Price ranges |
+
+## Data and schema
+
+- Points, live or final, come only from the database. The API never contacts touchline-sync; it reads what the sync last wrote to `football`.
+- The app-schema SQL is in `docs/migrations`, applied by hand in the Supabase SQL Editor. Anyone running touchline-sync's Flyway must not recreate those tables.
+- Budget, `Pricing:PriceScale` and the `budget_remaining` default in `docs/migrations/003` must agree (currently 100.0, 1.0 and 100.0).
 
 ## Not ready yet
 
 - **Sportmonks codes:** confirmed against the database on 2026-11-22: lineup type 11 = starting XI, 12 = bench; in a substitution, `sportmonks_player_id` comes on. The proof is in `Business/SportmonksCodes.cs`.
 - **Live data:** the sync currently writes events and lineups in daily batches (around 23:00 UTC, about a day after kickoff), so provisional points update once a day, not minute by minute.
-- **Schema:** the fantasy endpoints need touchline-sync migrations V033 (`app.users.auth_user_id`) and V035 (fantasy core); V034 grants access to the price tables and V036 seeds the 2026/27 gameweeks. Until then they return 503 "Schema not ready".
+- **Schema:** the fantasy endpoints need `docs/migrations` 001–004, applied by hand in the Supabase SQL Editor in number order. Until then they return 503 "Schema not ready".

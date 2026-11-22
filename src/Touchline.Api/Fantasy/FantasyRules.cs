@@ -131,6 +131,13 @@ public sealed class PricingRules
     /// <summary>Prices are rounded to this step, halves up.</summary>
     public decimal PriceStep { get; set; } = 0.5m;
 
+    /// <summary>
+    /// Multiplies every position's price range below, so prices scale with the budget.
+    /// Budget 100.0 → 1.0. (A 300.0 budget would use 3.0.) Fantasy:Budget, this scale and the
+    /// fantasy_teams.budget_remaining default in docs/migrations/003 must agree.
+    /// </summary>
+    public decimal PriceScale { get; set; } = 1.0m;
+
     public PriceRange Goalkeeper { get; set; } = new() { Min = 4.0m, Max = 6.0m };
     public PriceRange Defender { get; set; } = new() { Min = 4.0m, Max = 7.0m };
     public PriceRange Midfielder { get; set; } = new() { Min = 4.5m, Max = 12.0m };
@@ -138,14 +145,19 @@ public sealed class PricingRules
 
     public IReadOnlyList<decimal> SeasonWeights() => [WeightLastSeason, WeightTwoSeasonsAgo, WeightThreeSeasonsAgo];
 
-    public PriceRange RangeFor(Position position) => position switch
+    /// <summary>The position's price range with PriceScale applied.</summary>
+    public PriceRange RangeFor(Position position)
     {
-        Position.GK => Goalkeeper,
-        Position.DEF => Defender,
-        Position.MID => Midfielder,
-        Position.ATT => Attacker,
-        _ => throw new ArgumentOutOfRangeException(nameof(position), position, "No price range for an unknown position."),
-    };
+        var range = position switch
+        {
+            Position.GK => Goalkeeper,
+            Position.DEF => Defender,
+            Position.MID => Midfielder,
+            Position.ATT => Attacker,
+            _ => throw new ArgumentOutOfRangeException(nameof(position), position, "No price range for an unknown position."),
+        };
+        return new PriceRange { Min = range.Min * PriceScale, Max = range.Max * PriceScale };
+    }
 }
 
 public sealed class PriceRange
