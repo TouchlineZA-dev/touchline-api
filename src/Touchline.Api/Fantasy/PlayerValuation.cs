@@ -197,19 +197,26 @@ public sealed class PlayerValuation(PricingRules pricing)
     /// Which seasons feed S1, S2, S3. Pre-season run for season N: N-1, N-2, N-3.
     /// Mid-season run: N so far, N-1, N-2. Missing seasons are left out (the weights rescale).
     /// </summary>
-    public IReadOnlyList<int> HistorySeasons(IReadOnlyList<int> seasonIdsOldestFirst, int targetSeasonId, bool midSeason)
+    public IReadOnlyList<int> HistorySeasons(IReadOnlyList<int> seasonIdsOldestFirst, int targetSeasonId, bool midSeason) =>
+        CandidateSeasons(seasonIdsOldestFirst, targetSeasonId, midSeason).Take(pricing.SeasonWeights().Count).ToList();
+
+    /// <summary>Every season that could feed a run, newest first: before N (pre-season), or N and before (mid-season).</summary>
+    public static IReadOnlyList<int> CandidateSeasons(IReadOnlyList<int> seasonIdsOldestFirst, int targetSeasonId, bool midSeason)
     {
         var index = seasonIdsOldestFirst.ToList().IndexOf(targetSeasonId);
         if (index < 0) return [];
 
         var newest = midSeason ? index : index - 1;
-        var count = pricing.SeasonWeights().Count;
-        return Enumerable.Range(0, count)
-            .Select(k => newest - k)
-            .Where(i => i >= 0)
-            .Select(i => seasonIdsOldestFirst[i])
-            .ToList();
+        return Enumerable.Range(0, newest + 1).Select(k => seasonIdsOldestFirst[newest - k]).ToList();
     }
+
+    /// <summary>
+    /// The newest seasons that actually have lineup and event data, up to the number of season weights.
+    /// A season whose matches are in the database without lineups or events is missing data, not a
+    /// season nobody played; counting it would give every player 0 minutes, so it's skipped.
+    /// </summary>
+    public IReadOnlyList<int> SeasonsWithData(IEnumerable<int> candidatesNewestFirst, Func<int, bool> hasData) =>
+        candidatesNewestFirst.Where(hasData).Take(pricing.SeasonWeights().Count).ToList();
 
     /// <summary>12a: once per window unless forced; a pre-season run must happen before the Gameweek 1 deadline.</summary>
     public static RuleCheck CanRecalculate(

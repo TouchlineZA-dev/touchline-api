@@ -178,9 +178,17 @@ public sealed class PricingService(
             throw new RuleViolationException($"Season {seasonId} isn't a PSL season (Sportmonks competition {_rules.Pricing.CompetitionSportmonksId}).");
         }
 
-        var historyIds = _valuation.HistorySeasons(seasons.Select(s => s.Id).ToList(), seasonId, midSeason);
+        // Newest seasons first; seasons with no lineup or event data are skipped (see SeasonsWithData).
         var history = new List<SeasonStats>();
-        foreach (var id in historyIds) history.Add(await SeasonStatsAsync(id, now, ct));
+        var skipped = new List<string>();
+        var maxSeasons = _rules.Pricing.SeasonWeights().Count;
+        foreach (var id in PlayerValuation.CandidateSeasons(seasons.Select(s => s.Id).ToList(), seasonId, midSeason))
+        {
+            if (history.Count == maxSeasons) break;
+            var stats = await SeasonStatsAsync(id, now, ct);
+            if (_valuation.SeasonsWithData([id], _ => stats.ByPlayer.Count > 0).Count > 0) history.Add(stats);
+            else skipped.Add($"{stats.Name} ({stats.FinishedFixtures} final fixtures but no lineups or events)");
+        }
 
         var players = await db.Players
             .Select(p => new { p.Id, p.PositionId, p.SportmonksPlayerId, p.DisplayName, p.CommonName, p.Firstname, p.Lastname })
@@ -215,7 +223,7 @@ public sealed class PricingService(
             overrides.TryGetValue(p.Id, out var o) ? new PriceOverride(o.ExpectedMinutes, o.Price) : null)).ToList();
 
         var results = _valuation.PriceAll(inputs);
-        return new Run(seasonId, results, priced.ToDictionary(p => p.Id, p => p.Name), previous, await DataReportAsync(seasons, history, ct));
+        return new Run(seasonId, results, priced.ToDictionary(p => p.Id, p => p.Name), previous, await DataReportAsync(seasons, history, skipped, ct));
     }
 
     /// <summary>
@@ -292,7 +300,8 @@ public sealed class PricingService(
     }
 
     /// <summary>12i: how many past PSL seasons the database actually has.</summary>
-    private async Task<SeasonDataReport> DataReportAsync(IReadOnlyList<Season> seasons, IReadOnlyList<SeasonStats> history, CancellationToken ct)
+    private async Task<SeasonDataReport> DataReportAsync(
+        IReadOnlyList<Season> seasons, IReadOnlyList<SeasonStats> history, IReadOnlyList<string> skipped, CancellationToken ct)
     {
         var ids = seasons.Select(s => s.Id).ToList();
         var withResults = await db.Fixtures
@@ -302,17 +311,23 @@ public sealed class PricingService(
             .Distinct()
             .ToListAsync(ct);
 
-        var usable = history.Count(h => h.FinishedFixtures > 0);
         var weights = _rules.Pricing.SeasonWeights().Count;
-        string? warning = usable < weights
-            ? $"Only {usable} past PSL season(s) with results feed this run (the formula uses up to {weights}). Most players will use reweighted or fallback prices."
-            : null;
+        var warnings = new List<string>();
+        if (history.Count < weights)
+        {
+            warnings.Add($"Only {history.Count} PSL season(s) with lineup and event data feed this run (the formula uses up to {weights}). " +
+                         "Most players will use reweighted or fallback prices.");
+        }
+        if (skipped.Count > 0)
+        {
+            warnings.Add($"Skipped for missing data: {string.Join("; ", skipped)}.");
+        }
 
         return new SeasonDataReport(
             seasons.Count,
             seasons.Where(s => withResults.Contains(s.Id)).Select(s => s.Name).ToList(),
-            history.Select(h => $"{h.Name} ({h.FinishedFixtures} final fixtures)").ToList(),
-            warning);
+            history.Select(h => $"{h.Name} ({h.FinishedFixtures} final fixtures, {h.ByPlayer.Count} players with data)").ToList(),
+            warnings.Count == 0 ? null : string.Join(" ", warnings));
     }
 
     private static PricingReport Report(Run run, string kind, bool saved, int? effectiveGameweekId, int changed, IReadOnlyList<PositionBacktest>? backtest) => new(

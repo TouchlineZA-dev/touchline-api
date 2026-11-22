@@ -210,6 +210,19 @@ public class PlayerValuationTests
     }
 
     [Fact]
+    public void Seasons_without_data_are_skipped_and_older_ones_used_instead()
+    {
+        int[] seasonsOldestFirst = [101, 102, 103, 104, 105];
+        var candidates = PlayerValuation.CandidateSeasons(seasonsOldestFirst, targetSeasonId: 105, midSeason: false);
+        Assert.Equal([104, 103, 102, 101], candidates);
+
+        // 104 has results but no lineups (like PSL 2025/26): S1 becomes 103.
+        Assert.Equal([103, 102, 101], _valuation.SeasonsWithData(candidates, id => id != 104));
+        Assert.Equal([104, 103, 102], _valuation.SeasonsWithData(candidates, _ => true));
+        Assert.Empty(_valuation.SeasonsWithData(candidates, _ => false));
+    }
+
+    [Fact]
     public void Recalculating_the_same_window_twice_is_refused_without_force()
     {
         var now = DateTimeOffset.UtcNow;
