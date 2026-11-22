@@ -75,7 +75,7 @@ public sealed class FantasyTeamService(
 
         var selection = request.ToSelection();
         var players = await data.LoadPlayersAsync(ctx.Season.Id, selection.AllPlayers, ct);
-        var check = _squadRules.ValidateSquad(selection, players, maxCost: _rules.Budget);
+        var check = _squadRules.ValidateSquad(selection, players, maxCost: _rules.Budget, requireAvailable: true);
         if (!check.IsValid) throw new RuleViolationException(check.Errors, "Your squad breaks some rules");
 
         await using var transaction = await db.Database.BeginTransactionAsync(ct);

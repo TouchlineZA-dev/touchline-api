@@ -11,7 +11,7 @@ namespace Touchline.Api.Users;
 /// Supabase Auth holds credentials and does account linking; this API never sees or stores
 /// passwords or provider (Google/Apple) credentials. One Supabase user (one JWT "sub") maps to
 /// exactly one app.users row, however many provider identities are linked to it.
-/// Depends on proposed Flyway migration V033 (docs/proposed-migrations).
+/// Depends on docs/migrations/002_users_auth_link.sql (auth_user_id, nullable password_hash).
 /// </summary>
 public sealed class UserService(TouchlineDbContext db)
 {
@@ -50,7 +50,7 @@ public sealed class UserService(TouchlineDbContext db)
                 db.Entry(user).State = EntityState.Detached;
 
                 // Two first requests raced and the other one created the row. The unique
-                // constraint on auth_user_id (V033) is what guarantees a single profile.
+                // constraint on auth_user_id (docs/migrations/002) is what guarantees a single profile.
                 var raced = await FindAsync(authUserId, ct);
                 if (raced is not null)
                 {
@@ -66,11 +66,11 @@ public sealed class UserService(TouchlineDbContext db)
         {
             throw new SchemaNotReadyException(
                 "app.users is not ready for Supabase sign-in: it needs a unique auth_user_id column and a " +
-                "nullable password_hash. Apply migration V033 (see docs/proposed-migrations).", ex);
+                "nullable password_hash. Apply docs/migrations/002_users_auth_link.sql in the Supabase SQL Editor.", ex);
         }
     }
 
-    // Projected so the query doesn't need is_admin (proposed V034); /me works with V033 alone.
+    // Projected so the query doesn't need is_admin (docs/migrations/003); /me works with 002 alone.
     private Task<AppUser?> FindAsync(Guid authUserId, CancellationToken ct) =>
         db.Users.AsNoTracking()
             .Where(u => u.AuthUserId == authUserId)

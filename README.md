@@ -2,7 +2,7 @@
 
 The user-facing API for Touchline, the PSL fantasy football app. It's written in C# on ASP.NET Core (.NET 10).
 
-The API reads match data that the sync worker writes. It owns the fantasy game state: users, teams, squads, points, leaderboards and prices.
+The API reads match data that the sync worker writes to the database. It owns the fantasy game state: users, teams, squads, points, leaderboards and prices.
 
 ```
 Sportmonks ─► touchline-sync (FastAPI / Netlify) ─writes─► Supabase Postgres ◄─reads/writes─ touchline-api ◄── React frontend
@@ -11,7 +11,7 @@ Sportmonks ─► touchline-sync (FastAPI / Netlify) ─writes─► Supabase Po
                                                            app       (API-owned, READ/WRITE)
 ```
 
-The API and the sync worker never call each other over HTTP. They share the database, and database grants enforce who can write what. See `BACKEND_INTEGRATION.md` in the Touchline_Main and touchline-sync repos.
+**The API talks only to the Supabase database** (plus Supabase Auth's public signing keys to check tokens). It never calls touchline-sync, its API or its Netlify functions, and never asks it to refresh data. The two share the database and nothing else: the sync writes `football` and `sync`, the API reads them and owns `app`. Database grants enforce who can write what. Live points are only as fresh as the last data the sync wrote.
 
 ## Layout
 
@@ -32,7 +32,7 @@ Services are registered as concrete classes. Add an interface only when a second
 
 `tests/Touchline.Api.Tests` holds the unit tests. Keep `Business/` and `Fantasy/` free of database code so they can be tested without one.
 
-The auth tests in `tests/Touchline.Api.Tests/Auth` run the real pipeline with test-signed Supabase-style tokens. The `/api/v1/me` tests also use a throwaway PostgreSQL container (Testcontainers), built from the Flyway `app.users` DDL plus the proposed V033. They need Docker. Without it they are skipped locally, and CI sets `TOUCHLINE_REQUIRE_DB_TESTS=true` so they fail instead.
+The auth tests in `tests/Touchline.Api.Tests/Auth` run the real pipeline with test-signed Supabase-style tokens. The `/api/v1/me` tests also use a throwaway PostgreSQL container (Testcontainers), built from the Flyway `app.users` DDL plus `docs/migrations/002_users_auth_link.sql`. They need Docker. Without it they are skipped locally, and CI sets `TOUCHLINE_REQUIRE_DB_TESTS=true` so they fail instead.
 
 ## Run locally
 
@@ -51,7 +51,7 @@ Then open http://localhost:5147/scalar for interactive API docs. The OpenAPI JSO
 Notes on these settings:
 
 - **Never commit secrets.** Use `.env` (or user-secrets) locally. When hosting, use environment variables such as `ConnectionStrings__Touchline` and `Supabase__Url`.
-- **Port 6543** is the Supabase transaction pooler, which suits a web API. Connect as `app_api_user`. That role can only read `football` and `sync`, and can read, insert and update `app`. It has no DELETE anywhere.
+- **Port 6543** is the Supabase transaction pooler, which suits a web API. Connect as `app_api_user`. `Program.cs` sets `No Reset On Close`, because the pooler hangs on the reset Npgsql otherwise sends when reusing a connection. That role can only read `football` and `sync`, and can read, insert and update `app`. It has no DELETE anywhere.
 - **Legacy JWT secret.** If the Supabase project still signs tokens with the legacy shared secret instead of JWT signing keys, also set `Supabase:JwtSecret`.
 
 ## Endpoints (v1)
@@ -60,15 +60,15 @@ Notes on these settings:
 |---|---|---|
 | `GET /api/v1/health` | none | Whether the database is reachable, plus the latest sync job |
 | `GET /api/v1/seasons/current` | none | The current PSL season (Sportmonks competition 806) |
-| `GET /api/v1/teams` | none | Clubs, excluding placeholder teams |
-| `GET /api/v1/players` | none | Players with position, current club and price |
+| `GET /api/v1/teams` | none | Clubs playing in the current PSL season (teams with a fixture in it) |
+| `GET /api/v1/players` | none | Players with position, current club, price and `available` (pickable this season) |
 | `GET /api/v1/fixtures?from=&to=` | none | Current-season fixtures with a status (Scheduled, Live, Finished or NoResult) |
 | `GET /api/v1/gameweeks?seasonId=` | none | Gameweeks from `app.gameweeks`, with `readyToScore` taken from `sync.gameweek_sync_status` |
-| `GET /api/v1/me` | Bearer | The caller's `app.users` row, created on first sign-in. Needs V033. |
+| `GET /api/v1/me` | Bearer | The caller's `app.users` row, created on first sign-in. Needs migration 002. |
 
 ### Fantasy (Bearer; the user always comes from the token)
 
-All need V033 and V034. Rules: [`src/Touchline.Api/Fantasy/README.md`](src/Touchline.Api/Fantasy/README.md).
+All need migrations 001–005 (`docs/migrations`). Rules: [`src/Touchline.Api/Fantasy/README.md`](src/Touchline.Api/Fantasy/README.md).
 
 | Method and path | What it does |
 |---|---|
@@ -100,6 +100,7 @@ GET fantasy endpoints return an `ETag` and answer `304` to a matching `If-None-M
 | `POST /api/v1/admin/prices/preview?seasonId=N` | Dry-run prices plus backtest; saves nothing |
 | `POST /api/v1/admin/prices/recalculate?windowId=N[&force=true]` | The once-per-window price run |
 | `PUT /api/v1/admin/players/{id}/price-override` | `{ seasonId, expectedMinutes?, price?, reason }` |
+| `PUT /api/v1/admin/players/{id}/available` | `{ available, reason, seasonId? }`: make a player pickable or not (needs 006) |
 
 Paths match the existing Netlify functions, so the frontend can later point `VITE_API_BASE_URL` at this API. The response shapes are not identical yet:
 
@@ -120,7 +121,7 @@ The user id always comes from the token's `sub` claim, never from the request bo
 
 **Google and Apple.** Both are configured in the Supabase dashboard, not in this API. Provider client secrets, the Apple `.p8` key and the generated Apple client secret never belong here. The API only sees the Supabase access token, whichever provider the fan used.
 
-**One profile per Supabase user.** `/api/v1/me` finds the `app.users` row by `auth_user_id = sub` and creates it on first sign-in. The unique constraint on `auth_user_id` (V033) makes simultaneous first requests resolve to one row. Account linking is done in Supabase: a fan who links Apple to a Google account keeps the same `sub`, so they get the same profile and keep their teams. The stored email is not rewritten from later tokens, so Apple private relay addresses work.
+**One profile per Supabase user.** `/api/v1/me` finds the `app.users` row by `auth_user_id = sub` and creates it on first sign-in; the fantasy endpoints do the same. The unique constraint on `auth_user_id` makes simultaneous first requests resolve to one row. Account linking is done in Supabase: a fan who links Apple to a Google account keeps the same `sub`, so they get the same profile and keep their teams. The stored email is not rewritten from later tokens, so Apple private relay addresses work.
 
 **Email conflicts are 409, never auto-linked.** If the token's email (compared case-insensitively) already belongs to another row, nothing is written and the response is a problem-details `409` with a `code`:
 
@@ -131,11 +132,11 @@ The user id always comes from the token's `sub` claim, never from the request bo
 
 To check a staging deployment end to end, see [`docs/staging-smoke-test-social-sign-in.md`](docs/staging-smoke-test-social-sign-in.md).
 
-`app.users` (Flyway V014) has no column for the Supabase user id, and it requires `password_hash`. The proposed migration [`docs/proposed-migrations/V033__app_users_supabase_auth_link.sql`](docs/proposed-migrations/V033__app_users_supabase_auth_link.sql) fixes both. Until it is applied, `/api/v1/me` returns 503 with "Schema not ready". The same happens if `auth_user_id` exists but `password_hash` is still `NOT NULL`. All other endpoints work without it.
+`app.users` (Flyway V014) had no column for the Supabase user id and required `password_hash`. [`docs/migrations/002_users_auth_link.sql`](docs/migrations/002_users_auth_link.sql) adds a unique `auth_user_id` and makes `password_hash` nullable (already applied to the shared Supabase database). Without it, `/api/v1/me` returns 503 with "Schema not ready"; the same happens if `auth_user_id` exists but `password_hash` is still `NOT NULL`. The football endpoints work without it.
 
 ## Database rules
 
-- **The schema comes from Flyway** in `touchline-sync/db/migrations`. Do not run EF Core migrations against the shared database. To change `app`, add a Flyway migration there.
+- **The API's app-schema SQL lives in [`docs/migrations`](docs/migrations)** and is applied by hand in the Supabase SQL Editor, by an owner account, in number order (001, 002, …). Every file is safe to run twice. The `football` and `sync` tables come from touchline-sync's Flyway migrations; anyone running Flyway in touchline-sync must not recreate the tables these files create. Never run EF Core migrations against the shared database, and the API's own role can't create tables anyway.
 - **`football` and `sync` are read-only.** `TouchlineDbContext` throws before saving any change to them, and the database role would reject the write anyway.
 - **Two ID spaces.** App tables reference `football.players.id`. `match_events` and `player_lineups` reference `players.sportmonks_player_id`. Always join through `football.players`.
 - **Final scores only.** Score a fixture only when `state_id` is 5, 7 or 8 (`MatchStatusExtensions.IsFinal`).
@@ -144,11 +145,12 @@ To check a staging deployment end to end, see [`docs/staging-smoke-test-social-s
 
 ## Fantasy status
 
-The rules, settings and tests are done; see [`src/Touchline.Api/Fantasy/README.md`](src/Touchline.Api/Fantasy/README.md). This API maps the sync repo's Flyway `app` tables, plus proposed [`V034__fantasy_core.sql`](docs/proposed-migrations/V034__fantasy_core.sql). The frontend's `20261122090000_fantasy_api.sql` is not our schema.
+The rules, settings and tests are done; see [`src/Touchline.Api/Fantasy/README.md`](src/Touchline.Api/Fantasy/README.md). The fantasy tables are in [`docs/migrations/003_fantasy_core.sql`](docs/migrations/003_fantasy_core.sql). The frontend's `20261122090000_fantasy_api.sql` is not our schema.
 
-Two things are still needed before fantasy works end to end:
+Before fantasy works end to end, run `docs/migrations` 001 (price-table grants), 002 (auth link), 003 (fantasy core) 004 (2026/27 gameweeks) and 005 (row-level security policies for the API) in the Supabase SQL Editor. Until then the fantasy endpoints return 503 "Schema not ready", and `/players` fails until 001 is run.
 
-- **Migrations V033 and V034** applied through touchline-sync. Until then the fantasy endpoints return 503 "Schema not ready".
-- **Sportmonks lineup and substitution codes** confirmed against the database and filled in `Business/SportmonksCodes.cs`. Until then scoring, live points and pricing return 503.
+The Sportmonks lineup and substitution codes were confirmed against the database on 2026-11-22 (see `Business/SportmonksCodes.cs`).
+
+Live points can only be as fresh as the football data. As of 2026-11-22 the sync writes fixtures, events and lineups in daily batches around 23:00 UTC, about a day after kickoff, so "live" points currently update once a day.
 
 Prices: a player with no `app.player_prices` row now shows his position's minimum price (Fantasy:Pricing) instead of the old 50.0, which couldn't work with a R100.0m budget.

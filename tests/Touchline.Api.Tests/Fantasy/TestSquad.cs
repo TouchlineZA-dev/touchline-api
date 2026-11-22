@@ -29,6 +29,7 @@ public static class TestSquad
         Add(26, Position.MID, 12, 6.0m);
         Add(34, Position.ATT, 12, 9.0m);
         Add(99, Position.Unknown, 12, 4.0m);
+        players[98] = new FantasyPlayer(98, "Player 98", Position.DEF, 12, "Club 12", 4.0m, Available: false);
         return players;
     }
 

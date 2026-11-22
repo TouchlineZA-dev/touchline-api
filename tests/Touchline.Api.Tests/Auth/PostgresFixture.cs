@@ -6,7 +6,7 @@ namespace Touchline.Api.Tests.Auth;
 /// <summary>
 /// A throwaway PostgreSQL container (Docker) with three isolated databases, all built from the
 /// Flyway DDL for app.users (touchline-sync V002, V014, V015):
-///   ready       - V014 + the proposed V033 from docs/proposed-migrations (read from the repo)
+///   ready       - V014 + docs/migrations/002_users_auth_link.sql (read from the repo; the old V033)
 ///   pre_v033    - V014 only (the schema the sync repo's Flyway history defines today)
 ///   partial     - V014 + auth_user_id, but password_hash still NOT NULL
 /// Never touches a shared or production database.
@@ -86,8 +86,8 @@ public sealed class PostgresFixture : IAsyncLifetime
         }
 
         var admin = _container.GetConnectionString();
-        var v033 = await File.ReadAllTextAsync(Path.Combine(RepoRoot(), "docs", "proposed-migrations",
-            "V033__app_users_supabase_auth_link.sql"));
+        var v033 = await File.ReadAllTextAsync(Path.Combine(RepoRoot(), "docs", "migrations",
+            "002_users_auth_link.sql"));
 
         ReadyConnectionString = await CreateDatabaseAsync(admin, "touchline_ready", FlywayBaseline, v033);
         ReadyApi = new TestApiFactory(ReadyConnectionString, Tokens);

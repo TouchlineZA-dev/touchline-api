@@ -17,8 +17,9 @@ Money is in millions of rand with one decimal (7.5 = R7.5m). The API returns the
 ## Rules
 
 ### Teams and squads
-- One team per user per season. Creating a team needs only a name. Budget **R300.0m**; the squad's cost must be at most the budget, and `budget_remaining` is kept up to date.
+- One team per user per season. Creating a team needs only a name. Budget **R100.0m**; the squad's cost must be at most the budget, and `budget_remaining` is kept up to date.
 - **15 players: 2 GK, 5 DEF, 5 MID, 3 ATT**, each player once. Position comes from `football.players.position_id` (24 GK, 25 DEF, 26 MID, 27 ATT) and can't be changed. A player with an unknown position can't be picked.
+- **Only available players can be picked or priced:** players who have been in a PSL matchday squad (lineup type 11 or 12) this season, unless an admin override says otherwise (`PUT /admin/players/{id}/available`, migration 006). Before a season has any lineups, the previous season's are used. A player already in a squad is never forced out: the check applies to the first squad pick and to incoming transfers.
 - **Max 3 players from one real club.** A player's club is the team he most recently lined up for this season. A player with no club yet is allowed and flagged in the response.
 - **Starting XI:** exactly 1 GK plus a formation from 4-3-3, 4-4-2, 3-5-2, 3-4-3, 5-3-2 (so 3–5 DEF, 3–5 MID, 2–3 ATT).
 - **Bench:** 4 players, exactly 1 GK. The bench GK can only swap with the starting GK.
@@ -79,14 +80,14 @@ Worked example (unit-tested): a midfielder with R1 = 6, R2 = 5, R3 = 4 and M = 2
 
 | Setting | Default | Meaning |
 |---|---|---|
-| `Budget` | 300.0 | Starting budget (millions) |
+| `Budget` | 100.0 | Starting budget (millions) |
 | `SquadGoalkeepers` / `SquadDefenders` / `SquadMidfielders` / `SquadAttackers` | 2 / 5 / 5 / 3 | Squad composition |
 | `MaxPlayersPerClub` | 3 | Per real club |
 | `Formations` | `4-3-3,4-4-2,3-5-2,3-4-3,5-3-2` | Allowed formations (comma-separated) |
 | `DeadlineMinutesBeforeFirstKickoff` | 90 | Deadline |
 | `FreeTransfersPerGameweek` | 1 | No rollover |
 | `TransferHitPoints` | 4 | Per extra transfer |
-| `CaptainMultiplier` / `ViceCaptainMultiplier` / `TripleCaptainMultiplier` | 3 / 2 / 9 | |
+| `CaptainMultiplier` / `ViceCaptainMultiplier` / `TripleCaptainMultiplier` | 3 / 2 / 4 | |
 | `AppearanceMinMinutes` / `AppearancePoints` / `FullMatchPoints` | 45 / 1 / 2 | |
 | `GoalPoints` / `AssistPoints` / `AssistsEnabled` | 3 / 2 / true | |
 | `CleanSheetPoints` / `CleanSheetMinMinutes` | 2 / 60 | GK and DEF only |
@@ -99,10 +100,18 @@ Worked example (unit-tested): a midfielder with R1 = 6, R2 = 5, R3 = 4 and M = 2
 | `Pricing:ShrinkMinutes` | 900 | K |
 | `Pricing:WeightLastSeason` / `WeightTwoSeasonsAgo` / `WeightThreeSeasonsAgo` | 0.6 / 0.3 / 0.1 | |
 | `Pricing:MidSeasonMinMinutes` | 450 | |
+| `Pricing:PriceScale` | 1.0 | Multiplies every price range; must match the budget (100.0 → 1.0, 300.0 → 3.0) |
 | `Pricing:PriceStep` | 0.5 | Rounding step |
 | `Pricing:Goalkeeper` / `Defender` / `Midfielder` / `Attacker` (`Min`, `Max`) | 4.0–6.0 / 4.0–7.0 / 4.5–12.0 / 4.5–12.5 | Price ranges |
 
+## Data and schema
+
+- Points, live or final, come only from the database. The API never contacts touchline-sync; it reads what the sync last wrote to `football`.
+- The app-schema SQL is in `docs/migrations`, applied by hand in the Supabase SQL Editor. Anyone running touchline-sync's Flyway must not recreate those tables.
+- Budget, `Pricing:PriceScale` and the `budget_remaining` default in `docs/migrations/003` must agree (currently 100.0, 1.0 and 100.0).
+
 ## Not ready yet
 
-- **Sportmonks codes:** which `player_lineups.type_id` is the starting XI and which player in a substitution comes on are not confirmed against the database. They're null in `Business/SportmonksCodes.cs`, which includes the SQL to confirm them. Until they're set, scoring, live points and pricing return 503; squads, transfers, chips and leagues work.
-- **Schema:** the fantasy endpoints need proposed migrations V033 and V034 (`docs/proposed-migrations`). Until then they return 503 "Schema not ready".
+- **Sportmonks codes:** confirmed against the database on 2026-11-22: lineup type 11 = starting XI, 12 = bench; in a substitution, `sportmonks_player_id` comes on. The proof is in `Business/SportmonksCodes.cs`.
+- **Live data:** the sync currently writes events and lineups in daily batches (around 23:00 UTC, about a day after kickoff), so provisional points update once a day, not minute by minute.
+- **Schema:** the fantasy endpoints need `docs/migrations` 001–005, applied by hand in the Supabase SQL Editor in number order. Until then they return 503 "Schema not ready".
