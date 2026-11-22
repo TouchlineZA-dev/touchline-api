@@ -11,7 +11,10 @@ namespace Touchline.Api.Controllers;
 [Route("api/v1/me")]
 public sealed class MeController(CurrentUser currentUser, UserService users) : ControllerBase
 {
-    /// <summary>Returns the caller's app.users profile, creating it on first sign-in.</summary>
+    /// <summary>
+    /// Returns the caller's app.users profile, creating it on first sign-in. The same profile is
+    /// returned for every provider (Google, Apple, ...) linked to the same Supabase user.
+    /// </summary>
     [HttpGet]
     public async Task<IActionResult> Get(CancellationToken ct)
     {
@@ -36,7 +39,10 @@ public sealed class MeController(CurrentUser currentUser, UserService users) : C
         }
         catch (UserConflictException ex)
         {
-            return Problem(statusCode: StatusCodes.Status409Conflict, detail: ex.Message);
+            // Recoverable: nothing was written and the existing profile keeps its teams.
+            var conflict = Problem(statusCode: StatusCodes.Status409Conflict, title: "Account conflict", detail: ex.Message);
+            ((ProblemDetails)conflict.Value!).Extensions["code"] = ex.Code;
+            return conflict;
         }
     }
 }

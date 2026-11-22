@@ -18,3 +18,6 @@ jobs:
       - run: dotnet restore Touchline.sln
       - run: dotnet build Touchline.sln --no-restore --configuration Release
       - run: dotnet test Touchline.sln --no-build --configuration Release
+        env:
+          # Postgres auth tests run in a Testcontainers container; fail rather than skip without Docker.
+          TOUCHLINE_REQUIRE_DB_TESTS: "true"
