@@ -1,0 +1,96 @@
+# touchline-api
+
+The user-facing API for Touchline, the PSL fantasy football app. It's written in C# on ASP.NET Core (.NET 10).
+
+The API reads match data that the sync worker writes. It owns the fantasy game state: users, teams, squads, points, leaderboards and prices.
+
+```
+Sportmonks ─► touchline-sync (FastAPI / Netlify) ─writes─► Supabase Postgres ◄─reads/writes─ touchline-api ◄── React frontend
+                                                           football  (sync-owned, READ)
+                                                           sync      (sync-owned, READ)
+                                                           app       (API-owned, READ/WRITE)
+```
+
+The API and the sync worker never call each other over HTTP. They share the database, and database grants enforce who can write what. See `BACKEND_INTEGRATION.md` in the Touchline_Main and touchline-sync repos.
+
+## Layout
+
+One ASP.NET Core project, `src/Touchline.Api`, organised by folder:
+
+| Folder | What goes in it |
+|---|---|
+| `Controllers/` | Routes only: health, seasons, teams, players, fixtures, gameweeks, me. No logic beyond calling a service and shaping the HTTP response. |
+| `Models/` | Database models for the `football`, `sync` and `app` schemas, plus the response models the API returns |
+| `Data/` | `TouchlineDbContext`, which maps all three schemas and blocks writes to `football` and `sync` |
+| `Services/` | Database reads and writes: `FootballService`, `GameweekService`, `HealthService` |
+| `Users/` | Supabase token validation, `CurrentUser` (who is calling) and `UserService` (the `app.users` row) |
+| `Business/` | Rules that don't touch the database: Sportmonks codes, position decoding, match-status decoding |
+| `Fantasy/` | Fantasy rules (squads, transfers, scoring, leaderboards). Not started; see its README. |
+| `Program.cs` | Startup: registers the database, services, auth and CORS |
+
+Services are registered as concrete classes. Add an interface only when a second implementation actually exists.
+
+`tests/Touchline.Api.Tests` holds the unit tests. Keep `Business/` and `Fantasy/` free of database code so they can be tested without one.
+
+## Run locally
+
+Prerequisite: the .NET 10 SDK.
+
+```bash
+cd src/Touchline.Api
+dotnet user-secrets set "ConnectionStrings:Touchline" "Host=aws-0-eu-west-3.pooler.supabase.com;Port=6543;Database=postgres;Username=app_api_user.<project-ref>;Password=<from password manager>;SSL Mode=Require"
+dotnet user-secrets set "Supabase:Url" "https://<project-ref>.supabase.co"
+dotnet run
+```
+
+Then open http://localhost:5147/scalar for interactive API docs. The OpenAPI JSON is at `/openapi/v1.json`. Both are served only in Development.
+
+Notes on these settings:
+
+- **Never commit secrets.** Use user-secrets locally. When hosting, use environment variables such as `ConnectionStrings__Touchline` and `Supabase__Url`.
+- **Port 6543** is the Supabase transaction pooler, which suits a web API. Connect as `app_api_user`. That role can only read `football` and `sync`, and can read, insert and update `app`. It has no DELETE anywhere.
+- **Legacy JWT secret.** If the Supabase project still signs tokens with the legacy shared secret instead of JWT signing keys, also set `Supabase:JwtSecret`.
+
+## Endpoints (v1)
+
+| Method and path | Auth | What it returns |
+|---|---|---|
+| `GET /api/v1/health` | none | Whether the database is reachable, plus the latest sync job |
+| `GET /api/v1/seasons/current` | none | The current PSL season (Sportmonks competition 806) |
+| `GET /api/v1/teams` | none | Clubs, excluding placeholder teams |
+| `GET /api/v1/players` | none | Players with position, current club and price |
+| `GET /api/v1/fixtures?from=&to=` | none | Current-season fixtures with a status (Scheduled, Live, Finished or NoResult) |
+| `GET /api/v1/gameweeks?seasonId=` | none | Gameweeks from `app.gameweeks`, with `readyToScore` taken from `sync.gameweek_sync_status` |
+| `GET /api/v1/me` | Bearer | The caller's `app.users` row, created on first sign-in. Needs V033. |
+
+Paths match the existing Netlify functions, so the frontend can later point `VITE_API_BASE_URL` at this API. The response shapes are not identical yet:
+
+- `/players` does not generate the made-up FIFA-style ratings that `players.js` returns.
+- `/fixtures` does not yet list goal scorers.
+
+## Auth
+
+The frontend signs users in with Supabase Auth and sends `Authorization: Bearer <access token>`.
+
+The API checks each token in three ways:
+
+- **Signature:** verified against the project's public keys at `https://<project-ref>.supabase.co/auth/v1/.well-known/jwks.json`. If the legacy secret is configured, it is used as well.
+- **Issuer:** must be `https://<project-ref>.supabase.co/auth/v1`.
+- **Audience:** must be `authenticated`.
+
+The user id always comes from the token's `sub` claim, never from the request body.
+
+`app.users` (Flyway V014) has no column for the Supabase user id, and it requires `password_hash`. The proposed migration [`docs/proposed-migrations/V033__app_users_supabase_auth_link.sql`](docs/proposed-migrations/V033__app_users_supabase_auth_link.sql) fixes both. Until it is applied, `/api/v1/me` returns 503 with "Schema not ready". All other endpoints work without it.
+
+## Database rules
+
+- **The schema comes from Flyway** in `touchline-sync/db/migrations`. Do not run EF Core migrations against the shared database. To change `app`, add a Flyway migration there.
+- **`football` and `sync` are read-only.** `TouchlineDbContext` throws before saving any change to them, and the database role would reject the write anyway.
+- **Two ID spaces.** App tables reference `football.players.id`. `match_events` and `player_lineups` reference `players.sportmonks_player_id`. Always join through `football.players`.
+- **Final scores only.** Score a fixture only when `state_id` is 5, 7 or 8 (`MatchStatusExtensions.IsFinal`).
+- **Times are UTC.** Convert to SAST (UTC+2) for display. Pass UTC values to Npgsql.
+- **No deletes.** `app.player_price_changes` is append-only. Elsewhere, use flags instead of deleting.
+
+## Next: fantasy rules
+
+The fantasy rules go in `src/Touchline.Api/Fantasy/`, which lists the open questions to settle first. The biggest of those is #19: which `app` schema is canonical. This API maps the sync repo's Flyway `app` tables, which V031 says were coordinated with the ASP.NET side. The frontend's `20261122090000_fantasy_api.sql` defines a different design.
