@@ -31,6 +31,17 @@ public static class MatchFactsDecoder
     /// </summary>
     public static bool Counts(MatchStatus status) => status is MatchStatus.Live or MatchStatus.Finished;
 
+    /// <summary>
+    /// The minute a player leaves (sub or red card), with stoppage time (team decision 2026-11-23):
+    /// first-half stoppage (45+x) counts as 45 and second-half stoppage (90+x) as 90, because only
+    /// the minute is used. Minutes beyond the match length are capped later, so a full match is always
+    /// exactly the match length.
+    /// </summary>
+    public static int OffMinute(MatchEvent e) => e.Minute ?? 0;
+
+    /// <summary>The minute a substitute comes on: a first-half stoppage sub (45+x) plays from minute 46.</summary>
+    public static int OnMinute(MatchEvent e) => e.Minute == 45 && e.ExtraMinute > 0 ? 46 : e.Minute ?? 0;
+
     /// <param name="endMinute">The fixture's last minute so far: its length when finished, the current minute when live.</param>
     /// <param name="players">football.players rows by Sportmonks id. Players missing here can't be in a squad and are skipped.</param>
     public static IReadOnlyList<PlayerFacts> Decode(
@@ -69,13 +80,13 @@ public static class MatchFactsDecoder
 
         foreach (var e in scoring)
         {
-            var minute = e.Minute ?? 0;
+            var minute = OffMinute(e);
             switch (e.TypeId)
             {
                 case Codes.EventTypes.Substitution:
                     var onId = comingOnIsPlayerId ? e.SportmonksPlayerId : e.SportmonksRelatedPlayerId;
                     var offId = comingOnIsPlayerId ? e.SportmonksRelatedPlayerId : e.SportmonksPlayerId;
-                    if (onId is not null) For(onId.Value, e.TeamId).CameOn ??= minute;
+                    if (onId is not null) For(onId.Value, e.TeamId).CameOn ??= OnMinute(e);
                     if (offId is not null) For(offId.Value, e.TeamId).LeaveAt(minute);
                     break;
                 case Codes.EventTypes.Goal:

@@ -37,14 +37,33 @@ public static class SportmonksCodes
     public static class MatchStates
     {
         public const short NotStarted = 1;
+        public const short FirstHalf = 2;            // INPLAY_1ST_HALF
+        public const short HalfTime = 3;             // HT
+        /// <summary>BREAK. Not described by Sportmonks; most likely the break before extra time. Counted as live.</summary>
+        public const short Break = 4;
         public const short FullTime = 5;
+        public const short ExtraTime = 6;            // INPLAY_ET (first half of extra time)
+        public const short Penalties = 9;            // INPLAY_PENALTIES
+        public const short ExtraTimeBreak = 21;      // EXTRA_TIME_BREAK
+        public const short ExtraTimeSecondHalf = 23; // INPLAY_ET_SECOND_HALF
+        public const short PenaltyBreak = 25;        // PEN_BREAK
         public const short AfterExtraTime = 7;
         public const short AfterPenalties = 8;
         public const short Postponed = 10;
         public const short Cancelled = 12;
         public const short Abandoned = 15;
         public const short AwaitingUpdates = 19;
-        public const short SecondHalf = 22;
+        public const short SecondHalf = 22;          // INPLAY_2ND_HALF
+
+        /// <summary>
+        /// Every in-play and break state (team decision 2026-11-23), from Sportmonks' published states
+        /// list (docs.sportmonks.com/football/definitions/states, checked 15 Oct 2026). Only 6 has
+        /// appeared in our data so far; the others are taken from that list.
+        /// </summary>
+        public static readonly IReadOnlySet<short> Live = new HashSet<short>
+        {
+            FirstHalf, HalfTime, Break, ExtraTime, Penalties, ExtraTimeBreak, SecondHalf, ExtraTimeSecondHalf, PenaltyBreak,
+        };
     }
 
     /// <summary>

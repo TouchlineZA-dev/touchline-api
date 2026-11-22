@@ -58,6 +58,7 @@ public sealed class PointsService(
         var squad = await squads.LoadAsync(team.Id, gameweek, calendar, ct)
             ?? throw new NotFoundException("Your team has no squad for that gameweek yet.");
 
+        if (!squad.Saved || squad.Entry.ScoredAt is null) squad = WithCaptains(squad, team.Id, gameweek, now);
         var final = squad.Saved && squad.Entry.ScoredAt is not null;
         Dictionary<int, PointsBreakdown> breakdowns;
         if (final)
@@ -139,8 +140,9 @@ public sealed class PointsService(
             {
                 break; // Standings still work with finalised points only until the codes are confirmed.
             }
-            foreach (var (teamId, squad) in await LoadSquadsAsync(unscored, week!, calendar, ct))
+            foreach (var (teamId, loaded) in await LoadSquadsAsync(unscored, week!, calendar, ct))
             {
+                var squad = WithCaptains(loaded, teamId, week!, now);
                 var breakdowns = squad.Picks.ToDictionary(p => p.PlayerId, p => live.For(p.PlayerId));
                 provisional[(teamId, week!.Id)] = ScoreTeam(squad, breakdowns).Total;
             }
@@ -234,6 +236,26 @@ public sealed class PointsService(
 
         return gameweek.Fixtures.Select(f => new FixtureStatusView(
             f.Id, NameOf(f.HomeTeamId), NameOf(f.AwayTeamId), f.StartingAt, MatchStatusExtensions.FromStateId(f.StateId), f.HomeScore, f.AwayScore)).ToList();
+    }
+
+    /// <summary>
+    /// Once a gameweek has locked, a missing captain or vice-captain is filled the same way finalising
+    /// fills (and saves) it, so provisional and final points agree. Read-only: nothing is saved here.
+    /// </summary>
+    private static LoadedSquad WithCaptains(LoadedSquad squad, int teamId, GameweekInfo gameweek, DateTimeOffset now)
+    {
+        if (!gameweek.IsLocked(now)) return squad;
+        var selection = squad.ToSelection();
+        var filled = CaptaincyRules.EnsureCaptains(selection, teamId, gameweek.Id);
+        if (ReferenceEquals(filled, selection)) return squad;
+
+        var picks = squad.Picks.Select(p => new FantasySquadPick
+        {
+            Id = p.Id, FantasyTeamId = p.FantasyTeamId, PlayerId = p.PlayerId, GameweekId = p.GameweekId,
+            IsOnBench = p.IsOnBench, BenchOrder = p.BenchOrder, PurchasePrice = p.PurchasePrice,
+            IsCaptain = p.PlayerId == filled.CaptainId, IsViceCaptain = p.PlayerId == filled.ViceCaptainId,
+        }).ToList();
+        return squad with { Picks = picks };
     }
 
     private TeamGameweekScore ScoreTeam(LoadedSquad squad, IReadOnlyDictionary<int, PointsBreakdown> breakdowns) =>

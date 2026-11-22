@@ -87,12 +87,12 @@ public sealed record PointsBreakdown
 public sealed class PlayerScoring(FantasyRules rules)
 {
     /// <summary>
-    /// Minutes on the pitch, counted inclusively (team decision, 2026-11-23): a player coming on in
-    /// minute m plays from the start of that minute, and a player going off in minute m (sub or red
-    /// card) plays until the end of minute m − 1. So coming on at m gives (length − m + 1) minutes,
-    /// going off at m gives (m − 1), and on at m1 then off at m2 gives (m2 − m1). A half-time sub,
-    /// recorded at 46', plays 45 minutes. Starters play from minute 0; the end of the match so far is
-    /// the fixture length when finished, or the current minute when live.
+    /// Minutes on the pitch (team decision 2026-11-23, final): a player going off in minute m (sub or
+    /// red card) plays m minutes; a player coming on in minute m plays (length − m + 1). So a 46' sub
+    /// gives the player going off 46 and the player coming on 45, and on at m1 then off at m2 gives
+    /// (m2 − m1 + 1). Never more than the match length: the end is the fixture length (90 if null)
+    /// when finished, or the current minute when live. Stoppage time is turned into these minutes by
+    /// MatchFactsDecoder (45+x → off at 45 / on at 46; 90+x → 90).
     /// </summary>
     public static int Minutes(PlayerFixtureFacts f)
     {
@@ -100,7 +100,7 @@ public sealed class PlayerScoring(FantasyRules rules)
         if (from is null) return 0;
 
         var start = Math.Clamp(from.Value, 0, f.MatchEndMinute);
-        var end = Math.Clamp(f.WentOffMinute is { } off ? off - 1 : f.MatchEndMinute, start, f.MatchEndMinute);
+        var end = Math.Clamp(f.WentOffMinute ?? f.MatchEndMinute, start, f.MatchEndMinute);
         return end - start;
     }
 
@@ -219,25 +219,33 @@ public sealed class TeamScoring(FantasyRules rules)
     }
 }
 
-/// <summary>If a team reaches the deadline with no captain or vice-captain, pick at random from the starting XI.</summary>
+/// <summary>
+/// If a team reaches the deadline (or scoring) with no captain or vice-captain, one is picked "at
+/// random" from the starting XI. The pick is deterministic, seeded by team id and gameweek id, so
+/// provisional points, finalising and every re-score choose the same players (team decision 2026-11-23).
+/// </summary>
 public static class CaptaincyRules
 {
-    public static SquadSelection EnsureCaptains(SquadSelection selection, Random random)
+    public static SquadSelection EnsureCaptains(SquadSelection selection, int teamId, int gameweekId)
     {
         var captain = selection.CaptainId is { } c && selection.Starters.Contains(c) ? c : (int?)null;
         var vice = selection.ViceCaptainId is { } v && selection.Starters.Contains(v) && v != captain ? v : (int?)null;
         if (captain is not null && vice is not null) return selection;
 
-        var pool = selection.Starters.ToList();
+        // Starters sorted, so the pick doesn't depend on row order; a fixed integer hash (not HashCode
+        // or Random), so it's the same in every process and .NET version.
+        var pool = selection.Starters.Distinct().OrderBy(id => id).ToList();
+        var seed = unchecked((uint)teamId * 2654435761u ^ (uint)gameweekId * 2246822519u);
+
         if (captain is null)
         {
             var candidates = pool.Where(id => id != vice).ToList();
-            captain = candidates[random.Next(candidates.Count)];
+            captain = candidates[(int)(seed % (uint)candidates.Count)];
         }
         if (vice is null)
         {
             var candidates = pool.Where(id => id != captain).ToList();
-            vice = candidates[random.Next(candidates.Count)];
+            vice = candidates[(int)(unchecked(seed * 40503u + 1u) % (uint)candidates.Count)];
         }
 
         return selection with { CaptainId = captain, ViceCaptainId = vice };

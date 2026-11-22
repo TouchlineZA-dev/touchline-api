@@ -23,7 +23,7 @@ Money is in millions of rand with one decimal (7.5 = R7.5m). The API returns the
 - **Max 3 players from one real club.** A player's club is the team he most recently lined up for this season. A player with no club yet is allowed and flagged in the response.
 - **Starting XI:** exactly 1 GK plus a formation from 4-3-3, 4-4-2, 3-5-2, 3-4-3, 5-3-2 (so 3–5 DEF, 3–5 MID, 2–3 ATT).
 - **Bench:** 4 players, exactly 1 GK. The bench GK can only swap with the starting GK.
-- **Captain and vice-captain:** different players, both starting. A goalkeeper can be captain. If a team reaches the deadline with no captain or vice-captain, one is picked at random from its starting XI.
+- **Captain and vice-captain:** different players, both starting. A goalkeeper can be captain. If a team reaches the deadline (or scoring) with no captain or vice-captain, one is picked from its starting XI, deterministically by team and gameweek, so every re-score picks the same players.
 - Changes lock at the **deadline: 90 minutes before the gameweek's first kickoff**. A change the app made offline for a gameweek that has since locked is rejected with a message saying so.
 - Every check runs on every save, and every broken rule is returned at once.
 
@@ -33,7 +33,7 @@ Money is in millions of rand with one decimal (7.5 = R7.5m). The API returns the
 - **Bench Boost:** bench points count. **Triple Captain:** captain ×4. **Wildcard:** unlimited free transfers. Each chip once per season, at most one per gameweek.
 
 ### Scoring (per player, per fixture, added up over the gameweek)
-- **Minutes** (our plan has none, so they're worked out, counting inclusively): a starter plays from minute 0; a player coming on in minute m plays from the start of that minute, (length − m + 1) minutes; a player going off in minute m (sub or red card) plays (m − 1). So a half-time sub at 46' plays 45 minutes, and the two players in a substitution always add up to the match length. The end is the fixture length (90 if null), or the current minute for live matches.
+- **Minutes** (our plan has none, so they're worked out): a starter plays from minute 0; a player coming on in minute m plays (length − m + 1) minutes; a player going off in minute m (sub or red card) plays m. A 46' sub gives the player going off 46 and the player coming on 45. Stoppage time: 45+x counts as 45 (the replacement plays from 46) and 90+x as 90; minutes never exceed the match length (fixture length, or 90), and goals, assists and cards in stoppage count normally.
 - **Appearance:** 45+ minutes = 1; on the pitch from kickoff to the final whistle = 2 in total.
 - **Goal** (types 14 and 16) +3. **Assist** (the goal event's related player) +2, switchable with `AssistsEnabled`. Rescinded events are ignored.
 - **Clean sheet** +2 for GK and DEF with 60+ minutes whose team conceded 0 in that fixture.
@@ -45,6 +45,7 @@ Money is in millions of rand with one decimal (7.5 = R7.5m). The API returns the
 - Then transfer hits are subtracted.
 
 ### Live and final points
+- Live states: every in-play and break state (Sportmonks 2, 3, 4, 6, 9, 21, 22, 23, 25).
 - While a gameweek is being played, points and standings are **provisional**: worked out from the latest football data, never saved, cached in memory for 60 seconds, and marked `"provisional": true` with each fixture's status.
 - A live match's current minute comes from the clock: time since kickoff, minus 15 minutes of half-time once past 45, capped at the match length, and never behind the latest event.
 - A gameweek is **finalised** (saved to `app.points_results` with a JSON breakdown, team totals in `app.fantasy_gameweek_entries`) only when `sync.gameweek_sync_status.marked_complete` is true or every fixture is final (state 5, 7 or 8). Re-running it updates rows; it never duplicates them.

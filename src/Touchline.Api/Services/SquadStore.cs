@@ -114,7 +114,7 @@ public sealed class SquadStore(TouchlineDbContext db)
         if (gameweek.IsLocked(now))
         {
             var selection = ToSelection(entry.Formation, picks);
-            var filled = CaptaincyRules.EnsureCaptains(selection, Random.Shared);
+            var filled = CaptaincyRules.EnsureCaptains(selection, teamId, gameweek.Id);
             if (!ReferenceEquals(filled, selection))
             {
                 await ApplySelectionAsync(picks, filled, ct);

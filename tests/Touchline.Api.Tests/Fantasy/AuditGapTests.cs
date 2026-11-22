@@ -58,7 +58,7 @@ public class MatchFactsDecoderTests
     {
         var facts = Decode(Finished(), [Lineup(1003, Xi), Lineup(1005, Bench)], [Event(Codes.EventTypes.Substitution, 63, player: 1005, related: 1003)]);
 
-        Assert.Equal(62, PlayerScoring.Minutes(FactsFor(facts, 3)));   // off in minute 63 → 62
+        Assert.Equal(63, PlayerScoring.Minutes(FactsFor(facts, 3)));   // off in minute 63 → 63
         Assert.Equal(28, PlayerScoring.Minutes(FactsFor(facts, 5)));   // on in minute 63 → 90 − 63 + 1
     }
 
@@ -72,7 +72,7 @@ public class MatchFactsDecoderTests
         ]);
 
         var sub = FactsFor(facts, 5);
-        Assert.Equal(15, PlayerScoring.Minutes(sub)); // on 55, off 70 → 70 − 55
+        Assert.Equal(16, PlayerScoring.Minutes(sub)); // on 55, off 70 → 70 − 55 + 1
         var points = new PlayerScoring(new FantasyRules()).ScoreFixture(sub, Position.MID);
         Assert.Equal(0, points.Appearance);
         Assert.Equal(-2, points.Total);
@@ -88,10 +88,10 @@ public class MatchFactsDecoderTests
         ]);
 
         var defender = FactsFor(facts, 2);
-        Assert.Equal(74, PlayerScoring.Minutes(defender));
+        Assert.Equal(75, PlayerScoring.Minutes(defender));
         var points = new PlayerScoring(new FantasyRules()).ScoreFixture(defender, Position.DEF);
         Assert.Equal(-2, points.YellowPoints + points.RedPoints);
-        Assert.Equal(1 + 2 - 2, points.Total); // appearance (74 min) + clean sheet (team conceded 0, 60+ min) - 2
+        Assert.Equal(1 + 2 - 2, points.Total); // appearance (75 min) + clean sheet (team conceded 0, 60+ min) - 2
     }
 
     [Fact]
@@ -285,5 +285,173 @@ public class AuditRuleTests
             var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => db.SaveChangesAsync());
             Assert.Contains("'sync' schema", ex.Message);
         }
+    }
+}
+
+/// <summary>Team decisions taken on 2026-11-23 (second round): stoppage time, live states, captaincy at scoring.</summary>
+public class AuditDecisionTests
+{
+    private const int Home = 10, Away = 20;
+    private const short Xi = 11, Bench = 12;
+    private static readonly FantasyRules Rules = new();
+    private readonly PlayerScoring _scoring = new(Rules);
+
+    private static readonly Dictionary<long, DecoderPlayer> Players = new()
+    {
+        [1] = new(1, Codes.PositionIds.Defender),
+        [2] = new(2, Codes.PositionIds.Midfielder),
+        [3] = new(3, Codes.PositionIds.Attacker),
+    };
+
+    private static Fixture Finished(short state = Codes.MatchStates.FullTime) =>
+        new() { Id = 1, StateId = state, HomeTeamId = Home, AwayTeamId = Away, HomeScore = 1, AwayScore = 0 };
+
+    private static PlayerLineup Lineup(long sm, short type) => new() { FixtureId = 1, TeamId = Home, SportmonksPlayerId = sm, TypeId = type };
+
+    private static MatchEvent Event(short type, int minute, int? extra, long? player, long? related = null) =>
+        new() { FixtureId = 1, TeamId = Home, TypeId = type, Minute = (short)minute, ExtraMinute = (short?)extra, SportmonksPlayerId = player, SportmonksRelatedPlayerId = related };
+
+    private PlayerFixtureFacts Facts(IEnumerable<MatchEvent> events, params PlayerLineup[] lineups) =>
+        MatchFactsDecoder.Decode(Finished(), lineups, events, Players, 90, Xi, comingOnIsPlayerId: true).Single(f => f.PlayerId == 1).Facts;
+
+    // ---- Stoppage time ------------------------------------------------------------------
+
+    [Fact]
+    public void Off_at_45_plus_2_plays_45_minutes_and_gets_the_appearance_point()
+    {
+        var f = Facts([Event(Codes.EventTypes.Substitution, 45, 2, player: 2, related: 1)], Lineup(1, Xi), Lineup(2, Bench));
+        Assert.Equal(45, PlayerScoring.Minutes(f));
+        Assert.Equal(1, _scoring.AppearancePoints(f));
+    }
+
+    [Fact]
+    public void On_at_45_plus_2_plays_from_minute_46_so_45_minutes()
+    {
+        var all = MatchFactsDecoder.Decode(Finished(), [Lineup(1, Xi), Lineup(2, Bench)],
+            [Event(Codes.EventTypes.Substitution, 45, 2, player: 2, related: 1)], Players, 90, Xi, true);
+        var sub = all.Single(f => f.PlayerId == 2).Facts;
+        Assert.Equal(46, sub.CameOnMinute);
+        Assert.Equal(45, PlayerScoring.Minutes(sub));
+        Assert.Equal(1, _scoring.AppearancePoints(sub));
+    }
+
+    [Fact]
+    public void Sent_off_at_45_plus_1_plays_45_minutes()
+    {
+        var f = Facts([Event(Codes.EventTypes.RedCard, 45, 1, player: 1)], Lineup(1, Xi));
+        Assert.Equal(45, PlayerScoring.Minutes(f));
+        Assert.True(f.RedCard);
+    }
+
+    [Fact]
+    public void Goals_in_first_and_second_half_stoppage_score_normally()
+    {
+        var f = Facts([Event(Codes.EventTypes.Goal, 45, 3, player: 1), Event(Codes.EventTypes.Goal, 90, 4, player: 1)], Lineup(1, Xi));
+        var b = _scoring.ScoreFixture(f, Position.DEF);
+        Assert.Equal(2, b.Goals);
+        Assert.Equal(6, b.GoalPoints);
+    }
+
+    [Fact]
+    public void Whole_match_including_90_plus_5_is_exactly_90_minutes_and_2_points()
+    {
+        // Another player's card at 90+5 shows the match ran into stoppage; minutes still stop at 90.
+        var f = Facts([Event(Codes.EventTypes.YellowCard, 90, 5, player: 2)], Lineup(1, Xi), Lineup(2, Xi));
+        Assert.Equal(90, PlayerScoring.Minutes(f));
+        Assert.Equal(2, _scoring.AppearancePoints(f));
+    }
+
+    [Fact]
+    public void Off_at_90_plus_3_plays_90_minutes_but_not_the_full_match()
+    {
+        var f = Facts([Event(Codes.EventTypes.Substitution, 90, 3, player: 2, related: 1)], Lineup(1, Xi), Lineup(2, Bench));
+        Assert.Equal(90, PlayerScoring.Minutes(f));
+        Assert.Equal(1, _scoring.AppearancePoints(f)); // subbed off before the final whistle
+    }
+
+    [Fact]
+    public void Cards_and_own_goals_in_stoppage_count_normally()
+    {
+        var f = Facts([Event(Codes.EventTypes.YellowCard, 45, 2, player: 1), Event(Codes.EventTypes.OwnGoal, 90, 6, player: 1)], Lineup(1, Xi));
+        var b = _scoring.ScoreFixture(f, Position.DEF);
+        Assert.Equal(-1, b.YellowPoints);
+        Assert.Equal(-2, b.OwnGoalPoints);
+    }
+
+    // ---- Live states --------------------------------------------------------------------
+
+    [Theory]
+    [InlineData(2)]   // 1st half
+    [InlineData(3)]   // half-time
+    [InlineData(4)]   // break (before extra time)
+    [InlineData(6)]   // extra time
+    [InlineData(9)]   // penalties
+    [InlineData(21)]  // extra-time break
+    [InlineData(22)]  // 2nd half
+    [InlineData(23)]  // extra time, 2nd half
+    [InlineData(25)]  // penalty break
+    public void Every_in_play_and_break_state_is_live_and_produces_provisional_points(short state)
+    {
+        Assert.Equal(MatchStatus.Live, MatchStatusExtensions.FromStateId(state));
+        var facts = MatchFactsDecoder.Decode(Finished(state), [Lineup(1, Xi)], [], Players, 40, Xi, true);
+        Assert.False(Assert.Single(facts).Facts.FixtureFinished);
+    }
+
+    [Theory]
+    [InlineData(1, MatchStatus.Scheduled)]
+    [InlineData(19, MatchStatus.Scheduled)]
+    [InlineData(5, MatchStatus.Finished)]
+    [InlineData(7, MatchStatus.Finished)]
+    [InlineData(8, MatchStatus.Finished)]
+    [InlineData(10, MatchStatus.NoResult)]
+    [InlineData(12, MatchStatus.NoResult)]
+    [InlineData(15, MatchStatus.NoResult)]
+    public void Other_states_keep_their_status(short state, MatchStatus expected)
+    {
+        Assert.Equal(expected, MatchStatusExtensions.FromStateId(state));
+    }
+
+    // ---- Captaincy at scoring -----------------------------------------------------------
+
+    [Fact]
+    public void No_captain_at_scoring_gets_a_captain_and_vice_captain_from_the_starting_xi()
+    {
+        var s = TestSquad.Selection() with { CaptainId = null, ViceCaptainId = null };
+        var filled = CaptaincyRules.EnsureCaptains(s, teamId: 42, gameweekId: 11);
+
+        Assert.Contains(filled.CaptainId!.Value, s.Starters);
+        Assert.Contains(filled.ViceCaptainId!.Value, s.Starters);
+        Assert.NotEqual(filled.CaptainId, filled.ViceCaptainId);
+        Assert.True(TestSquad.SquadRules().ValidateSquad(filled, TestSquad.Players(), 100m).IsValid);
+    }
+
+    [Fact]
+    public void Re_scoring_picks_the_same_captain_every_time()
+    {
+        var s = TestSquad.Selection() with { CaptainId = null, ViceCaptainId = null };
+        var first = CaptaincyRules.EnsureCaptains(s, 42, 11);
+        for (var i = 0; i < 50; i++)
+        {
+            var again = CaptaincyRules.EnsureCaptains(s with { Starters = s.Starters.Reverse().ToList() }, 42, 11);
+            Assert.Equal(first.CaptainId, again.CaptainId);
+            Assert.Equal(first.ViceCaptainId, again.ViceCaptainId);
+        }
+    }
+
+    [Fact]
+    public void Different_teams_and_gameweeks_do_not_all_get_the_same_pick()
+    {
+        var s = TestSquad.Selection() with { CaptainId = null, ViceCaptainId = null };
+        var captains = Enumerable.Range(1, 40).Select(team => CaptaincyRules.EnsureCaptains(s, team, 11).CaptainId).Distinct().Count();
+        Assert.True(captains > 1);
+    }
+
+    [Fact]
+    public void Only_the_missing_one_is_filled()
+    {
+        var s = TestSquad.Selection() with { ViceCaptainId = null };
+        var filled = CaptaincyRules.EnsureCaptains(s, 42, 11);
+        Assert.Equal(s.CaptainId, filled.CaptainId);
+        Assert.NotEqual(filled.CaptainId, filled.ViceCaptainId);
     }
 }

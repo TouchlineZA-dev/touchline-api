@@ -2,7 +2,7 @@
 
 Scope: the fantasy rules in touchline-api (branch `audit/fantasy-2026-11-23`, from `main` at `053f047`), checked against the agreed rules at code level: unit tests, the scoring code run on real 2026/27 data, and live API calls with two test users. No UI.
 
-**Result:** every agreed rule is implemented. Two real bugs were found and fixed (fixtures that don't count could still score; a postponed fixture blocked finalising its gameweek). Rules that were implemented but not proven by a test now have tests (38 new tests, plus 3 for the inclusive minute counting the team decided during the audit). Every live API call returned the expected status. Some behaviour can only be proven with a database or a live match, and is listed under [Not testable here](#not-testable-here).
+**Result:** every agreed rule is implemented. Two real bugs were found and fixed (fixtures that don't count could still score; a postponed fixture blocked finalising its gameweek). Rules that were implemented but not proven by a test now have tests, and the team's decisions during the audit (minutes, stoppage time, live states, captain at scoring) are implemented and tested: 70 new tests in total. Every live API call returned the expected status. Some behaviour can only be proven with a database or a live match, and is listed under [Not testable here](#not-testable-here).
 
 Status key: ✅ implemented and tested · ⚠️ implemented, verified by code review or live call only · ❌ missing or wrong (none left).
 
@@ -31,7 +31,7 @@ Paths are under `src/Touchline.Api/`; tests are under `tests/Touchline.Api.Tests
 | XI: exactly 1 GK, formations 4-3-3 / 4-4-2 / 3-5-2 / 3-4-3 / 5-3-2 | `SquadRules.ValidateLineup` | `Every_allowed_formation_gives_a_valid_xi_and_bench`, `Starting_shapes_outside_the_five_formations_fail`, `Starting_xi_with_no_goalkeeper_fails`, `Starting_xi_with_two_goalkeepers_fails`, `Two_defenders_fail_even_if_the_formation_says_otherwise`, `Formation_not_in_the_list_fails`, `Starters_must_match_the_chosen_formation` | ✅ |
 | Bench: 1 GK + 3; bench GK swaps only with the starting GK | `SquadRules.ValidateLineup`, `ValidateLineupChange` | `Bench_goalkeeper_swapping_with_an_outfield_player_fails`, `Bench_goalkeeper_swapping_with_the_starting_goalkeeper_is_fine`; live | ✅ |
 | Captain and vice-captain, different, both in the XI | `SquadRules.ValidateLineup` | `Captain_on_the_bench_fails`, `Vice_captain_on_the_bench_fails`, `Captain_and_vice_captain_must_differ`, `Missing_captain_fails`, `A_goalkeeper_can_be_captain` | ✅ |
-| No captain at the deadline → random starter (same for VC) | `Fantasy/Scoring.CaptaincyRules`; applied in `Services/SquadStore.EnsureAsync` once the gameweek has locked | `Missing_captaincy_is_filled_from_the_starting_xi`, `Existing_captaincy_is_left_alone` | ✅ rule / ⚠️ timing (see Q2) |
+| No captain at the deadline → random starter (same for VC) | `Fantasy/Scoring.CaptaincyRules` (deterministic: team id + gameweek id); saved by `Services/SquadStore.EnsureAsync` when written to or finalised after the deadline; applied without saving to provisional points (`PointsService.WithCaptains`) | `Missing_captaincy_is_filled_from_the_starting_xi`, `Existing_captaincy_is_left_alone`, `No_captain_at_scoring_gets_a_captain_and_vice_captain_from_the_starting_xi`, `Re_scoring_picks_the_same_captain_every_time`, `Only_the_missing_one_is_filled`, `Different_teams_and_gameweeks_do_not_all_get_the_same_pick` | ✅ |
 | Changes lock 90 min before the first kickoff | `Fantasy/GameweekRules.Deadline`, `IsLocked`; `FantasyContextService.WritableGameweek` | `Deadline_is_ninety_minutes_before_the_first_kickoff`, `Locked_at_and_after_the_deadline`, `Offline_change_for_a_locked_gameweek_is_rejected_with_a_clear_message`; live | ✅ |
 | Picks copy forward when a gameweek has none | `Services/SquadStore.LoadAsync`, `EnsureAsync` | Live: GW11 shows GW10's 15 players, not saved | ⚠️ (DB code) |
 
@@ -57,10 +57,12 @@ Paths are under `src/Touchline.Api/`; tests are under `tests/Touchline.Api.Tests
 
 | Rule | Code | Tests | Status |
 |---|---|---|---|
-| Only states 5, 7, 8 are final | `Business/MatchStatus.IsFinal` | `Only_states_5_7_8_are_final` | ✅ |
+| Only states 5, 7, 8 are final | `Business/MatchStatus.IsFinal` | `Only_states_5_7_8_are_final`, `Other_states_keep_their_status` | ✅ |
+| Every in-play and break state is live (2, 3, 4, 6, 9, 21, 22, 23, 25) | `SportmonksCodes.MatchStates.Live`; `MatchStatusExtensions.FromStateId` | `Every_in_play_and_break_state_is_live_and_produces_provisional_points` (9 states) | ✅ |
 | Fixtures that aren't live or final score nothing | `Business/MatchFactsDecoder.Counts` *(new — bug 1)* | `Fixtures_that_are_not_live_or_final_produce_no_points_even_with_events` (5 states) | ✅ fixed |
-| Minutes from lineups (11 = XI, 12 = bench), subs (18: player_id comes on), reds (20, 21) | `Business/MatchFactsDecoder.Decode` *(moved out of the DB service so it can be tested)*; `PlayerScoring.Minutes` | `Lineup_type_11_starts_and_12_is_bench`, `Substitution_player_id_comes_on_and_related_player_goes_off`, `Player_subbed_on_and_then_sent_off_plays_between_the_two_minutes_and_gets_minus_two`, `Substitute_missing_from_the_lineup_still_gets_his_minutes_and_team`, `Red_card_ends_minutes_at_the_card`, `Substitute_plays_from_the_minute_he_came_on`, `Substitution_minutes_add_up_to_the_match_length` *(new)*, `Defender_subbed_off_at_60_has_59_minutes_and_no_clean_sheet` *(new)*; real data (section 3). Counting is inclusive (decision 2026-11-23, see section 2). | ✅ |
-| Appearance: 45+ = 1, full match = 2, under 45 = 0 | `PlayerScoring.AppearancePoints` | `Appearance_points_by_minutes` (30/44/45/89), `Full_match_gives_two_appearance_points_in_total`, `Starter_subbed_off_at_89_gets_one_appearance_point`, `Half_time_substitution_at_46_counts_45_minutes_for_both_players` *(new)* | ✅ |
+| Minutes from lineups (11 = XI, 12 = bench), subs (18: player_id comes on), reds (20, 21) | `Business/MatchFactsDecoder.Decode` *(moved out of the DB service so it can be tested)*; `PlayerScoring.Minutes` | `Lineup_type_11_starts_and_12_is_bench`, `Substitution_player_id_comes_on_and_related_player_goes_off`, `Player_subbed_on_and_then_sent_off_plays_between_the_two_minutes_and_gets_minus_two`, `Substitute_missing_from_the_lineup_still_gets_his_minutes_and_team`, `Red_card_ends_minutes_at_the_card`, `Substitute_plays_from_the_minute_he_came_on`, `Going_off_in_minute_m_plays_m_and_coming_on_plays_length_minus_m_plus_one` *(new)*, `Defender_subbed_off_at_60_keeps_his_clean_sheet` *(new)*, `Minutes_never_exceed_the_match_length` *(new)*; real data (section 3). Off at m = m minutes, on at m = length − m + 1 (decision 2026-11-23). | ✅ |
+| Appearance: 45+ = 1, full match = 2, under 45 = 0 | `PlayerScoring.AppearancePoints` | `Appearance_points_by_minutes` (30/44/45/89), `Full_match_gives_two_appearance_points_in_total`, `Starter_subbed_off_at_89_gets_one_appearance_point`, `Half_time_substitution_at_46_gives_46_and_45_minutes_and_both_get_the_appearance_point` *(new)* | ✅ |
+| Stoppage time: 45+x = 45 (replacement from 46), 90+x = 90, never more than the length; events in stoppage count | `MatchFactsDecoder.OffMinute`, `OnMinute`; `PlayerScoring.Minutes` | `Off_at_45_plus_2_plays_45_minutes_and_gets_the_appearance_point`, `On_at_45_plus_2_plays_from_minute_46_so_45_minutes`, `Sent_off_at_45_plus_1_plays_45_minutes`, `Goals_in_first_and_second_half_stoppage_score_normally`, `Whole_match_including_90_plus_5_is_exactly_90_minutes_and_2_points`, `Off_at_90_plus_3_plays_90_minutes_but_not_the_full_match`, `Cards_and_own_goals_in_stoppage_count_normally`; real data (fixtures 1438, 1403) | ✅ |
 | Goal +3 (14, 16), rescinded ignored | `MatchFactsDecoder`; `PlayerScoring.ScoreFixture` | `Goals_and_penalties_are_three_points_each`, `Goals_penalties_and_assists_are_counted_and_rescinded_goals_ignored` | ✅ |
 | Assist +2 from the goal's related player; AssistsEnabled | `MatchFactsDecoder`; `FantasyRules.AssistsEnabled` | `Assists_count_when_enabled_and_not_when_disabled`, `Goals_penalties_and_assists_are_counted_and_rescinded_goals_ignored` | ✅ |
 | Clean sheet +2, GK/DEF, 60+ min, team conceded 0 | `PlayerScoring.ScoreFixture`; conceded from the fixture score in `MatchFactsDecoder` | `Clean_sheet_needs_sixty_minutes`, `Clean_sheet_only_for_goalkeepers_and_defenders`, `No_clean_sheet_if_the_team_conceded`, `Goals_conceded_come_from_the_other_teams_score` | ✅ |
@@ -131,55 +133,80 @@ Paths are under `src/Touchline.Api/`; tests are under `tests/Touchline.Api.Tests
 1. **Fixtures that don't count could still score.** `MatchFactsService` built facts for every fixture in a gameweek. An abandoned match (state 15), or one "awaiting updates" (19), can have goals and cards recorded, and those were scored, although only live or final fixtures count. Fixed: `MatchFactsDecoder.Counts` lets only Live and Finished fixtures produce points, and the service doesn't load rows for the rest. Test: `Fixtures_that_are_not_live_or_final_produce_no_points_even_with_events`.
 2. **A gameweek with a postponed fixture could never be finalised.** `CanFinalise` required every fixture to be final, so one postponed match kept its gameweek open for good (unless the sync marked it complete, which it doesn't do yet). Fixed: a gameweek is finalisable when at least one fixture is final and the rest are final or won't be played (postponed, cancelled, abandoned). A rescheduled match counts in whichever gameweek its new date falls in. "Awaiting updates" and live fixtures still block. Test: `Gameweek_with_a_postponed_fixture_can_still_be_finalised`. Agreed by the team on 2026-11-23.
 
-**Team decisions taken during the audit (2026-11-23):**
+**Team decisions taken during the audit (2026-11-23, final):**
 
-- **Inclusive minute counting.** A player coming on in minute m plays (length − m + 1) minutes; a player going off in minute m (sub or red card) plays (m − 1). Half-time subs (recorded at 46', 79 so far this season) now get 45 minutes and their appearance point, where before they got 44 and nothing. Side effect: a defender or keeper subbed off at 60' now has 59 minutes, one short of a clean sheet. Code: `PlayerScoring.Minutes`. Tests updated and added.
-- **Finalising with a postponed fixture:** bug 2's fix is agreed.
+1. **Minutes.** A player going off in minute m (sub or red card) plays **m** minutes; a player coming on in minute m plays **(length − m + 1)**. So a 46' sub gives the player going off 46 minutes and the player coming on 45, and both get the 45+ appearance point; a defender subbed off at 60' keeps his clean sheet. (A first version during the audit used m − 1 for the player going off; this replaces it.) Code: `PlayerScoring.Minutes`.
+2. **Stoppage time** (`minute` + `extra_minute`). First-half stoppage (45+x) counts as minute 45: a player subbed off or sent off at 45+x plays 45 minutes and gets the appearance point, and his replacement plays from minute 46 (45 minutes). Second-half stoppage (90+x) counts as 90. Minutes never exceed the match length (90, or the fixture length if set), so a full match is always exactly 90. Goals, assists, cards and own goals in stoppage count normally. Code: `MatchFactsDecoder.OffMinute`, `OnMinute`; the cap in `PlayerScoring.Minutes`.
+3. **Live states.** Every in-play and break state counts as live: 2 (1st half), 3 (half-time), 4 (break), 6 (extra time), 9 (penalties), 21 (extra-time break), 22 (2nd half), 23 (extra time, 2nd half), 25 (penalty break). IDs from Sportmonks' published states list (docs.sportmonks.com/football/definitions/states, checked 15 Oct 2026); only 6 has appeared in our data. State 4 ("Break") isn't described by Sportmonks; it's most likely the break before extra time and is counted as live. Code: `SportmonksCodes.MatchStates.Live`, `MatchStatusExtensions.FromStateId`.
+4. **Random captain at scoring.** A missing captain or vice-captain is also filled at scoring time, deterministically (seeded by team id and gameweek id), so provisional points, finalising and every re-score pick the same players. Finalising saves the choice; provisional points apply the same pick without saving. Code: `CaptaincyRules.EnsureCaptains`, `SquadStore.EnsureAsync`, `PointsService.WithCaptains`.
+5. **Assists stay on** (`AssistsEnabled` = true).
+6. **Finalising with a postponed fixture:** bug 2's fix is agreed.
 
 Refactors made to get code under test, with no behaviour change: lineup/event decoding moved from `MatchFactsService` into the pure `Business/MatchFactsDecoder`; `TransferRules.UnlimitedFreeTransfers`, `SquadRules.BudgetAfterFirstPick` and `PointsBreakdownJson` extracted from services.
 
 ## 3. Real-data scoring check
 
-The API's own `MatchFactsService` and `PlayerScoring` run, read-only, on three finished 2026/27 fixtures (31 Oct 2026), with the inclusive minute counting agreed on 2026-11-23. For each player: the raw lineup and events, then the result.
+The API's own `MatchFactsService` and `PlayerScoring` run, read-only, on five finished 2026/27 fixtures, with the final minute and stoppage-time rules. Fixtures 1438 and 1403 were added because they have a first-half stoppage substitution (45+1) and a first-half stoppage goal (45+3). For each player: the raw lineup and events, then the result.
 
 **Fixture 1394: Stellenbosch 0–2 Chippa United (state 5, length 90)**
 
 | Player | Picked as | Raw lineup | Raw events | Result | Total |
 |---|---|---|---|---|---|
-| Harold Majadibodu (DEF, Chippa United) | scorer | type_id 11 (starting XI) | 27' type 14 goal — scorer; 76' type 18 sub — OFF (related) | 75 min; app 1; goals 1 (+3); assists 0 (0); CS 1 (+2, conceded 0); yellow 0; red 0 | **6** |
+| Harold Majadibodu (DEF, Chippa United) | scorer | type_id 11 (starting XI) | 27' type 14 goal — scorer; 76' type 18 sub — OFF (related) | 76 min; app 1; goals 1 (+3); assists 0 (0); CS 1 (+2, conceded 0); yellow 0; red 0 | **6** |
 | Imraan Jones (DEF, Chippa United) | scorer | type_id 11 (starting XI) | 83' type 14 goal — scorer | 90 min; app 2; goals 1 (+3); assists 0 (0); CS 1 (+2, conceded 0); yellow 0; red 0 | **7** |
 | Stanley Nwabali (GK, Chippa United) | GK, clean sheet | type_id 11 (starting XI) | — | 90 min; app 2; goals 0 (0); assists 0 (0); CS 1 (+2, conceded 0); yellow 0; red 0 | **4** |
 | Quwan Christiano Plaatjies (ATT, Stellenbosch) | came on | type_id 12 (bench) | 58' type 18 sub — ON (player_id) | 33 min; app 0; goals 0 (0); assists 0 (0); CS 0 (0, conceded 2); yellow 0; red 0 | **0** |
-| Lehlogonolo Matlou (MID, Stellenbosch) | card | type_id 11 (starting XI) | 32' type 19 yellow — player; 81' type 18 sub — OFF (related) | 80 min; app 1; goals 0 (0); assists 0 (0); CS 0 (0, conceded 2); yellow -1; red 0 | **0** |
+| Lehlogonolo Matlou (MID, Stellenbosch) | card | type_id 11 (starting XI) | 32' type 19 yellow — player; 81' type 18 sub — OFF (related) | 81 min; app 1; goals 0 (0); assists 0 (0); CS 0 (0, conceded 2); yellow -1; red 0 | **0** |
 
 **Fixture 1391: AmaZulu 1–0 Golden Arrows (state 5, length 90)**
 
 | Player | Picked as | Raw lineup | Raw events | Result | Total |
 |---|---|---|---|---|---|
-| Thandolwenkosi Methuseli Ngwenya (ATT, AmaZulu) | scorer | type_id 11 (starting XI) | 65' type 14 goal — scorer; 86' type 18 sub — OFF (related) | 85 min; app 1; goals 1 (+3); assists 0 (0); CS 0 (0, conceded 0); yellow 0; red 0 | **4** |
+| Thandolwenkosi Methuseli Ngwenya (ATT, AmaZulu) | scorer | type_id 11 (starting XI) | 65' type 14 goal — scorer; 86' type 18 sub — OFF (related) | 86 min; app 1; goals 1 (+3); assists 0 (0); CS 0 (0, conceded 0); yellow 0; red 0 | **4** |
 | Olwethu Mzimela (GK, AmaZulu) | GK, clean sheet | type_id 11 (starting XI) | — | 90 min; app 2; goals 0 (0); assists 0 (0); CS 1 (+2, conceded 0); yellow 0; red 0 | **4** |
 | Siphesile Msomi (MID, Golden Arrows) | came on | type_id 12 (bench) | 46' type 18 sub — ON (player_id) | 45 min; app 1; goals 0 (0); assists 0 (0); CS 0 (0, conceded 1); yellow 0; red 0 | **1** |
-| Nhlanhla Zwane (MID, Golden Arrows) | card | type_id 11 (starting XI) | 34' type 19 yellow — player; 59' type 18 sub — OFF (related) | 58 min; app 1; goals 0 (0); assists 0 (0); CS 0 (0, conceded 1); yellow -1; red 0 | **0** |
-| Siyanda Hlangabeza (MID, AmaZulu) | card | type_id 11 (starting XI) | 39' type 19 yellow — player; 68' type 18 sub — OFF (related) | 67 min; app 1; goals 0 (0); assists 0 (0); CS 0 (0, conceded 0); yellow -1; red 0 | **0** |
+| Nhlanhla Zwane (MID, Golden Arrows) | card | type_id 11 (starting XI) | 34' type 19 yellow — player; 59' type 18 sub — OFF (related) | 59 min; app 1; goals 0 (0); assists 0 (0); CS 0 (0, conceded 1); yellow -1; red 0 | **0** |
+| Siyanda Hlangabeza (MID, AmaZulu) | card | type_id 11 (starting XI) | 39' type 19 yellow — player; 68' type 18 sub — OFF (related) | 68 min; app 1; goals 0 (0); assists 0 (0); CS 0 (0, conceded 0); yellow -1; red 0 | **0** |
 
 **Fixture 1393: Orlando Pirates 2–1 Kaizer Chiefs (state 5, length 90)**
 
 | Player | Picked as | Raw lineup | Raw events | Result | Total |
 |---|---|---|---|---|---|
-| Yanela Mbuthuma (ATT, Orlando Pirates) | scorer | type_id 11 (starting XI) | 24' type 14 goal — scorer; 75' type 18 sub — OFF (related) | 74 min; app 1; goals 1 (+3); assists 0 (0); CS 0 (0, conceded 1); yellow 0; red 0 | **4** |
-| Pule Mmodi (ATT, Kaizer Chiefs) | scorer | type_id 11 (starting XI) | 30' type 14 goal — scorer; 82' type 18 sub — OFF (related) | 81 min; app 1; goals 1 (+3); assists 0 (0); CS 0 (0, conceded 2); yellow 0; red 0 | **4** |
+| Yanela Mbuthuma (ATT, Orlando Pirates) | scorer | type_id 11 (starting XI) | 24' type 14 goal — scorer; 75' type 18 sub — OFF (related) | 75 min; app 1; goals 1 (+3); assists 0 (0); CS 0 (0, conceded 1); yellow 0; red 0 | **4** |
+| Pule Mmodi (ATT, Kaizer Chiefs) | scorer | type_id 11 (starting XI) | 30' type 14 goal — scorer; 82' type 18 sub — OFF (related) | 82 min; app 1; goals 1 (+3); assists 0 (0); CS 0 (0, conceded 2); yellow 0; red 0 | **4** |
 | Ghampani Lungu (ATT, Orlando Pirates) | came on | type_id 12 (bench) | 46' type 18 sub — ON (player_id) | 45 min; app 1; goals 0 (0); assists 0 (0); CS 0 (0, conceded 1); yellow 0; red 0 | **1** |
-| Reeve Frosler (DEF, Kaizer Chiefs) | card | type_id 11 (starting XI) | 8' type 19 yellow — player; 69' type 18 sub — OFF (related) | 68 min; app 1; goals 0 (0); assists 0 (0); CS 0 (0, conceded 2); yellow -1; red 0 | **0** |
-| Simphiwe Selepe (MID, Orlando Pirates) | card | type_id 11 (starting XI) | 38' type 19 yellow — player; 59' type 18 sub — OFF (related) | 58 min; app 1; goals 0 (0); assists 0 (0); CS 0 (0, conceded 1); yellow -1; red 0 | **0** |
+| Reeve Frosler (DEF, Kaizer Chiefs) | card | type_id 11 (starting XI) | 8' type 19 yellow — player; 69' type 18 sub — OFF (related) | 69 min; app 1; goals 0 (0); assists 0 (0); CS 0 (0, conceded 2); yellow -1; red 0 | **0** |
+| Simphiwe Selepe (MID, Orlando Pirates) | card | type_id 11 (starting XI) | 38' type 19 yellow — player; 59' type 18 sub — OFF (related) | 59 min; app 1; goals 0 (0); assists 0 (0); CS 0 (0, conceded 1); yellow -1; red 0 | **0** |
+
+**Fixture 1438: Milford 2–1 Kruger United (state 5, length 90)**
+
+| Player | Picked as | Raw lineup | Raw events | Result | Total |
+|---|---|---|---|---|---|
+| Ntsako Makhubela (ATT, Kruger United) | came on in 1st-half stoppage | type_id 12 (bench) | 45+1' type 18 sub — ON (player_id) | 45 min; app 1; goals 0 (0); assists 0 (0); CS 0 (0, conceded 2); yellow 0; red 0 | **1** |
+| Shane Saralina (DEF, Kruger United) | went off in 1st-half stoppage | type_id 11 (starting XI) | 45+1' type 18 sub — OFF (related) | 45 min; app 1; goals 0 (0); assists 0 (0); CS 0 (0, conceded 2); yellow 0; red 0 | **1** |
+| Khetukuthula Ndlovu (MID, Kruger United) | scorer | type_id 11 (starting XI) | 51' type 14 goal — scorer | 90 min; app 2; goals 1 (+3); assists 0 (0); CS 0 (0, conceded 2); yellow 0; red 0 | **5** |
+| K. Mngonyama (DEF, Kruger United) | card | type_id 11 (starting XI) | 28' type 19 yellow — player | 90 min; app 2; goals 0 (0); assists 0 (0); CS 0 (0, conceded 2); yellow -1; red 0 | **1** |
+| Jabulile Gxakoshe (ATT, Milford) | card | type_id 11 (starting XI) | 38' type 19 yellow — player; 46' type 18 sub — OFF (related) | 46 min; app 1; goals 0 (0); assists 0 (0); CS 0 (0, conceded 1); yellow -1; red 0 | **0** |
+
+**Fixture 1403: Durban City 1–2 AmaZulu (state 5, length 90)**
+
+| Player | Picked as | Raw lineup | Raw events | Result | Total |
+|---|---|---|---|---|---|
+| Athini Maqokola (ATT, AmaZulu) | 1st-half stoppage event | type_id 11 (starting XI) | 8' type 14 goal — assist (related); 45+3' type 14 goal — scorer | 90 min; app 2; goals 1 (+3); assists 1 (+2); CS 0 (0, conceded 1); yellow 0; red 0 | **7** |
+| Mondli Mbanjwa (ATT, AmaZulu) | scorer | type_id 11 (starting XI) | 8' type 14 goal — scorer; 68' type 18 sub — OFF (related) | 68 min; app 1; goals 1 (+3); assists 0 (0); CS 0 (0, conceded 1); yellow 0; red 0 | **4** |
+| H. Domingo (MID, Durban City) | came on | type_id 12 (bench) | 46' type 18 sub — ON (player_id); 74' type 14 goal — scorer | 45 min; app 1; goals 1 (+3); assists 0 (0); CS 0 (0, conceded 2); yellow 0; red 0 | **4** |
+| Samkelo Maseko (ATT, Durban City) | card | type_id 11 (starting XI) | 18' type 19 yellow — player | 90 min; app 2; goals 0 (0); assists 0 (0); CS 0 (0, conceded 2); yellow -1; red 0 | **1** |
+| Thandolwenkosi Methuseli Ngwenya (ATT, AmaZulu) | card | type_id 11 (starting XI) | 45+1' type 19 yellow — player | 90 min; app 2; goals 0 (0); assists 0 (0); CS 0 (0, conceded 1); yellow -1; red 0 | **1** |
 
 Hand check, for example:
 
-- Majadibodu started (type 11) and went off in minute 76 → 75 minutes → appearance 1; goal at 27' → +3; Chippa conceded 0 and he played 60+ → clean sheet +2; total **6**.
-- Msomi came on in minute 46 (half-time) → 90 − 46 + 1 = **45 minutes** → appearance 1. Before the inclusive-counting decision he had 44 minutes and 0.
-- Plaatjies came on in minute 58 → 90 − 58 + 1 = 33 minutes → no appearance point.
-- Ngwenya is an attacker, so no clean sheet although AmaZulu conceded 0.
+- Majadibodu started (type 11) and went off in minute 76 → **76 minutes** → appearance 1; goal at 27' → +3; Chippa conceded 0 and he played 60+ → clean sheet +2; total **6**.
+- Saralina went off and Makhubela came on at **45+1** (fixture 1438) → both **45 minutes** → appearance 1 each.
+- Gxakoshe went off at 46' → **46 minutes**; Msomi and Lungu came on at 46' → 90 − 46 + 1 = **45 minutes** → appearance 1.
+- Maqokola scored at **45+3** → +3, plus an assist on Mbanjwa's 8' goal → +2; full match → 2; total **7**.
+- Ngwenya (fixture 1391) is an attacker, so no clean sheet although AmaZulu conceded 0.
 
-Every total in the tables matches the rules worked by hand. None of these 15 players had an assist recorded (assists are proven by unit tests). No rescinded events exist in 2024/25 or 2026/27 so far.
+Every total in the tables matches the rules worked by hand. No rescinded events exist in 2024/25 or 2026/27 so far.
 
 ## 4. Live API test
 
@@ -266,7 +293,7 @@ The script stopped twice on its own bugs (a lookup for a bench defender when all
 
 ## Not testable here
 
-- **Live points during a real match.** The sync last wrote events and lineups on 1 Nov 2026 and writes in daily batches (around 23:00 UTC), so there is no in-play data to watch. Provisional scoring is covered by unit tests only.
+- **Live points during a real match.** The sync last wrote events and lineups on 1 Nov 2026 and writes in daily batches (around 23:00 UTC), so there is no in-play data to watch. Provisional scoring and all nine live states are covered by unit tests only; of those states, only 6 has appeared in our data.
 - **2025/26 prices.** 2025/26 has 240 final fixtures but no lineups or events, so it can't feed the price formula; only 2024/25 does.
 - **Finalising a gameweek end to end, and re-scoring it.** No test team has a squad in a finished gameweek, and finalising writes to the shared database. The update-not-duplicate logic and the unique index were checked by reading the code.
 - **20th and 21st league joins at the same moment.** Needs 21 teams or a disposable database. The row lock (`SELECT … FOR UPDATE` on the league row inside the join transaction) was checked by reading the code.
@@ -275,15 +302,19 @@ The script stopped twice on its own bugs (a lookup for a bench defender when all
 
 ## Questions for the team
 
-None of these were changed; they need a decision.
+All questions raised by the audit were answered on 2026-11-23 (see section 2):
 
-1. **First-half states.** Only state 22 (2nd half) counts as live. States 2 (1st half) and 3 (half-time) aren't in our code list because they've never appeared in the data. If they do appear, live points wouldn't count until the second half. Add them?
-2. **When the random captain is picked.** The random pick happens when the team is next written to after the deadline, or when the gameweek is finalised, not at the deadline itself. Until then provisional points show no captain bonus. In practice a team can't be left without a captain (saves require one, and copies and transfers keep it), so this only affects old data.
-3. **Assists rely on the goal's related player.** 101 of 158 goals this season have one. Keep `AssistsEnabled` on?
+| Question | Decision |
+|---|---|
+| Half-time subs miss the appearance point (44 minutes) | Off at m plays m, on at m plays length − m + 1 (46' sub: 46 and 45) |
+| Finalising with a postponed fixture | Agreed: finalisable once at least one fixture is final and the rest are final or won't be played |
+| First-half and other in-play states | Every in-play and break state is live (2, 3, 4, 6, 9, 21, 22, 23, 25) |
+| When the random captain is picked | Also at scoring, deterministic (team id + gameweek id), saved when finalising |
+| Keep assists on | Yes |
+| Stoppage time (raised with the minutes decision) | 45+x counts as 45 (replacement from 46); 90+x as 90; never more than the match length |
 
 ## Recommendations
 
 1. Run the 14 Docker-only tests in CI on this PR, and add a Testcontainers test for simultaneous league joins and for finalising twice.
 2. Ask the sync owner to restart event and lineup updates (stopped on 1 Nov) and, if possible, backfill 2025/26 lineups and events.
-3. Decide Q1–Q3 above.
-4. Apply `docs/migrations/006` (player availability overrides) so `PUT /admin/players/{id}/available` works.
+3. Apply `docs/migrations/006` (player availability overrides) so `PUT /admin/players/{id}/available` works.

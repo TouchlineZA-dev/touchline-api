@@ -26,8 +26,8 @@ public class ScoringTests
     [Fact]
     public void Starter_subbed_off_plays_until_that_minute()
     {
-        // Off in minute 67: played up to the end of minute 66 (inclusive counting).
-        Assert.Equal(66, PlayerScoring.Minutes(Starter(wentOff: 67)));
+        // Off in minute 67: plays 67 minutes.
+        Assert.Equal(67, PlayerScoring.Minutes(Starter(wentOff: 67)));
         Assert.False(PlayerScoring.PlayedFullMatch(Starter(wentOff: 67)));
     }
 
@@ -41,40 +41,49 @@ public class ScoringTests
     [Fact]
     public void Substitute_who_is_then_sent_off_plays_between_the_two_minutes()
     {
-        Assert.Equal(20, PlayerScoring.Minutes(Sub(cameOn: 60, wentOff: 80)));
+        Assert.Equal(21, PlayerScoring.Minutes(Sub(cameOn: 60, wentOff: 80))); // on 60, off 80: 80 − 60 + 1
     }
 
     [Fact]
     public void Red_card_ends_minutes_at_the_card()
     {
         var f = Starter(wentOff: 35) with { RedCard = true };
-        Assert.Equal(34, PlayerScoring.Minutes(f));
+        Assert.Equal(35, PlayerScoring.Minutes(f)); // red in minute 35 → 35 minutes
     }
 
     [Fact]
-    public void Half_time_substitution_at_46_counts_45_minutes_for_both_players()
+    public void Half_time_substitution_at_46_gives_46_and_45_minutes_and_both_get_the_appearance_point()
     {
-        Assert.Equal(45, PlayerScoring.Minutes(Starter(wentOff: 46)));
+        Assert.Equal(46, PlayerScoring.Minutes(Starter(wentOff: 46)));
         Assert.Equal(45, PlayerScoring.Minutes(Sub(cameOn: 46)));
         Assert.Equal(1, _scoring.AppearancePoints(Sub(cameOn: 46)));
         Assert.Equal(1, _scoring.AppearancePoints(Starter(wentOff: 46)));
     }
 
     [Fact]
-    public void Substitution_minutes_add_up_to_the_match_length()
+    public void Going_off_in_minute_m_plays_m_and_coming_on_plays_length_minus_m_plus_one()
     {
         foreach (var m in new[] { 1, 30, 46, 60, 89, 90 })
         {
-            Assert.Equal(90, PlayerScoring.Minutes(Starter(wentOff: m)) + PlayerScoring.Minutes(Sub(cameOn: m)));
+            Assert.Equal(m, PlayerScoring.Minutes(Starter(wentOff: m)));
+            Assert.Equal(90 - m + 1, PlayerScoring.Minutes(Sub(cameOn: m)));
         }
+        Assert.Equal(16, PlayerScoring.Minutes(Sub(cameOn: 55, wentOff: 70))); // on 55, off 70: 70 − 55 + 1
     }
 
     [Fact]
-    public void Defender_subbed_off_at_60_has_59_minutes_and_no_clean_sheet()
+    public void Defender_subbed_off_at_60_keeps_his_clean_sheet()
     {
         var f = Starter(wentOff: 60) with { GoalsConceded = 0 };
-        Assert.Equal(59, PlayerScoring.Minutes(f));
-        Assert.Equal(0, _scoring.ScoreFixture(f, Position.DEF).CleanSheetPoints);
+        Assert.Equal(60, PlayerScoring.Minutes(f));
+        Assert.Equal(2, _scoring.ScoreFixture(f, Position.DEF).CleanSheetPoints);
+    }
+
+    [Fact]
+    public void Minutes_never_exceed_the_match_length()
+    {
+        Assert.Equal(90, PlayerScoring.Minutes(Starter(wentOff: 94))); // e.g. stored as minute 94
+        Assert.Equal(1, PlayerScoring.Minutes(Sub(cameOn: 90)));
     }
 
     [Fact]
@@ -157,8 +166,8 @@ public class ScoringTests
     [InlineData(60, 2)]
     public void Clean_sheet_needs_sixty_minutes(int minutes, int expected)
     {
-        // Off in minute m plays m − 1 minutes, so leaving at minutes + 1 gives exactly `minutes`.
-        var f = Starter(wentOff: minutes + 1) with { GoalsConceded = 0 };
+        // Off in minute m plays m minutes.
+        var f = Starter(wentOff: minutes) with { GoalsConceded = 0 };
         Assert.Equal(minutes, PlayerScoring.Minutes(f));
         Assert.Equal(expected, _scoring.ScoreFixture(f, Position.DEF).CleanSheetPoints);
     }
@@ -206,7 +215,7 @@ public class ScoringTests
     {
         var b = _scoring.ScoreFixture(Starter(wentOff: 50) with { RedCard = true }, Position.MID);
         Assert.Equal(-2, b.RedPoints);
-        Assert.Equal(-1, b.Total); // 1 appearance (49 minutes) - 2
+        Assert.Equal(-1, b.Total); // 1 appearance (50 minutes) - 2
     }
 
     [Fact]
@@ -238,7 +247,7 @@ public class ScoringTests
         var b = _scoring.ScoreGameweek([first, second], Position.ATT);
 
         Assert.Equal(2, b.Fixtures);
-        Assert.Equal(149, b.Minutes); // 90 + 59
+        Assert.Equal(150, b.Minutes); // 90 + 60
         Assert.Equal(5, b.Total);
     }
 
@@ -342,7 +351,7 @@ public class ScoringTests
     public void Missing_captaincy_is_filled_from_the_starting_xi()
     {
         var s = TestSquad.Selection() with { CaptainId = null, ViceCaptainId = null };
-        var filled = CaptaincyRules.EnsureCaptains(s, new Random(1));
+        var filled = CaptaincyRules.EnsureCaptains(s, teamId: 7, gameweekId: 11);
 
         Assert.Contains(filled.CaptainId!.Value, s.Starters);
         Assert.Contains(filled.ViceCaptainId!.Value, s.Starters);
@@ -353,6 +362,6 @@ public class ScoringTests
     public void Existing_captaincy_is_left_alone()
     {
         var s = TestSquad.Selection();
-        Assert.Same(s, CaptaincyRules.EnsureCaptains(s, new Random(1)));
+        Assert.Same(s, CaptaincyRules.EnsureCaptains(s, teamId: 7, gameweekId: 11));
     }
 }

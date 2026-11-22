@@ -24,9 +24,9 @@ public static class MatchStatusExtensions
     public static MatchStatus FromStateId(short? stateId)
     {
         if (IsFinal(stateId)) return MatchStatus.Finished;
+        if (stateId is { } id && SportmonksCodes.MatchStates.Live.Contains(id)) return MatchStatus.Live;
         return stateId switch
         {
-            SportmonksCodes.MatchStates.SecondHalf => MatchStatus.Live,
             SportmonksCodes.MatchStates.Postponed or
             SportmonksCodes.MatchStates.Cancelled or
             SportmonksCodes.MatchStates.Abandoned => MatchStatus.NoResult,
