@@ -39,6 +39,15 @@ public class TouchlineDbContext(DbContextOptions<TouchlineDbContext> options) : 
     public DbSet<PlayerPrice> PlayerPrices => Set<PlayerPrice>();
     public DbSet<PlayerPriceChange> PlayerPriceChanges => Set<PlayerPriceChange>();
 
+    // app, added by proposed V034 (read/write)
+    public DbSet<FantasyGameweekEntry> GameweekEntries => Set<FantasyGameweekEntry>();
+    public DbSet<FantasyTransfer> Transfers => Set<FantasyTransfer>();
+    public DbSet<FantasyChipUsage> ChipUsage => Set<FantasyChipUsage>();
+    public DbSet<League> Leagues => Set<League>();
+    public DbSet<LeagueMember> LeagueMembers => Set<LeagueMember>();
+    public DbSet<TransferWindow> TransferWindows => Set<TransferWindow>();
+    public DbSet<PlayerPriceOverride> PriceOverrides => Set<PlayerPriceOverride>();
+
     protected override void OnModelCreating(ModelBuilder b)
     {
         // football
@@ -65,6 +74,13 @@ public class TouchlineDbContext(DbContextOptions<TouchlineDbContext> options) : 
         b.Entity<LeaderboardEntry>().ToTable("leaderboards", "app");
         b.Entity<PlayerPrice>().ToTable("player_prices", "app");
         b.Entity<PlayerPriceChange>().ToTable("player_price_changes", "app");
+        b.Entity<FantasyGameweekEntry>().ToTable("fantasy_gameweek_entries", "app");
+        b.Entity<FantasyTransfer>().ToTable("fantasy_transfers", "app");
+        b.Entity<FantasyChipUsage>().ToTable("fantasy_chip_usage", "app");
+        b.Entity<League>().ToTable("leagues", "app");
+        b.Entity<LeagueMember>().ToTable("league_members", "app");
+        b.Entity<TransferWindow>().ToTable("transfer_windows", "app");
+        b.Entity<PlayerPriceOverride>().ToTable("player_price_overrides", "app");
 
         // NUMERIC(5,1) money columns
         b.Entity<FantasyTeam>().Property(x => x.BudgetRemaining).HasPrecision(5, 1);
@@ -72,6 +88,12 @@ public class TouchlineDbContext(DbContextOptions<TouchlineDbContext> options) : 
         b.Entity<PlayerPrice>().Property(x => x.Price).HasPrecision(5, 1);
         b.Entity<PlayerPriceChange>().Property(x => x.OldPrice).HasPrecision(5, 1);
         b.Entity<PlayerPriceChange>().Property(x => x.NewPrice).HasPrecision(5, 1);
+        b.Entity<FantasyTransfer>().Property(x => x.PriceOut).HasPrecision(5, 1);
+        b.Entity<FantasyTransfer>().Property(x => x.PriceIn).HasPrecision(5, 1);
+        b.Entity<PlayerPriceOverride>().Property(x => x.Price).HasPrecision(5, 1);
+
+        // joined_at defaults to now() in the database, like created_at.
+        b.Entity<LeagueMember>().Property(x => x.JoinedAt).HasDefaultValueSql("now()").ValueGeneratedOnAdd();
 
         b.Entity<PointsResult>().Property(x => x.Breakdown).HasColumnType("jsonb");
 

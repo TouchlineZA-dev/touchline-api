@@ -2,14 +2,21 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Touchline.Api.Business;
 using Touchline.Api.Data;
+using Touchline.Api.Fantasy;
 using Touchline.Api.Models;
 
 namespace Touchline.Api.Services;
 
-public sealed class FootballService(TouchlineDbContext db, IOptions<FootballOptions> options)
+public sealed class FootballService(
+    TouchlineDbContext db, IOptions<FootballOptions> options, IOptions<FantasyRules> fantasy)
 {
-    /// <summary>Default price when app.player_prices has no row (V022 column default).</summary>
-    private const decimal DefaultPrice = 50.0m;
+    /// <summary>
+    /// Price when app.player_prices has no row: the position's minimum price (Fantasy:Pricing),
+    /// the same price a player with no history gets. Replaces the old 50.0 default, which can't
+    /// work with a R100.0m budget.
+    /// </summary>
+    public decimal DefaultPrice(Position position) =>
+        position == Position.Unknown ? fantasy.Value.Pricing.Goalkeeper.Min : fantasy.Value.Pricing.RangeFor(position).Min;
 
     public Task<SeasonSummary?> GetCurrentPslSeasonAsync(CancellationToken ct = default)
     {
@@ -42,9 +49,41 @@ public sealed class FootballService(TouchlineDbContext db, IOptions<FootballOpti
 
         var teams = await db.Teams.ToDictionaryAsync(t => t.Id, ct);
 
-        // football.players has no club column, so a player's club is the team they
-        // most recently lined up for this season (same approach as the Netlify
-        // players function). Keyed by Sportmonks id — see the ID-space rule.
+        var clubBySportmonksId = await GetLatestClubsAsync(seasonId, ct);
+
+        return players
+            .Select(p =>
+            {
+                var position = PositionExtensions.FromSportmonks(p.PositionId);
+                Team? team = null;
+                if (clubBySportmonksId.TryGetValue(p.SportmonksPlayerId, out var teamId))
+                {
+                    teams.TryGetValue(teamId, out team);
+                }
+
+                return new PlayerSummary(
+                    Id: p.Id,
+                    SportmonksPlayerId: p.SportmonksPlayerId,
+                    Name: PlayerName(p),
+                    Position: position,
+                    TeamId: team?.Id,
+                    Team: team?.Name,
+                    TeamCrest: RealImageOrNull(team?.ImagePath),
+                    NationalityId: p.NationalityId,
+                    ImageUrl: RealImageOrNull(p.ImagePath),
+                    Price: prices.TryGetValue(p.Id, out var price) ? price : DefaultPrice(position));
+            })
+            .OrderBy(p => p.Name)
+            .ToList();
+    }
+
+    /// <summary>
+    /// football.players has no club column, so a player's club is the team he most recently lined
+    /// up for this season (same approach as the Netlify players function). Keyed by Sportmonks id;
+    /// see the ID-space rule.
+    /// </summary>
+    public async Task<Dictionary<long, int>> GetLatestClubsAsync(int seasonId, CancellationToken ct = default)
+    {
         var clubs = await db.Database.SqlQuery<PlayerClubRow>($"""
             SELECT DISTINCT ON (l.sportmonks_player_id)
                    l.sportmonks_player_id AS "SportmonksPlayerId",
@@ -57,32 +96,14 @@ public sealed class FootballService(TouchlineDbContext db, IOptions<FootballOpti
             ORDER BY l.sportmonks_player_id, f.starting_at DESC NULLS LAST
             """).ToListAsync(ct);
 
-        var clubBySportmonksId = clubs.ToDictionary(c => c.SportmonksPlayerId, c => c.TeamId);
-
-        return players
-            .Select(p =>
-            {
-                Team? team = null;
-                if (clubBySportmonksId.TryGetValue(p.SportmonksPlayerId, out var teamId))
-                {
-                    teams.TryGetValue(teamId, out team);
-                }
-
-                return new PlayerSummary(
-                    Id: p.Id,
-                    SportmonksPlayerId: p.SportmonksPlayerId,
-                    Name: PlayerName(p),
-                    Position: PositionExtensions.FromSportmonks(p.PositionId),
-                    TeamId: team?.Id,
-                    Team: team?.Name,
-                    TeamCrest: RealImageOrNull(team?.ImagePath),
-                    NationalityId: p.NationalityId,
-                    ImageUrl: RealImageOrNull(p.ImagePath),
-                    Price: prices.TryGetValue(p.Id, out var price) ? price : DefaultPrice);
-            })
-            .OrderBy(p => p.Name)
-            .ToList();
+        return clubs.ToDictionary(c => c.SportmonksPlayerId, c => c.TeamId);
     }
+
+    /// <summary>Display name: display_name, then common_name, then first + last.</summary>
+    public static string NameOf(Player p) => PlayerName(p);
+
+    /// <summary>Null for Sportmonks' stock "placeholder" image.</summary>
+    public static string? ImageOrNull(string? url) => RealImageOrNull(url);
 
     public async Task<IReadOnlyList<FixtureSummary>> GetFixturesAsync(
         int seasonId, DateTimeOffset? from, DateTimeOffset? to, CancellationToken ct = default)

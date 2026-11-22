@@ -62,8 +62,21 @@ public sealed class UserService(TouchlineDbContext db)
         }
     }
 
+    // Projected so the query doesn't need is_admin (proposed V034); /me works with V033 alone.
     private Task<AppUser?> FindAsync(Guid authUserId, CancellationToken ct) =>
-        db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.AuthUserId == authUserId, ct);
+        db.Users.AsNoTracking()
+            .Where(u => u.AuthUserId == authUserId)
+            .Select(u => new AppUser
+            {
+                Id = u.Id,
+                Email = u.Email,
+                Username = u.Username,
+                AuthUserId = u.AuthUserId,
+                IsActive = u.IsActive,
+                CreatedAt = u.CreatedAt,
+                UpdatedAt = u.UpdatedAt,
+            })
+            .FirstOrDefaultAsync(ct);
 
     private static PostgresException? Pg(Exception? ex)
     {

@@ -15,6 +15,8 @@ public class AppUser
     /// <summary>Supabase Auth user id (JWT "sub"). Requires proposed migration V033.</summary>
     public Guid? AuthUserId { get; set; }
     public bool IsActive { get; set; } = true;
+    // app.users.is_admin (proposed V034) is deliberately not mapped: inserting users through
+    // /me must keep working before V034. AdminService reads it with its own query.
     public DateTimeOffset CreatedAt { get; set; }
     public DateTimeOffset UpdatedAt { get; set; }
 }
@@ -28,6 +30,8 @@ public class Gameweek
     public bool IsActive { get; set; }
     /// <summary>Nullable until existing rows are backfilled (V031).</summary>
     public int? SeasonId { get; set; }
+    /// <summary>Squad changes lock at this time (UTC). Proposed V034.</summary>
+    public DateTimeOffset? DeadlineAt { get; set; }
     public DateTimeOffset CreatedAt { get; set; }
     public DateTimeOffset UpdatedAt { get; set; }
 }
@@ -38,7 +42,8 @@ public class FantasyTeam
     public int UserId { get; set; }
     public int SeasonId { get; set; }
     public string Name { get; set; } = "";
-    public decimal BudgetRemaining { get; set; } = 300.0m;
+    /// <summary>Millions of rand. Proposed V034 changes the column default to 100.0.</summary>
+    public decimal BudgetRemaining { get; set; } = 100.0m;
     public DateTimeOffset CreatedAt { get; set; }
     public DateTimeOffset UpdatedAt { get; set; }
 }
@@ -58,6 +63,8 @@ public class FantasySquadPick
     public bool IsCaptain { get; set; }
     public bool IsViceCaptain { get; set; }
     public bool IsOnBench { get; set; }
+    /// <summary>1–4 for bench players, null for starters. Proposed V034.</summary>
+    public short? BenchOrder { get; set; }
     public decimal? PurchasePrice { get; set; }
     public DateTimeOffset CreatedAt { get; set; }
     public DateTimeOffset UpdatedAt { get; set; }
@@ -93,7 +100,8 @@ public class PlayerPrice
     public int Id { get; set; }
     public int PlayerId { get; set; }
     public int SeasonId { get; set; }
-    public decimal Price { get; set; } = 50.0m;
+    /// <summary>Millions of rand. Proposed V034 changes the column default to 4.0.</summary>
+    public decimal Price { get; set; } = 4.0m;
     public DateTimeOffset CreatedAt { get; set; }
     public DateTimeOffset UpdatedAt { get; set; }
 }
