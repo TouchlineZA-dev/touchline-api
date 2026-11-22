@@ -13,8 +13,8 @@ public sealed class FantasyRules
 
     // ---- Teams and squad -------------------------------------------------------------
 
-    /// <summary>Starting budget per team, in millions (R100.0m).</summary>
-    public decimal Budget { get; set; } = 100.0m;
+    /// <summary>Starting budget per team, in millions (R300.0m).</summary>
+    public decimal Budget { get; set; } = 300.0m;
 
     /// <summary>Squad composition. 15 players: 2 GK, 5 DEF, 5 MID, 3 ATT.</summary>
     public int SquadGoalkeepers { get; set; } = 2;
@@ -44,7 +44,7 @@ public sealed class FantasyRules
     public int CaptainMultiplier { get; set; } = 3;
     public int ViceCaptainMultiplier { get; set; } = 2;
     /// <summary>Captain multiplier with Triple Captain active (also applies to a vice-captain standing in).</summary>
-    public int TripleCaptainMultiplier { get; set; } = 4;
+    public int TripleCaptainMultiplier { get; set; } = 9;
 
     // ---- Player scoring (per fixture) ----------------------------------------------------
 

@@ -18,12 +18,12 @@
 --      exist, the index creation fails: clean them up first.
 
 -- ---------------------------------------------------------------------------------------------
--- 1. Defaults for the R100.0m budget (money in millions, NUMERIC(5,1))
+-- 1. Defaults for the R300.0m budget (money in millions, NUMERIC(5,1))
 -- ---------------------------------------------------------------------------------------------
 
-ALTER TABLE app.fantasy_teams ALTER COLUMN budget_remaining SET DEFAULT 100.0;
+ALTER TABLE app.fantasy_teams ALTER COLUMN budget_remaining SET DEFAULT 300.0;
 
--- The old 50.0 default would make a 15-player squad cost R750m against a R100m budget.
+-- The old 50.0 default would make a 15-player squad cost R750m against a R300m budget.
 ALTER TABLE app.player_prices ALTER COLUMN price SET DEFAULT 4.0;
 
 -- ---------------------------------------------------------------------------------------------

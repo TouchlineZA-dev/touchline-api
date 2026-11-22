@@ -247,17 +247,17 @@ public class ScoringTests
     }
 
     [Fact]
-    public void Triple_captain_is_times_four()
+    public void Triple_captain_is_times_nine()
     {
         var score = _team.Score(Team(5, 90, 4), Chips.TripleCaptain, 0);
-        Assert.Equal(20 + 8 + 18, score.Total);
+        Assert.Equal(45 + 8 + 18, score.Total);
     }
 
     [Fact]
     public void Triple_captain_moves_to_the_vice_captain_when_the_captain_does_not_play()
     {
         var score = _team.Score(Team(captainPoints: 0, captainMinutes: 0, vicePoints: 5), Chips.TripleCaptain, 0);
-        Assert.Equal(20, score.Picks.Single(p => p.PlayerId == 2).Contribution);
+        Assert.Equal(45, score.Picks.Single(p => p.PlayerId == 2).Contribution);
     }
 
     [Fact]

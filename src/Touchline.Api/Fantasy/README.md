@@ -17,7 +17,7 @@ Money is in millions of rand with one decimal (7.5 = R7.5m). The API returns the
 ## Rules
 
 ### Teams and squads
-- One team per user per season. Creating a team needs only a name. Budget **R100.0m**; the squad's cost must be at most the budget, and `budget_remaining` is kept up to date.
+- One team per user per season. Creating a team needs only a name. Budget **R300.0m**; the squad's cost must be at most the budget, and `budget_remaining` is kept up to date.
 - **15 players: 2 GK, 5 DEF, 5 MID, 3 ATT**, each player once. Position comes from `football.players.position_id` (24 GK, 25 DEF, 26 MID, 27 ATT) and can't be changed. A player with an unknown position can't be picked.
 - **Max 3 players from one real club.** A player's club is the team he most recently lined up for this season. A player with no club yet is allowed and flagged in the response.
 - **Starting XI:** exactly 1 GK plus a formation from 4-3-3, 4-4-2, 3-5-2, 3-4-3, 5-3-2 (so 3–5 DEF, 3–5 MID, 2–3 ATT).
@@ -79,14 +79,14 @@ Worked example (unit-tested): a midfielder with R1 = 6, R2 = 5, R3 = 4 and M = 2
 
 | Setting | Default | Meaning |
 |---|---|---|
-| `Budget` | 100.0 | Starting budget (millions) |
+| `Budget` | 300.0 | Starting budget (millions) |
 | `SquadGoalkeepers` / `SquadDefenders` / `SquadMidfielders` / `SquadAttackers` | 2 / 5 / 5 / 3 | Squad composition |
 | `MaxPlayersPerClub` | 3 | Per real club |
 | `Formations` | `4-3-3,4-4-2,3-5-2,3-4-3,5-3-2` | Allowed formations (comma-separated) |
 | `DeadlineMinutesBeforeFirstKickoff` | 90 | Deadline |
 | `FreeTransfersPerGameweek` | 1 | No rollover |
 | `TransferHitPoints` | 4 | Per extra transfer |
-| `CaptainMultiplier` / `ViceCaptainMultiplier` / `TripleCaptainMultiplier` | 3 / 2 / 4 | |
+| `CaptainMultiplier` / `ViceCaptainMultiplier` / `TripleCaptainMultiplier` | 3 / 2 / 9 | |
 | `AppearanceMinMinutes` / `AppearancePoints` / `FullMatchPoints` | 45 / 1 / 2 | |
 | `GoalPoints` / `AssistPoints` / `AssistsEnabled` | 3 / 2 / true | |
 | `CleanSheetPoints` / `CleanSheetMinMinutes` | 2 / 60 | GK and DEF only |
