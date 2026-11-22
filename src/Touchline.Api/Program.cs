@@ -38,6 +38,7 @@ builder.Services.AddDbContext<TouchlineDbContext>(options => options
 
 // Services
 builder.Services.Configure<FootballOptions>(builder.Configuration.GetSection(FootballOptions.SectionName));
+builder.Services.AddScoped<AvailabilityService>();
 builder.Services.AddScoped<FootballService>();
 builder.Services.AddScoped<GameweekService>();
 builder.Services.AddScoped<HealthService>();

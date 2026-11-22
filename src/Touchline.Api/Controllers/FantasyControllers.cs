@@ -131,6 +131,8 @@ public sealed class AdminController(
     GameweekService gameweeks,
     PointsService points,
     PricingService pricing,
+    AvailabilityService availability,
+    FootballService football,
     TimeProvider time)
     : FantasyControllerBase(currentUser, users)
 {
@@ -184,6 +186,16 @@ public sealed class AdminController(
     {
         var me = await RequireAdminAsync(ct);
         return Ok(await pricing.AddOverrideAsync(id, request, me.Id, ct));
+    }
+
+    /// <summary>Mark a player pickable (e.g. a new signing with no matchday squad yet) or not, for a season. Needs migration 006.</summary>
+    [HttpPut("players/{id:int}/available")]
+    public async Task<IActionResult> SetAvailable(int id, AvailabilityOverrideRequest request, CancellationToken ct)
+    {
+        var me = await RequireAdminAsync(ct);
+        var seasonId = request.SeasonId ?? (await football.GetCurrentPslSeasonAsync(ct))?.Id
+            ?? throw new NotFoundException("No current PSL season is flagged is_current in football.seasons.");
+        return Ok(await availability.SetOverrideAsync(id, seasonId, request.Available, request.Reason ?? "", me.Id, ct));
     }
 
     private async Task<AppUser> RequireAdminAsync(CancellationToken ct)

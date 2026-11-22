@@ -170,6 +170,23 @@ public class PlayerValuationTests
     }
 
     [Fact]
+    public void Unavailable_players_are_not_priced_but_still_count_towards_position_averages()
+    {
+        var withGone = _valuation.PriceAll(
+        [
+            new ValuationInput(1, Position.MID, [new SeasonRecord(60m, 900)], 900m),
+            new ValuationInput(2, Position.MID, [new SeasonRecord(300m, 2700)], 2700m, Priced: false),
+        ]);
+        var single = withGone.Single();
+
+        Assert.Equal(1, single.PlayerId);
+        Assert.Equal(0.5m, single.Percentile); // ranked alone
+        // R = 6.0 for player 1; the MID average is (60 + 300) × 90 ÷ 3600 = 9.0 because player 2 still counts.
+        // R_adj = (900 × 6 + 900 × 9) ÷ 1800 = 7.5; E = 7.5 × 900 ÷ 90 = 75.
+        Assert.Equal(75m, single.ExpectedPoints);
+    }
+
+    [Fact]
     public void Expected_minutes_override_replaces_M()
     {
         var results = _valuation.PriceAll(

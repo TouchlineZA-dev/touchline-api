@@ -8,7 +8,7 @@ using Touchline.Api.Models;
 namespace Touchline.Api.Services;
 
 public sealed class FootballService(
-    TouchlineDbContext db, IOptions<FootballOptions> options, IOptions<FantasyRules> fantasy)
+    TouchlineDbContext db, IOptions<FootballOptions> options, IOptions<FantasyRules> fantasy, AvailabilityService availability)
 {
     /// <summary>
     /// Price when app.player_prices has no row: the position's minimum price (Fantasy:Pricing),
@@ -56,6 +56,7 @@ public sealed class FootballService(
         var teams = await db.Teams.ToDictionaryAsync(t => t.Id, ct);
 
         var clubBySportmonksId = await GetLatestClubsAsync(seasonId, ct);
+        var available = await availability.GetAsync(seasonId, ct);
 
         return players
             .Select(p =>
@@ -77,7 +78,8 @@ public sealed class FootballService(
                     TeamCrest: RealImageOrNull(team?.ImagePath),
                     NationalityId: p.NationalityId,
                     ImageUrl: RealImageOrNull(p.ImagePath),
-                    Price: prices.TryGetValue(p.Id, out var price) ? price : DefaultPrice(position));
+                    Price: prices.TryGetValue(p.Id, out var price) ? price : DefaultPrice(position),
+                    Available: position != Position.Unknown && available.IsAvailable(p.Id, p.SportmonksPlayerId));
             })
             .OrderBy(p => p.Name)
             .ToList();

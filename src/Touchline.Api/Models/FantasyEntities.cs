@@ -99,3 +99,19 @@ public class PlayerPriceOverride
     public int CreatedByUserId { get; set; }
     public DateTimeOffset CreatedAt { get; set; }
 }
+
+/// <summary>
+/// app.player_availability_overrides (docs/migrations/006): an admin marks a player available (a new
+/// signing who hasn't made a matchday squad yet) or unavailable (left the club). Insert only: the
+/// latest row per player and season wins.
+/// </summary>
+public class PlayerAvailabilityOverride
+{
+    public int Id { get; set; }
+    public int PlayerId { get; set; }
+    public int SeasonId { get; set; }
+    public bool IsAvailable { get; set; }
+    public string Reason { get; set; } = "";
+    public int CreatedByUserId { get; set; }
+    public DateTimeOffset CreatedAt { get; set; }
+}

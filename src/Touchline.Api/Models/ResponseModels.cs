@@ -18,7 +18,8 @@ public record PlayerSummary(
     string? TeamCrest,
     int? NationalityId,
     string? ImageUrl,
-    decimal Price);
+    decimal Price,
+    bool Available);
 
 public record FixtureSummary(
     int Id,

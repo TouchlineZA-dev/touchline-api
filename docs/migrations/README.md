@@ -9,6 +9,7 @@ These SQL files create and change the `app` tables that touchline-api owns. They
 | `003_fantasy_core.sql` | Fantasy tables and columns; budget default 100.0 |
 | `004_seed_gameweeks_2026_27.sql` | The 28 gameweeks of the 2026/27 PSL season |
 | `005_rls_policies_for_api.sql` | Policies so `app_api_user` can use the 003 tables with row-level security on |
+| `006_player_availability_overrides.sql` | Admin overrides for which players can be picked and priced (insert only) |
 
 Rules for these files:
 

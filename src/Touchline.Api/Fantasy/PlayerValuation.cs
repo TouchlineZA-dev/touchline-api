@@ -10,12 +10,15 @@ public sealed record PriceOverride(int? ExpectedMinutes, decimal? Price);
 
 /// <param name="Seasons">Most recent first: [S1, S2, S3]. Null (or 0 minutes) means no data for that season.</param>
 /// <param name="ExpectedMinutes">M, expected minutes next season, before any override.</param>
+/// <param name="Priced">False for players who aren't available to pick: their history still counts
+/// towards the position averages (12c), but they aren't ranked or priced.</param>
 public sealed record ValuationInput(
     int PlayerId,
     Position Position,
     IReadOnlyList<SeasonRecord?> Seasons,
     decimal ExpectedMinutes,
-    PriceOverride? Override = null);
+    PriceOverride? Override = null,
+    bool Priced = true);
 
 /// <param name="SeasonsUsed">1 = S1 (last season, or this season on a mid-season run), 2 = S2, 3 = S3.</param>
 public sealed record ValuationResult(
@@ -122,7 +125,10 @@ public sealed class PlayerValuation(PricingRules pricing)
     public static decimal RoundToStep(decimal value, decimal step) =>
         step * Math.Round(value / step, MidpointRounding.AwayFromZero);
 
-    /// <summary>Runs 12b–12g for every player. Players are only ranked against their own position.</summary>
+    /// <summary>
+    /// Runs 12b–12g. Position averages use every input's history; only inputs with Priced = true are
+    /// ranked (against their own position) and returned.
+    /// </summary>
     public IReadOnlyList<ValuationResult> PriceAll(IReadOnlyList<ValuationInput> inputs)
     {
         var seasonCount = pricing.SeasonWeights().Count;
@@ -140,7 +146,7 @@ public sealed class PlayerValuation(PricingRules pricing)
             }
         }
 
-        var drafts = inputs.Where(i => i.Position != Position.Unknown).Select(input =>
+        var drafts = inputs.Where(i => i.Position != Position.Unknown && i.Priced).Select(input =>
         {
             var adjusted = new decimal?[seasonCount];
             for (var s = 0; s < seasonCount; s++)

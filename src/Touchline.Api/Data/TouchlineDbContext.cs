@@ -48,6 +48,7 @@ public class TouchlineDbContext(DbContextOptions<TouchlineDbContext> options) : 
     public DbSet<LeagueMember> LeagueMembers => Set<LeagueMember>();
     public DbSet<TransferWindow> TransferWindows => Set<TransferWindow>();
     public DbSet<PlayerPriceOverride> PriceOverrides => Set<PlayerPriceOverride>();
+    public DbSet<PlayerAvailabilityOverride> AvailabilityOverrides => Set<PlayerAvailabilityOverride>();
 
     protected override void OnModelCreating(ModelBuilder b)
     {
@@ -82,6 +83,7 @@ public class TouchlineDbContext(DbContextOptions<TouchlineDbContext> options) : 
         b.Entity<LeagueMember>().ToTable("league_members", "app");
         b.Entity<TransferWindow>().ToTable("transfer_windows", "app");
         b.Entity<PlayerPriceOverride>().ToTable("player_price_overrides", "app");
+        b.Entity<PlayerAvailabilityOverride>().ToTable("player_availability_overrides", "app");
 
         // NUMERIC(5,1) money columns
         b.Entity<FantasyTeam>().Property(x => x.BudgetRemaining).HasPrecision(5, 1);

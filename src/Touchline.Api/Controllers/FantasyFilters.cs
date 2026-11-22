@@ -28,8 +28,8 @@ public sealed class FantasyExceptionFilter(ProblemDetailsFactory problems) : IEx
             SchemaNotReadyException e => Problem(http, 503, "Schema not ready", e.Message),
             SportmonksCodesNotConfirmedException e => Problem(http, 503, "Sportmonks codes not confirmed", e.Message),
             _ when MissingSchema(context.Exception) => Problem(http, 503, "Schema not ready",
-                "The database is missing a table or column the fantasy API needs. Apply docs/migrations 001 to 005 " +
-                "in the Supabase SQL Editor, in number order."),
+                "The database is missing a table or column the fantasy API needs. Apply the files in " +
+                "docs/migrations in the Supabase SQL Editor, in number order."),
             _ => null,
         };
 

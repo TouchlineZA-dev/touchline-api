@@ -58,7 +58,7 @@ Notes on these settings:
 | `GET /api/v1/health` | none | Whether the database is reachable, plus the latest sync job |
 | `GET /api/v1/seasons/current` | none | The current PSL season (Sportmonks competition 806) |
 | `GET /api/v1/teams` | none | Clubs playing in the current PSL season (teams with a fixture in it) |
-| `GET /api/v1/players` | none | Players with position, current club and price |
+| `GET /api/v1/players` | none | Players with position, current club, price and `available` (pickable this season) |
 | `GET /api/v1/fixtures?from=&to=` | none | Current-season fixtures with a status (Scheduled, Live, Finished or NoResult) |
 | `GET /api/v1/gameweeks?seasonId=` | none | Gameweeks from `app.gameweeks`, with `readyToScore` taken from `sync.gameweek_sync_status` |
 | `GET /api/v1/me` | Bearer | The caller's `app.users` row, created on first sign-in. Needs migration 002. |
@@ -97,6 +97,7 @@ GET fantasy endpoints return an `ETag` and answer `304` to a matching `If-None-M
 | `POST /api/v1/admin/prices/preview?seasonId=N` | Dry-run prices plus backtest; saves nothing |
 | `POST /api/v1/admin/prices/recalculate?windowId=N[&force=true]` | The once-per-window price run |
 | `PUT /api/v1/admin/players/{id}/price-override` | `{ seasonId, expectedMinutes?, price?, reason }` |
+| `PUT /api/v1/admin/players/{id}/available` | `{ available, reason, seasonId? }`: make a player pickable or not (needs 006) |
 
 Paths match the existing Netlify functions, so the frontend can later point `VITE_API_BASE_URL` at this API. The response shapes are not identical yet:
 

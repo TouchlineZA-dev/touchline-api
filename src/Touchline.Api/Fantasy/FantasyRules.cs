@@ -44,7 +44,7 @@ public sealed class FantasyRules
     public int CaptainMultiplier { get; set; } = 3;
     public int ViceCaptainMultiplier { get; set; } = 2;
     /// <summary>Captain multiplier with Triple Captain active (also applies to a vice-captain standing in).</summary>
-    public int TripleCaptainMultiplier { get; set; } = 9;
+    public int TripleCaptainMultiplier { get; set; } = 4;
 
     // ---- Player scoring (per fixture) ----------------------------------------------------
 

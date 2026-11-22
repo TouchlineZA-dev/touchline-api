@@ -32,14 +32,31 @@ public readonly record struct Formation(int Defenders, int Midfielders, int Atta
     }
 }
 
-/// <summary>What the rules need to know about a player. Position comes from Sportmonks and can't be changed.</summary>
+/// <summary>
+/// What the rules need to know about a player. Position comes from Sportmonks and can't be changed.
+/// Available: the player can be picked (see PlayerAvailability).
+/// </summary>
 public sealed record FantasyPlayer(
     int PlayerId,
     string Name,
     Position Position,
     int? ClubId,
     string? ClubName,
-    decimal Price);
+    decimal Price,
+    bool Available = true);
+
+/// <summary>
+/// Who can be picked and priced: players who have been in a current-season PSL matchday squad
+/// (lineup type 11 or 12), unless an admin override says otherwise (e.g. a new signing who hasn't
+/// made a squad yet, or a player who has left).
+/// </summary>
+public static class PlayerAvailability
+{
+    public static bool IsAvailable(bool inCurrentSeasonLineups, bool? adminOverride) => adminOverride ?? inCurrentSeasonLineups;
+
+    public static string NotAvailableMessage(string name) =>
+        $"{name} isn't available to pick: he hasn't been in a PSL matchday squad this season.";
+}
 
 /// <summary>
 /// A full squad as the user arranges it: 11 starters, 4 bench players in order,

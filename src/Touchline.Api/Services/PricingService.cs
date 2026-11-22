@@ -16,6 +16,7 @@ public sealed class PricingService(
     MatchFactsService facts,
     GameweekService gameweeks,
     FootballService football,
+    AvailabilityService availability,
     IOptions<FantasyRules> options,
     TimeProvider time)
 {
@@ -215,12 +216,16 @@ public sealed class PricingService(
                 return PlayerValuation.PreSeasonExpectedMinutes(minutes, last?.MatchesPerTeam ?? 0);
             };
 
+        // Only players available in the target season are ranked and priced; everyone's history still
+        // feeds the position averages.
+        var available = await availability.GetAsync(seasonId, ct);
         var inputs = priced.Select(p => new ValuationInput(
             p.Id,
             p.Position,
             history.Select(h => h.ByPlayer.TryGetValue(p.Id, out var r) ? r : null).ToList(),
             expectedMinutes(p.Id, p.SportmonksPlayerId),
-            overrides.TryGetValue(p.Id, out var o) ? new PriceOverride(o.ExpectedMinutes, o.Price) : null)).ToList();
+            overrides.TryGetValue(p.Id, out var o) ? new PriceOverride(o.ExpectedMinutes, o.Price) : null,
+            Priced: available.IsAvailable(p.Id, p.SportmonksPlayerId))).ToList();
 
         var results = _valuation.PriceAll(inputs);
         return new Run(seasonId, results, priced.ToDictionary(p => p.Id, p => p.Name), previous, await DataReportAsync(seasons, history, skipped, ct));
