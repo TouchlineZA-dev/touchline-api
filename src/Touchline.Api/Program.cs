@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Scalar.AspNetCore;
 using Touchline.Api;
 using Touchline.Api.Data;
+using Touchline.Api.Fantasy;
 using Touchline.Api.Services;
 using Touchline.Api.Users;
 
@@ -41,6 +42,20 @@ builder.Services.Configure<FootballOptions>(builder.Configuration.GetSection(Foo
 builder.Services.AddScoped<FootballService>();
 builder.Services.AddScoped<GameweekService>();
 builder.Services.AddScoped<HealthService>();
+
+// Fantasy: every rule number lives in the "Fantasy" section (Fantasy/FantasyRules.cs).
+builder.Services.Configure<FantasyRules>(builder.Configuration.GetSection(FantasyRules.SectionName));
+builder.Services.AddMemoryCache();
+builder.Services.AddSingleton(TimeProvider.System);
+builder.Services.AddScoped<FantasyDataService>();
+builder.Services.AddScoped<SquadStore>();
+builder.Services.AddScoped<MatchFactsService>();
+builder.Services.AddScoped<PointsService>();
+builder.Services.AddScoped<FantasyContextService>();
+builder.Services.AddScoped<LeagueService>();
+builder.Services.AddScoped<FantasyTeamService>();
+builder.Services.AddScoped<PricingService>();
+builder.Services.AddScoped<AdminService>();
 
 // Users
 builder.Services.AddSupabaseAuth(builder.Configuration);

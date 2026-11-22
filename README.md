@@ -22,10 +22,10 @@ One ASP.NET Core project, `src/Touchline.Api`, organised by folder:
 | `Controllers/` | Routes only: health, seasons, teams, players, fixtures, gameweeks, me. No logic beyond calling a service and shaping the HTTP response. |
 | `Models/` | Database models for the `football`, `sync` and `app` schemas, plus the response models the API returns |
 | `Data/` | `TouchlineDbContext`, which maps all three schemas and blocks writes to `football` and `sync` |
-| `Services/` | Database reads and writes: `FootballService`, `GameweekService`, `HealthService` |
+| `Services/` | Database reads and writes: football data, gameweeks, health, and the fantasy services (team, squad store, match facts, points, leagues, pricing, admin) |
 | `Users/` | Supabase token validation, `CurrentUser` (who is calling) and `UserService` (the `app.users` row) |
 | `Business/` | Rules that don't touch the database: Sportmonks codes, position decoding, match-status decoding |
-| `Fantasy/` | Fantasy rules (squads, transfers, scoring, leaderboards). Not started; see its README. |
+| `Fantasy/` | Fantasy game rules and the price formula, as pure C# (squads, transfers, chips, scoring, leagues, valuation). All rule numbers are in `FantasyRules.cs`; see its README. |
 | `Program.cs` | Startup: registers the database, services, auth and CORS |
 
 Services are registered as concrete classes. Add an interface only when a second implementation actually exists.
@@ -65,6 +65,41 @@ Notes on these settings:
 | `GET /api/v1/fixtures?from=&to=` | none | Current-season fixtures with a status (Scheduled, Live, Finished or NoResult) |
 | `GET /api/v1/gameweeks?seasonId=` | none | Gameweeks from `app.gameweeks`, with `readyToScore` taken from `sync.gameweek_sync_status` |
 | `GET /api/v1/me` | Bearer | The caller's `app.users` row, created on first sign-in. Needs V033. |
+
+### Fantasy (Bearer; the user always comes from the token)
+
+All need V033 and V034. Rules: [`src/Touchline.Api/Fantasy/README.md`](src/Touchline.Api/Fantasy/README.md).
+
+| Method and path | What it does |
+|---|---|
+| `GET /api/v1/fantasy/team` | My team for the current season (404 if none) |
+| `POST /api/v1/fantasy/team` | Create my team `{ name }` |
+| `GET /api/v1/fantasy/team/snapshot` | Everything to show the team offline in one call |
+| `GET /api/v1/fantasy/team/squad?gameweek=N` | Picks, formation, captaincy, bench (default: next gameweek) |
+| `PUT /api/v1/fantasy/team/squad` | First full squad pick |
+| `PUT /api/v1/fantasy/team/lineup` | Formation, starters, bench, captaincy for the next gameweek (`If-Match`) |
+| `POST /api/v1/fantasy/team/transfers` | `{ out, in }` for the next gameweek; returns cost and free transfers left (`If-Match`) |
+| `POST /api/v1/fantasy/team/chips` | `{ chip }`: `bench_boost`, `triple_captain`, `wildcard` |
+| `GET /api/v1/fantasy/team/points?gameweek=N` | Points with a breakdown per player; provisional while live |
+| `GET /api/v1/fantasy/leagues` | My leagues plus Overall, with my rank |
+| `POST /api/v1/fantasy/leagues` | Create a private league `{ name }` |
+| `POST /api/v1/fantasy/leagues/join` | Join with `{ code }` |
+| `POST /api/v1/fantasy/leagues/{id}/leave` | Leave (not the owner) |
+| `GET /api/v1/fantasy/leagues/{id}/standings?gameweek=N` | Standings; `overall` works as the id |
+
+GET fantasy endpoints return an `ETag` and answer `304` to a matching `If-None-Match`. Validation failures are `400` ProblemDetails with every broken rule in `errors`.
+
+### Admin (Bearer, `app.users.is_admin`)
+
+| Method and path | What it does |
+|---|---|
+| `POST /api/v1/admin/gameweeks` | Create a gameweek (deadline defaults to 90 minutes before its first kickoff) |
+| `POST /api/v1/admin/gameweeks/{id}/score` | Finalise points (only when marked complete or every fixture is final; safe to re-run) |
+| `POST /api/v1/admin/transfer-windows` | Create `{ seasonId, name, opensOn, closesOn }` |
+| `GET /api/v1/admin/transfer-windows?seasonId=N` | List windows |
+| `POST /api/v1/admin/prices/preview?seasonId=N` | Dry-run prices plus backtest; saves nothing |
+| `POST /api/v1/admin/prices/recalculate?windowId=N[&force=true]` | The once-per-window price run |
+| `PUT /api/v1/admin/players/{id}/price-override` | `{ seasonId, expectedMinutes?, price?, reason }` |
 
 Paths match the existing Netlify functions, so the frontend can later point `VITE_API_BASE_URL` at this API. The response shapes are not identical yet:
 
@@ -107,6 +142,13 @@ To check a staging deployment end to end, see [`docs/staging-smoke-test-social-s
 - **Times are UTC.** Convert to SAST (UTC+2) for display. Pass UTC values to Npgsql.
 - **No deletes.** `app.player_price_changes` is append-only. Elsewhere, use flags instead of deleting.
 
-## Next: fantasy rules
+## Fantasy status
 
-The fantasy rules go in `src/Touchline.Api/Fantasy/`, which lists the open questions to settle first. The biggest of those is #19: which `app` schema is canonical. This API maps the sync repo's Flyway `app` tables, which V031 says were coordinated with the ASP.NET side. The frontend's `20261122090000_fantasy_api.sql` defines a different design.
+The rules, settings and tests are done; see [`src/Touchline.Api/Fantasy/README.md`](src/Touchline.Api/Fantasy/README.md). This API maps the sync repo's Flyway `app` tables, plus proposed [`V034__fantasy_core.sql`](docs/proposed-migrations/V034__fantasy_core.sql). The frontend's `20261122090000_fantasy_api.sql` is not our schema.
+
+Two things are still needed before fantasy works end to end:
+
+- **Migrations V033 and V034** applied through touchline-sync. Until then the fantasy endpoints return 503 "Schema not ready".
+- **Sportmonks lineup and substitution codes** confirmed against the database and filled in `Business/SportmonksCodes.cs`. Until then scoring, live points and pricing return 503.
+
+Prices: a player with no `app.player_prices` row now shows his position's minimum price (Fantasy:Pricing) instead of the old 50.0, which couldn't work with a R100.0m budget.
