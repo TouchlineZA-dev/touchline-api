@@ -29,7 +29,7 @@ Money is in millions of rand with one decimal (7.5 = R7.5m). The API returns the
 ### Transfers and chips
 - **1 free transfer per gameweek**, no rollover. Each extra transfer costs **4 points**. Unlimited free transfers before the Gameweek 1 deadline and while Wildcard is active (playing Wildcard also clears hits already taken that gameweek).
 - Transfers swap like for like (a GK only for a GK, and so on). The incoming player takes the outgoing player's spot and armband. Selling returns the player's **current** price; price changes move team value but never `budget_remaining`.
-- **Bench Boost:** bench points count. **Triple Captain:** captain ×4. **Wildcard:** unlimited free transfers. Each chip once per season, at most one per gameweek.
+- **Bench Boost:** bench points count. **Triple Captain:** captain ×9. **Wildcard:** unlimited free transfers. Each chip once per season, at most one per gameweek.
 
 ### Scoring (per player, per fixture, added up over the gameweek)
 - **Minutes** (our plan has none, so they're worked out): from 0 if he started or the minute he came on, until the minute he was subbed off or sent off, else the end of the match (fixture length, or 90; for live matches, the current minute).
@@ -40,7 +40,7 @@ Money is in millions of rand with one decimal (7.5 = R7.5m). The API returns the
 
 ### Team points
 - Starters count. **No auto-subs:** a starter who didn't play scores 0. The bench counts only with Bench Boost.
-- **Captain ×3, vice-captain ×2.** If the captain plays 0 minutes, the vice-captain gets the armband (×3, or ×4 with Triple Captain).
+- **Captain ×3, vice-captain ×2.** If the captain plays 0 minutes, the vice-captain gets the armband (×3, or ×9 with Triple Captain).
 - Then transfer hits are subtracted.
 
 ### Live and final points

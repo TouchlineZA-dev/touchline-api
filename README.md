@@ -135,4 +135,4 @@ Two things are still needed before fantasy works end to end:
 - **Migrations V033 and V034** applied through touchline-sync. Until then the fantasy endpoints return 503 "Schema not ready".
 - **Sportmonks lineup and substitution codes** confirmed against the database and filled in `Business/SportmonksCodes.cs`. Until then scoring, live points and pricing return 503.
 
-Prices: a player with no `app.player_prices` row now shows his position's minimum price (Fantasy:Pricing) instead of the old 50.0, which couldn't work with a R100.0m budget.
+Prices: a player with no `app.player_prices` row now shows his position's minimum price (Fantasy:Pricing) instead of the old 50.0, which couldn't work with a R300.0m budget.

@@ -13,7 +13,7 @@ public sealed class FootballService(
     /// <summary>
     /// Price when app.player_prices has no row: the position's minimum price (Fantasy:Pricing),
     /// the same price a player with no history gets. Replaces the old 50.0 default, which can't
-    /// work with a R100.0m budget.
+    /// work with a R300.0m budget.
     /// </summary>
     public decimal DefaultPrice(Position position) =>
         position == Position.Unknown ? fantasy.Value.Pricing.Goalkeeper.Min : fantasy.Value.Pricing.RangeFor(position).Min;

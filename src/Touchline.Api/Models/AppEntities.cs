@@ -43,7 +43,7 @@ public class FantasyTeam
     public int SeasonId { get; set; }
     public string Name { get; set; } = "";
     /// <summary>Millions of rand. Proposed V034 changes the column default to 100.0.</summary>
-    public decimal BudgetRemaining { get; set; } = 100.0m;
+    public decimal BudgetRemaining { get; set; } = 300.0m;
     public DateTimeOffset CreatedAt { get; set; }
     public DateTimeOffset UpdatedAt { get; set; }
 }
