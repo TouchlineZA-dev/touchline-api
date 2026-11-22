@@ -10,13 +10,13 @@ public class AppUser
     public int Id { get; set; }
     public string Email { get; set; } = "";
     public string Username { get; set; } = "";
-    /// <summary>Required by V014. Proposed V033 makes it nullable (Supabase Auth holds credentials).</summary>
+    /// <summary>Required by V014. touchline-sync V033 makes it nullable (Supabase Auth holds credentials).</summary>
     public string? PasswordHash { get; set; }
-    /// <summary>Supabase Auth user id (JWT "sub"). Requires proposed migration V033.</summary>
+    /// <summary>Supabase Auth user id (JWT "sub"). Requires touchline-sync migration V033.</summary>
     public Guid? AuthUserId { get; set; }
     public bool IsActive { get; set; } = true;
-    // app.users.is_admin (proposed V034) is deliberately not mapped: inserting users through
-    // /me must keep working before V034. AdminService reads it with its own query.
+    // app.users.is_admin (touchline-sync V035) is deliberately not mapped: inserting users through
+    // /me must keep working before V035. AdminService reads it with its own query.
     public DateTimeOffset CreatedAt { get; set; }
     public DateTimeOffset UpdatedAt { get; set; }
 }
@@ -30,7 +30,7 @@ public class Gameweek
     public bool IsActive { get; set; }
     /// <summary>Nullable until existing rows are backfilled (V031).</summary>
     public int? SeasonId { get; set; }
-    /// <summary>Squad changes lock at this time (UTC). Proposed V034.</summary>
+    /// <summary>Squad changes lock at this time (UTC). touchline-sync V035.</summary>
     public DateTimeOffset? DeadlineAt { get; set; }
     public DateTimeOffset CreatedAt { get; set; }
     public DateTimeOffset UpdatedAt { get; set; }
@@ -42,7 +42,7 @@ public class FantasyTeam
     public int UserId { get; set; }
     public int SeasonId { get; set; }
     public string Name { get; set; } = "";
-    /// <summary>Millions of rand. Proposed V034 changes the column default to 100.0.</summary>
+    /// <summary>Millions of rand. touchline-sync V035 sets the column default to 100.0.</summary>
     public decimal BudgetRemaining { get; set; } = 100.0m;
     public DateTimeOffset CreatedAt { get; set; }
     public DateTimeOffset UpdatedAt { get; set; }
@@ -63,7 +63,7 @@ public class FantasySquadPick
     public bool IsCaptain { get; set; }
     public bool IsViceCaptain { get; set; }
     public bool IsOnBench { get; set; }
-    /// <summary>1–4 for bench players, null for starters. Proposed V034.</summary>
+    /// <summary>1–4 for bench players, null for starters. touchline-sync V035.</summary>
     public short? BenchOrder { get; set; }
     public decimal? PurchasePrice { get; set; }
     public DateTimeOffset CreatedAt { get; set; }
@@ -100,7 +100,7 @@ public class PlayerPrice
     public int Id { get; set; }
     public int PlayerId { get; set; }
     public int SeasonId { get; set; }
-    /// <summary>Millions of rand. Proposed V034 changes the column default to 4.0.</summary>
+    /// <summary>Millions of rand. touchline-sync V035 sets the column default to 4.0.</summary>
     public decimal Price { get; set; } = 4.0m;
     public DateTimeOffset CreatedAt { get; set; }
     public DateTimeOffset UpdatedAt { get; set; }

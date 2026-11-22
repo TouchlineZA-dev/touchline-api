@@ -122,7 +122,7 @@ public sealed class FantasyLeaguesController(
         await contexts.LoadAsync(await MeAsync(ct), trackTeam: false, ct);
 }
 
-/// <summary>Admin routes. Require app.users.is_admin (proposed V034).</summary>
+/// <summary>Admin routes. Require app.users.is_admin (touchline-sync V035).</summary>
 [Route("api/v1/admin")]
 public sealed class AdminController(
     CurrentUser currentUser,

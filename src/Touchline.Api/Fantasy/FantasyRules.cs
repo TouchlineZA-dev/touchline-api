@@ -13,8 +13,8 @@ public sealed class FantasyRules
 
     // ---- Teams and squad -------------------------------------------------------------
 
-    /// <summary>Starting budget per team, in millions (R300.0m).</summary>
-    public decimal Budget { get; set; } = 300.0m;
+    /// <summary>Starting budget per team, in millions (R100.0m).</summary>
+    public decimal Budget { get; set; } = 100.0m;
 
     /// <summary>Squad composition. 15 players: 2 GK, 5 DEF, 5 MID, 3 ATT.</summary>
     public int SquadGoalkeepers { get; set; } = 2;

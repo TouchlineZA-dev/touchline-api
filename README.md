@@ -61,11 +61,11 @@ Notes on these settings:
 | `GET /api/v1/players` | none | Players with position, current club and price |
 | `GET /api/v1/fixtures?from=&to=` | none | Current-season fixtures with a status (Scheduled, Live, Finished or NoResult) |
 | `GET /api/v1/gameweeks?seasonId=` | none | Gameweeks from `app.gameweeks`, with `readyToScore` taken from `sync.gameweek_sync_status` |
-| `GET /api/v1/me` | Bearer | The caller's `app.users` row, created on first sign-in. Needs V033. |
+| `GET /api/v1/me` | Bearer | The caller's `app.users` row, created on first sign-in. Needs touchline-sync V033. |
 
 ### Fantasy (Bearer; the user always comes from the token)
 
-All need V033 and V034. Rules: [`src/Touchline.Api/Fantasy/README.md`](src/Touchline.Api/Fantasy/README.md).
+All need touchline-sync migrations V033 to V036. Rules: [`src/Touchline.Api/Fantasy/README.md`](src/Touchline.Api/Fantasy/README.md).
 
 | Method and path | What it does |
 |---|---|
@@ -115,7 +115,7 @@ The API checks each token in three ways:
 
 The user id always comes from the token's `sub` claim, never from the request body.
 
-`app.users` (Flyway V014) has no column for the Supabase user id, and it requires `password_hash`. The proposed migration [`docs/proposed-migrations/V033__app_users_supabase_auth_link.sql`](docs/proposed-migrations/V033__app_users_supabase_auth_link.sql) fixes both. Until it is applied, `/api/v1/me` returns 503 with "Schema not ready". All other endpoints work without it.
+`app.users` (Flyway V014) had no column for the Supabase user id and required `password_hash`. touchline-sync migration V033 adds `auth_user_id` and makes `password_hash` nullable. Until it is applied, `/api/v1/me` returns 503 with "Schema not ready". The football endpoints work without it.
 
 ## Database rules
 
@@ -128,9 +128,9 @@ The user id always comes from the token's `sub` claim, never from the request bo
 
 ## Fantasy status
 
-The rules, settings and tests are done; see [`src/Touchline.Api/Fantasy/README.md`](src/Touchline.Api/Fantasy/README.md). This API maps the sync repo's Flyway `app` tables, plus proposed [`V034__fantasy_core.sql`](docs/proposed-migrations/V034__fantasy_core.sql). The frontend's `20261122090000_fantasy_api.sql` is not our schema.
+The rules, settings and tests are done; see [`src/Touchline.Api/Fantasy/README.md`](src/Touchline.Api/Fantasy/README.md). This API maps the sync repo's Flyway `app` tables, including the fantasy tables from touchline-sync `db/migrations/V035__fantasy_core.sql`. The frontend's `20261122090000_fantasy_api.sql` is not our schema.
 
-Before fantasy works end to end, the `app.users.auth_user_id` link (proposed V033, whose file has since been removed from this repo) and V034 must be applied through touchline-sync. Until then the fantasy endpoints return 503 "Schema not ready".
+Before fantasy works end to end, touchline-sync migrations V033 (auth link), V034 (price-table grants), V035 (fantasy core) and V036 (2026/27 gameweeks) must be applied. Until then the fantasy endpoints return 503 "Schema not ready".
 
 The Sportmonks lineup and substitution codes were confirmed against the database on 2026-11-22 (see `Business/SportmonksCodes.cs`).
 

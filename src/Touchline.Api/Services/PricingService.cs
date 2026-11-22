@@ -343,7 +343,7 @@ public sealed class PricingService(
             .ToList());
 }
 
-/// <summary>Admin checks. app.users.is_admin (V034) is read with its own query so /me works without V034.</summary>
+/// <summary>Admin checks. app.users.is_admin (touchline-sync V035) is read with its own query so /me works without V035.</summary>
 public sealed class AdminService(TouchlineDbContext db)
 {
     public async Task RequireAdminAsync(int userId, CancellationToken ct)

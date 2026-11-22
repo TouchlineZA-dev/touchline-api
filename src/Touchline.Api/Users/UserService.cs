@@ -9,7 +9,7 @@ namespace Touchline.Api.Users;
 /// <summary>
 /// Links a Supabase Auth user to a row in app.users.
 /// Supabase Auth holds credentials; this API never sees or stores passwords.
-/// Depends on proposed Flyway migration V033 (docs/proposed-migrations).
+/// Depends on touchline-sync Flyway migration V033.
 /// </summary>
 public sealed class UserService(TouchlineDbContext db)
 {
@@ -58,11 +58,11 @@ public sealed class UserService(TouchlineDbContext db)
         catch (Exception ex) when (Pg(ex)?.SqlState == PostgresErrorCodes.UndefinedColumn)
         {
             throw new SchemaNotReadyException(
-                "app.users has no auth_user_id column yet. Apply migration V033 (see docs/proposed-migrations).", ex);
+                "app.users has no auth_user_id column yet. Apply touchline-sync migration V033.", ex);
         }
     }
 
-    // Projected so the query doesn't need is_admin (proposed V034); /me works with V033 alone.
+    // Projected so the query doesn't need is_admin (touchline-sync V035); /me works with V033 alone.
     private Task<AppUser?> FindAsync(Guid authUserId, CancellationToken ct) =>
         db.Users.AsNoTracking()
             .Where(u => u.AuthUserId == authUserId)

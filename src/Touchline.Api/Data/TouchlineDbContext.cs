@@ -39,7 +39,7 @@ public class TouchlineDbContext(DbContextOptions<TouchlineDbContext> options) : 
     public DbSet<PlayerPrice> PlayerPrices => Set<PlayerPrice>();
     public DbSet<PlayerPriceChange> PlayerPriceChanges => Set<PlayerPriceChange>();
 
-    // app, added by proposed V034 (read/write)
+    // app, added by touchline-sync V035 (read/write)
     public DbSet<FantasyGameweekEntry> GameweekEntries => Set<FantasyGameweekEntry>();
     public DbSet<FantasyTransfer> Transfers => Set<FantasyTransfer>();
     public DbSet<FantasyChipUsage> ChipUsage => Set<FantasyChipUsage>();

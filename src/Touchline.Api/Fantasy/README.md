@@ -17,7 +17,7 @@ Money is in millions of rand with one decimal (7.5 = R7.5m). The API returns the
 ## Rules
 
 ### Teams and squads
-- One team per user per season. Creating a team needs only a name. Budget **R300.0m**; the squad's cost must be at most the budget, and `budget_remaining` is kept up to date.
+- One team per user per season. Creating a team needs only a name. Budget **R100.0m**; the squad's cost must be at most the budget, and `budget_remaining` is kept up to date.
 - **15 players: 2 GK, 5 DEF, 5 MID, 3 ATT**, each player once. Position comes from `football.players.position_id` (24 GK, 25 DEF, 26 MID, 27 ATT) and can't be changed. A player with an unknown position can't be picked.
 - **Max 3 players from one real club.** A player's club is the team he most recently lined up for this season. A player with no club yet is allowed and flagged in the response.
 - **Starting XI:** exactly 1 GK plus a formation from 4-3-3, 4-4-2, 3-5-2, 3-4-3, 5-3-2 (so 3–5 DEF, 3–5 MID, 2–3 ATT).
@@ -79,7 +79,7 @@ Worked example (unit-tested): a midfielder with R1 = 6, R2 = 5, R3 = 4 and M = 2
 
 | Setting | Default | Meaning |
 |---|---|---|
-| `Budget` | 300.0 | Starting budget (millions) |
+| `Budget` | 100.0 | Starting budget (millions) |
 | `SquadGoalkeepers` / `SquadDefenders` / `SquadMidfielders` / `SquadAttackers` | 2 / 5 / 5 / 3 | Squad composition |
 | `MaxPlayersPerClub` | 3 | Per real club |
 | `Formations` | `4-3-3,4-4-2,3-5-2,3-4-3,5-3-2` | Allowed formations (comma-separated) |
@@ -106,4 +106,4 @@ Worked example (unit-tested): a midfielder with R1 = 6, R2 = 5, R3 = 4 and M = 2
 
 - **Sportmonks codes:** confirmed against the database on 2026-11-22: lineup type 11 = starting XI, 12 = bench; in a substitution, `sportmonks_player_id` comes on. The proof is in `Business/SportmonksCodes.cs`.
 - **Live data:** the sync currently writes events and lineups in daily batches (around 23:00 UTC, about a day after kickoff), so provisional points update once a day, not minute by minute.
-- **Schema:** the fantasy endpoints need the `app.users.auth_user_id` link (proposed V033) and V034 (`docs/proposed-migrations`). Until then they return 503 "Schema not ready".
+- **Schema:** the fantasy endpoints need touchline-sync migrations V033 (`app.users.auth_user_id`) and V035 (fantasy core); V034 grants access to the price tables and V036 seeds the 2026/27 gameweeks. Until then they return 503 "Schema not ready".

@@ -1,7 +1,7 @@
 namespace Touchline.Api.Models;
 
-// Models for the app tables added by proposed migration V034 (docs/proposed-migrations).
-// Until V034 is applied, any query touching these fails with "undefined table/column" and the
+// Models for the app tables added by touchline-sync migration V035.
+// Until V035 is applied, any query touching these fails with "undefined table/column" and the
 // fantasy endpoints return 503 "Schema not ready".
 
 /// <summary>app.fantasy_gameweek_entries: one row per team per gameweek.</summary>
