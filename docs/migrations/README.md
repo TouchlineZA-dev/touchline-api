@@ -11,10 +11,23 @@ These SQL files create and change the `app` tables that touchline-api owns. They
 | `005_rls_policies_for_api.sql` | Policies so `app_api_user` can use the 003 tables with row-level security on |
 | `006_player_availability_overrides.sql` | Admin overrides for which players can be picked and priced (insert only) |
 
+touchline-sync keeps the same SQL as Flyway versions, so a Flyway run there is a no-op for anything already applied here:
+
+| Here | touchline-sync |
+|---|---|
+| 001 | V034 |
+| 002 | V033 |
+| 003 | V035 |
+| 004 | V036 |
+| 005 | V037 |
+| 006 | V038 |
+
+Change both copies together.
+
 Rules for these files:
 
 - Every file is safe to run twice (`IF NOT EXISTS`, guarded constraints, repeatable grants, seed rows skipped if present).
 - Only the `app` schema and grants. Never write to `football` or `sync`. No `DELETE` or `DROP` on data tables.
-- The `football` and `sync` schemas come from touchline-sync's Flyway migrations. Anyone running Flyway there must not recreate the tables created here.
+- The `football` and `sync` schemas come from touchline-sync's Flyway migrations. The app-schema files above are mirrored there and are safe to rerun, so Flyway doesn't recreate or break anything applied by hand.
 - If the SQL Editor offers to enable row-level security on new tables, any new table also needs a policy for `app_api_user` (see 005), or the API can't read or write it.
 - Add new changes as the next number. Don't edit a file that has already been run; write a new one.
