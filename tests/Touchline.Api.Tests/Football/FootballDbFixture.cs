@@ -10,7 +10,8 @@ namespace Touchline.Api.Tests.Football;
 /// </summary>
 public sealed class FootballDbFixture : IAsyncLifetime
 {
-    public static readonly DateTimeOffset Start = new(2026, 11, 28, 12, 0, 0, TimeSpan.Zero);
+    /// <summary>The test clock starts at real time (to the second), so Supabase-style tokens issued now are "recent".</summary>
+    public static readonly DateTimeOffset Start = DateTimeOffset.FromUnixTimeSeconds(DateTimeOffset.UtcNow.ToUnixTimeSeconds());
 
     public string? SkipReason { get; private set; }
     public TestDb Db { get; private set; } = null!;

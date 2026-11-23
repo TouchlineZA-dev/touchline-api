@@ -45,6 +45,17 @@ public sealed class FootballService(
         return teams.Select(t => new TeamSummary(t.Id, t.Name, t.ShortCode, RealImageOrNull(t.ImagePath))).ToList();
     }
 
+    /// <summary>GET /clubs: the season's clubs with internal and Sportmonks ids.</summary>
+    public async Task<IReadOnlyList<ClubView>> GetClubsAsync(int seasonId, CancellationToken ct = default)
+    {
+        var seasonFixtures = db.Fixtures.Where(f => f.SeasonId == seasonId && !f.IsPlaceholder);
+        var teams = await db.Teams
+            .Where(t => !t.IsPlaceholder && seasonFixtures.Any(f => f.HomeTeamId == t.Id || f.AwayTeamId == t.Id))
+            .OrderBy(t => t.Name)
+            .ToListAsync(ct);
+        return teams.Select(t => new ClubView(t.Id, t.SportmonksTeamId, t.Name, t.ShortCode, RealImageOrNull(t.ImagePath))).ToList();
+    }
+
     public async Task<IReadOnlyList<PlayerSummary>> GetPlayersAsync(int seasonId, CancellationToken ct = default)
     {
         var players = await db.Players.ToListAsync(ct);

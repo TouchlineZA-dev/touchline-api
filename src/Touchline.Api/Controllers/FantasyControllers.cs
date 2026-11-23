@@ -15,11 +15,19 @@ namespace Touchline.Api.Controllers;
 [TypeFilter(typeof(FantasyExceptionFilter))]
 public abstract class FantasyControllerBase(CurrentUser currentUser, UserService users) : ControllerBase
 {
+    /// <summary>
+    /// The signed-in manager (email optional). A deleted account gets 403 account_deleted; a suspended
+    /// one can read but every write gets 403 account_suspended.
+    /// </summary>
     protected async Task<AppUser> MeAsync(CancellationToken ct)
     {
         if (currentUser.AuthUserId is not { } authUserId) throw new ForbiddenException("Token has no valid 'sub' claim.");
-        if (string.IsNullOrWhiteSpace(currentUser.Email)) throw new RuleViolationException("Token has no email claim. app.users.email is required.");
-        return await users.GetOrCreateAsync(authUserId, currentUser.Email, ct);
+        var me = await users.GetOrCreateAsync(authUserId, currentUser.Email, ct);
+        if (!HttpMethods.IsGet(Request.Method) && !HttpMethods.IsHead(Request.Method))
+        {
+            await HttpContext.RequestServices.GetRequiredService<AccountService>().RequireCanWriteAsync(me.Id, ct);
+        }
+        return me;
     }
 
     /// <summary>Puts the squad version into the ETag, so the app can send it back in If-Match.</summary>
@@ -33,6 +41,11 @@ public sealed class FantasyTeamController(CurrentUser currentUser, UserService u
     /// <summary>My team for the current season (404 if none).</summary>
     [HttpGet, ETag]
     public async Task<IActionResult> Get(CancellationToken ct) => Ok(await teams.GetTeamAsync(await MeAsync(ct), ct));
+
+    /// <summary>Rename my team (3–30 characters). Keeps the team id, picks, leagues and ranks; the old name goes to history.</summary>
+    [HttpPatch]
+    public async Task<IActionResult> Rename(RenameTeamRequest request, CancellationToken ct) =>
+        Ok(await teams.RenameTeamAsync(await MeAsync(ct), request, ct));
 
     /// <summary>Create my team. Only a name is needed.</summary>
     [HttpPost]
@@ -220,6 +233,14 @@ public sealed class AdminController(
         var seasonId = request.SeasonId ?? (await football.GetCurrentPslSeasonAsync(ct))?.Id
             ?? throw new NotFoundException("No current PSL season is flagged is_current in football.seasons.");
         return Ok(await availability.SetOverrideAsync(id, seasonId, request.Available, request.Reason ?? "", me.Id, ct));
+    }
+
+    /// <summary>Suspend or reinstate an account (read-only, hidden from Overall). Needs migration 009.</summary>
+    [HttpPut("users/{id:int}/suspension")]
+    public async Task<IActionResult> Suspend(int id, SuspendRequest request, CancellationToken ct)
+    {
+        await RequireAdminAsync(ct);
+        return Ok(await HttpContext.RequestServices.GetRequiredService<AccountService>().SetSuspendedAsync(id, request, ct));
     }
 
     private async Task<AppUser> RequireAdminAsync(CancellationToken ct)

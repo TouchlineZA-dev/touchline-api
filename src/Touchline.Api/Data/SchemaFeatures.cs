@@ -27,6 +27,16 @@ public sealed class SchemaFeatures(IServiceScopeFactory scopes, TimeProvider tim
                 """)
             .SingleAsync(ct));
 
+    /// <summary>The column exists and accepts NULL.</summary>
+    public Task<bool> IsNullableAsync(string schema, string table, string column, CancellationToken ct = default) =>
+        CheckAsync($"n:{schema}.{table}.{column}", db => db.Database
+            .SqlQuery<bool>($"""
+                SELECT EXISTS (SELECT 1 FROM information_schema.columns
+                               WHERE table_schema = {schema} AND table_name = {table} AND column_name = {column}
+                                 AND is_nullable = 'YES') AS "Value"
+                """)
+            .SingleAsync(ct));
+
     /// <summary>Forget cached answers (tests apply migrations mid-run).</summary>
     public void Reset() => _cache.Clear();
 

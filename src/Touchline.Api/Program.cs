@@ -73,6 +73,8 @@ builder.Services.AddScoped<AdminService>();
 builder.Services.AddSupabaseAuth(builder.Configuration);
 builder.Services.AddScoped<CurrentUser>();
 builder.Services.AddScoped<UserService>();
+builder.Services.AddScoped<AccountService>();
+builder.Services.Configure<AccountOptions>(builder.Configuration.GetSection(AccountOptions.SectionName));
 
 const string FrontendCors = "frontend";
 var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? [];

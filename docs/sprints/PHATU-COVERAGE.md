@@ -55,9 +55,9 @@ Items that appear in several docs are listed once and cite every source.
 | 28 | 02 | Keep the API | Review the `phathu-dev` work and its local `appsettings.Development.json` change | 1 | sprint-1-report "phathu-dev" | done (report) |
 | 29 | 02 | Scoring trustworthy | Starter, bench and substitution-direction codes confirmed with regression tests | 1 | `SportmonksCodes.cs` (11/12/on = player_id); `SportmonksDecodingTests`, `AuditGapTests` | done |
 | 30 | 02 | Scoring trustworthy | Hand-check minutes, a sub, captain points and a corrected goal against a stored PSL fixture | 1, 2 | `docs/audit/FANTASY_AUDIT_2026-11-23.md` (fixture 1438); corrected goal on real fixture 1393: `Reference/ReplayTests.cs` | done |
-| 31 | 02 | First flow 2 | Same Supabase project as both clients; verify issuer, audience, signature, subject | 3, 7 | | not done |
-| 32 | 02 | First flow 2 | Keep the 409 recovery for legacy and conflicting emails | 3 | existing `UserConflictException` codes | partial (kept; recheck in Sprint 3) |
-| 33 | 02 | First flow 2 | Profile update (display name/username, favourite club), team rename, stable club ids and a web-club mapping | 3 | | not done |
+| 31 | 02 | First flow 2 | Same Supabase project as both clients; verify issuer, audience, signature, subject | 3, 7 | Issuer/audience/signature/expiry pinned per environment (`TokenValidationTests`); same-project setup in `docs/accounts/provider-checklist.md` | partial (code done; dashboard setup is other owner; key-rotation test Sprint 7) |
+| 32 | 02 | First flow 2 | Keep the 409 recovery for legacy and conflicting emails | 3 | `UserConflictException` codes kept; `Email_held_by_…` tests; recovery in `docs/accounts/policies.md` | done |
+| 33 | 02 | First flow 2 | Profile update (display name/username, favourite club), team rename, stable club ids and a web-club mapping | 3 | `PATCH /me {username, favouriteClubId}`, `PATCH /fantasy/team`, `GET /clubs`, `docs/accounts/club-mapping.md` | done |
 | 34 | 02, 03 | First flow 3; Stage 6 | Shared-team end-to-end: admin gameweek → /me → team → 15 picks → snapshot on a second client; stale edit gets 409 | 6 | | not done |
 | 35 | 02 | Public contract | `kickoffUtc` vs web `kickoff`; retire synthetic ratings | 6 | | not done |
 | 36 | 02 | Public contract | Port `/standings`, `/player-rankings`, `/matches?fixtureId=` with their filters and tie rules | 1, 6 | `/standings` (Sprint 1), match detail (Sprint 1); `/player-rankings` and the `/matches` alias in Sprint 6 | partial |
@@ -89,12 +89,12 @@ Items that appear in several docs are listed once and cite every source.
 
 | # | Doc | Section | Item | Sprint | Evidence | Status |
 |---|---|---|---|---|---|---|
-| 55 | 03, 01 | Stage 3.2; Gate 5.2 | Verified subject is the permanent key; linking flow; recovery for unlinked accounts, email conflicts, missing email | 3 | | not done |
-| 56 | 03, 01 | Stage 3.3; Gate 5.3 | Username: length, characters, NFKC, case-fold, reserved, unique canonical key, stable conflict code, visible policies | 3 | | not done |
-| 57 | 03, 01 | Stage 3.4; Gate 5.4 | Team rename by owner; permanent id; name history; picks, memberships and ranks kept; names may repeat | 3 | | not done |
-| 58 | 03, 01 | Stage 3.5; Gate 5.5 | Onboarding state, favourite club, notification preferences, export, deletion, recent auth, leaderboard privacy | 3 | | not done |
-| 59 | 03, 01 | Stage 3 pass | Tests: Apple relay, missing Facebook email, repeated callbacks, expired sessions, conflicting names, deleted and suspended accounts | 3 | | not done |
-| 60 | 03, 01 | Stage 3.1; Gate 5.1 | Provider credentials, callbacks, Apple secret rotation, Facebook non-developer user | 3 | `docs/accounts/provider-checklist.md` | other owner (checklist by API) |
+| 55 | 03, 01 | Stage 3.2; Gate 5.2 | Verified subject is the permanent key; linking flow; recovery for unlinked accounts, email conflicts, missing email | 3 | `UserService` (sub key, optional email); linking test; `policies.md` § Recovery | done |
+| 56 | 03, 01 | Stage 3.3; Gate 5.3 | Username: length, characters, NFKC, case-fold, reserved, unique canonical key, stable conflict code, visible policies | 3 | `UsernameRules`, `AccountService.UpdateAsync`, migration 009; `AccountTests` | done |
+| 57 | 03, 01 | Stage 3.4; Gate 5.4 | Team rename by owner; permanent id; name history; picks, memberships and ranks kept; names may repeat | 3 | `RenameTeamAsync`, `fantasy_team_name_history`; rename test | done |
+| 58 | 03, 01 | Stage 3.5; Gate 5.5 | Onboarding state, favourite club, notification preferences, export, deletion, recent auth, leaderboard privacy | 3 | `GET /me` onboarding, favourite club, `/me/notifications`, `/me/export`, `DELETE /me`, recent auth; leaderboards name-only | done |
+| 59 | 03, 01 | Stage 3 pass | Tests: Apple relay, missing Facebook email, repeated callbacks, expired sessions, conflicting names, deleted and suspended accounts | 3 | `AccountTests` + auth tests (relay, no email, repeated calls, expired, conflicts, deleted, suspended) | done (code side; staging run is human) |
+| 60 | 03, 01 | Stage 3.1; Gate 5.1 | Provider credentials, callbacks, Apple secret rotation, Facebook non-developer user | 3 | `docs/accounts/provider-checklist.md` | other owner (checklist delivered) |
 
 ## Stage 4 / Gate 6: deadline-safe writes
 
@@ -128,7 +128,7 @@ Items that appear in several docs are listed once and cite every source.
 |---|---|---|---|---|---|---|
 | 77 | 03, 01 | Stage 6; API handoff | Versioned OpenAPI with routes, bodies, errors, auth and examples | 6 | | not done |
 | 78 | 03, 01 | Stage 6 | Staging account, stable fixture ids, two reference managers, resettable private league | 6 | | not done |
-| 79 | 03, 01 | Stage 6 table | `PATCH /me`, `PATCH /fantasy/team`, autopick, preview, receipts, chip entitlements, rules, finality, explanations | 3–6 | | not done |
+| 79 | 03, 01 | Stage 6 table | `PATCH /me`, `PATCH /fantasy/team`, autopick, preview, receipts, chip entitlements, rules, finality, explanations | 3–6 | `PATCH /me`, `PATCH /fantasy/team` (Sprint 3); rules (Sprint 2); rest Sprints 4–6 | partial |
 | 80 | 03, 01 | Stage 6 table | Leagues: pagination, rank history, visibility, ownership transfer/deletion policy; tied ranks, concurrent joins, repeated joins, owner departure, public rank vs unpublished squad | 6 | | not done |
 | 81 | 03, 01 | Stage 6 table | Club and player detail, coverage flags, freshness, paging | 1, 6 | coverage and freshness (Sprint 1) | partial |
 | 82 | 03, 01 | Stage 6 table | Delivery: devices, follows, preferences, last synced state | 6 | proposal doc | not done |
@@ -157,8 +157,8 @@ Items that appear in several docs are listed once and cite every source.
 
 | Status | Count |
 |---|---|
-| done | 32 |
-| partial | 11 |
-| not done | 51 |
+| done | 39 |
+| partial | 12 |
+| not done | 43 |
 | other owner / N/A / conflict | 3 |
 | **Total** | **97** |

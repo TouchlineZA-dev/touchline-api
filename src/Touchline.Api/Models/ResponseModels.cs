@@ -8,6 +8,9 @@ public record SeasonSummary(int Id, string Name, int CompetitionId, DateOnly? St
 
 public record TeamSummary(int Id, string Name, string? ShortCode, string? CrestUrl);
 
+/// <param name="Id">football.teams.id: the stable club id used everywhere in the API (favourite club, fixtures).</param>
+public record ClubView(int Id, long SportmonksTeamId, string Name, string? ShortCode, string? Crest);
+
 public record PlayerSummary(
     int Id,
     long SportmonksPlayerId,
