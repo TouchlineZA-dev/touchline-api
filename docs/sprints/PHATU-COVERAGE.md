@@ -54,7 +54,7 @@ Items that appear in several docs are listed once and cite every source.
 | 27 | 02 | First flow 1 | Auth and fantasy persistence tests on disposable Postgres with the real grants; clean install and populated upgrade | 1 | API connects as `app_api_user` in every DB test; `MigrationTests` | done |
 | 28 | 02 | Keep the API | Review the `phathu-dev` work and its local `appsettings.Development.json` change | 1 | sprint-1-report "phathu-dev" | done (report) |
 | 29 | 02 | Scoring trustworthy | Starter, bench and substitution-direction codes confirmed with regression tests | 1 | `SportmonksCodes.cs` (11/12/on = player_id); `SportmonksDecodingTests`, `AuditGapTests` | done |
-| 30 | 02 | Scoring trustworthy | Hand-check minutes, a sub, captain points and a corrected goal against a stored PSL fixture | 1, 2 | Minutes, sub and captain: fixture 1438 in `docs/audit/FANTASY_AUDIT_2026-11-23.md`. Corrected goal: GW9 replay in Sprint 2 | partial |
+| 30 | 02 | Scoring trustworthy | Hand-check minutes, a sub, captain points and a corrected goal against a stored PSL fixture | 1, 2 | `docs/audit/FANTASY_AUDIT_2026-11-23.md` (fixture 1438); corrected goal on real fixture 1393: `Reference/ReplayTests.cs` | done |
 | 31 | 02 | First flow 2 | Same Supabase project as both clients; verify issuer, audience, signature, subject | 3, 7 | | not done |
 | 32 | 02 | First flow 2 | Keep the 409 recovery for legacy and conflicting emails | 3 | existing `UserConflictException` codes | partial (kept; recheck in Sprint 3) |
 | 33 | 02 | First flow 2 | Profile update (display name/username, favourite club), team rename, stable club ids and a web-club mapping | 3 | | not done |
@@ -75,15 +75,15 @@ Items that appear in several docs are listed once and cite every source.
 
 | # | Doc | Section | Item | Sprint | Evidence | Status |
 |---|---|---|---|---|---|---|
-| 46 | 03, 01 | First tickets #1; Gate 1.4 | Versioned rulebook: captaincy, subs, chips, transfers, sale prices, corrections, ties, late entries, reassignments, rounding | 2 | | not done |
-| 47 | 03, 01 | Stage 2 table; FPL parity | Each FPL Classic difference listed for product sign-off (12 capabilities) | 2 | | not done |
-| 48 | 01 | Gate 1.2–1.3 | Coverage matrix: confirmed zero, missing, delayed, unsupported per field; what blocks settlement; what the API shows | 2 | | not done |
-| 49 | 03, 01 | Stage 2 pass; Gate 1 pass | Reference squads independently calculated; a second reviewer reproduces them | 2 | GW9 / fixture 1393 | not done |
-| 50 | 03 | Stage 2 pass | Keep the rules version on historical entries | 2 | | not done |
-| 51 | 03, 01 | Stage 2 deadline row | Publish the exact deadline; protect published history; when a future deadline may change | 2 | | not done |
-| 52 | 01 | Gate 1.4 | Machine-readable rulebook for mobile | 2 | `GET /api/v1/rules` | not done |
-| 53 | 03 | Stage 2 scoring row | Version the points table | 2 | | not done |
-| 54 | 01 | Reference calculation | 42/34 FPL-rule example vs our 44/41 | 2 | | conflict (logged in Sprint 2) |
+| 46 | 03, 01 | First tickets #1; Gate 1.4 | Versioned rulebook: captaincy, subs, chips, transfers, sale prices, corrections, ties, late entries, reassignments, rounding | 2 | `docs/rules/rulebook-2026-27-v1.md`, `GET /api/v1/rules` | done (sign-off is human) |
+| 47 | 03, 01 | Stage 2 table; FPL parity | Each FPL Classic difference listed for product sign-off (12 capabilities) | 2 | rulebook §15; `/rules` `differencesFromFplClassic` | done (sign-off is human) |
+| 48 | 01 | Gate 1.2–1.3 | Coverage matrix: confirmed zero, missing, delayed, unsupported per field; what blocks settlement; what the API shows | 2 | `docs/rules/coverage-matrix.md` | done |
+| 49 | 03, 01 | Stage 2 pass; Gate 1 pass | Reference squads independently calculated; a second reviewer reproduces them | 2 | `docs/rules/reference-week.md` (65, 61); `ReferenceWeekTests`; `tools/score_gw9.py` | done (second human reviewer pending) |
+| 50 | 03 | Stage 2 pass | Keep the rules version on historical entries | 2 | migration 008 / V040; `Finalising_stamps_the_rules_version…` | done |
+| 51 | 03, 01 | Stage 2 deadline row | Publish the exact deadline; protect published history; when a future deadline may change | 2 | `deadlineSast`; `PUT /admin/gameweeks/{id}/deadline`; rulebook §3 | done |
+| 52 | 01 | Gate 1.4 | Machine-readable rulebook for mobile | 2 | `GET /api/v1/rules` | done |
+| 53 | 03 | Stage 2 scoring row | Version the points table | 2 | `2026-27.points.v1`, stored per entry and points row | done |
+| 54 | 01 | Reference calculation | 42/34 FPL-rule example vs our 44/41 | 2 | sprint-2-report "Conflicts" | conflict (logged; sign-off pending) |
 
 ## Stage 3 / Gate 5: accounts
 
@@ -157,8 +157,8 @@ Items that appear in several docs are listed once and cite every source.
 
 | Status | Count |
 |---|---|
-| done | 23 |
-| partial | 12 |
-| not done | 59 |
+| done | 32 |
+| partial | 11 |
+| not done | 51 |
 | other owner / N/A / conflict | 3 |
 | **Total** | **97** |

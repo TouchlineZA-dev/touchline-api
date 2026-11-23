@@ -1,0 +1,123 @@
+{
+  "_meta": {
+    "observed_at": "2026-10-31T14:00:41Z",
+    "source": "reconstructed",
+    "note": "Hourly run mid-first-half: Mbuthuma 24', assist Mokobodi."
+  },
+  "data": {
+    "id": 19781326,
+    "league_id": 806,
+    "season_id": 28123,
+    "stage_id": 77483147,
+    "venue_id": 6539,
+    "state_id": 2,
+    "starting_at": "2026-10-31 13:30:00",
+    "result_info": null,
+    "length": 90,
+    "placeholder": false,
+    "participants": [
+      {
+        "id": 9960,
+        "meta": {
+          "location": "home"
+        }
+      },
+      {
+        "id": 2541,
+        "meta": {
+          "location": "away"
+        }
+      }
+    ],
+    "scores": [
+      {
+        "description": "CURRENT",
+        "score": {
+          "goals": 1,
+          "participant": "home"
+        }
+      },
+      {
+        "description": "CURRENT",
+        "score": {
+          "goals": 0,
+          "participant": "away"
+        }
+      }
+    ],
+    "events": [
+      {
+        "id": 158473513,
+        "type_id": 14,
+        "minute": 24,
+        "extra_minute": null,
+        "participant_id": 9960,
+        "player_id": 37639894,
+        "player_name": "Yanela Mbuthuma",
+        "related_player_id": 37723175,
+        "related_player_name": "Thapelo Mokobodi",
+        "result": "1-0",
+        "addition": null,
+        "sort_order": null,
+        "rescinded": null
+      }
+    ],
+    "statistics": [],
+    "lineups": [
+      {
+        "id": 14675212789,
+        "player_id": 37639894,
+        "player_name": "Yanela Mbuthuma",
+        "type_id": 11,
+        "jersey_number": 9,
+        "position_id": 27,
+        "team_id": 9960
+      },
+      {
+        "id": 14675212787,
+        "player_id": 37723175,
+        "player_name": "Thapelo Mokobodi",
+        "type_id": 11,
+        "jersey_number": 33,
+        "position_id": 26,
+        "team_id": 9960
+      },
+      {
+        "id": 14675212788,
+        "player_id": 37551389,
+        "player_name": "Tshepang Moremi",
+        "type_id": 11,
+        "jersey_number": 11,
+        "position_id": 26,
+        "team_id": 9960
+      },
+      {
+        "id": 14675212782,
+        "player_id": 37708606,
+        "player_name": "Nkosikhona Ndaba",
+        "type_id": 11,
+        "jersey_number": 3,
+        "position_id": 25,
+        "team_id": 9960
+      },
+      {
+        "id": 14675212804,
+        "player_id": 21395025,
+        "player_name": "Ghampani Lungu",
+        "type_id": 12,
+        "jersey_number": 23,
+        "position_id": 27,
+        "team_id": 9960
+      },
+      {
+        "id": 14675212799,
+        "player_id": 22860191,
+        "player_name": "Pule Mmodi",
+        "type_id": 11,
+        "jersey_number": 13,
+        "position_id": 26,
+        "team_id": 2541
+      }
+    ]
+  }
+}

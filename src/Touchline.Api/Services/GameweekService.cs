@@ -55,6 +55,8 @@ public sealed record SeasonCalendar(
 public sealed record FixtureAssignmentView(
     int Id, int FixtureId, int? GameweekId, int? GameweekNumber, string Reason, int? AssignedByUserId, DateTimeOffset CreatedAtUtc);
 
+public sealed record UpdateDeadlineRequest(DateTimeOffset DeadlineAt, string Reason);
+
 public sealed record AssignFixtureRequest(int? GameweekId, string Reason, bool ConfirmLockedChange = false);
 
 public sealed record AssignFixtureResult(
@@ -285,6 +287,36 @@ public sealed class GameweekService(TouchlineDbContext db, IOptions<FantasyRules
         await InsertAssignmentAsync(fixtureId, to?.Id, reason, adminUserId, ct);
 
         return new AssignFixtureResult(fixtureId, from?.Id, to?.Id, locked, rescoreNeeded, await HistoryAsync(fixtureId, ct), now);
+    }
+
+    /// <summary>
+    /// Admin: change a FUTURE gameweek's deadline (e.g. its first kickoff moved). A deadline that has
+    /// passed never changes, so published history and locked entries are protected. The new deadline
+    /// must still be in the future and no later than the gameweek's first kickoff.
+    /// </summary>
+    public async Task<GameweekRef> UpdateDeadlineAsync(int gameweekId, UpdateDeadlineRequest request, DateTimeOffset now, CancellationToken ct)
+    {
+        if (string.IsNullOrWhiteSpace(request.Reason)) throw new RuleViolationException("Every deadline change needs a reason.");
+        var gameweek = await db.Gameweeks.AsTracking().FirstOrDefaultAsync(g => g.Id == gameweekId, ct)
+            ?? throw new NotFoundException($"Gameweek {gameweekId} doesn't exist.");
+        if (gameweek.SeasonId is not { } seasonId) throw new RuleViolationException("This gameweek has no season.");
+
+        var info = (await GetCalendarAsync(seasonId, ct)).ById(gameweekId)!;
+        if (info.IsLocked(now))
+        {
+            throw new ConflictException(
+                $"{gameweek.Name}'s deadline ({info.Deadline:yyyy-MM-dd HH:mm} UTC) has passed, so it can't change.", "Gameweek locked");
+        }
+        var deadline = request.DeadlineAt.ToUniversalTime();
+        var firstKickoff = info.Fixtures.Select(f => f.StartingAt).Where(k => k is not null).Min();
+        var errors = new List<string>();
+        if (deadline <= now) errors.Add("The new deadline must be in the future.");
+        if (firstKickoff is not null && deadline > firstKickoff) errors.Add($"The deadline can't be after the first kickoff ({firstKickoff:yyyy-MM-dd HH:mm} UTC).");
+        if (errors.Count > 0) throw new RuleViolationException(errors);
+
+        gameweek.DeadlineAt = deadline;
+        await db.SaveChangesAsync(ct);
+        return (await GetCalendarAsync(seasonId, ct)).ById(gameweekId)!.ToRef(now);
     }
 
     /// <summary>A fixture's assignment history, newest first. Empty until 007 is applied.</summary>
