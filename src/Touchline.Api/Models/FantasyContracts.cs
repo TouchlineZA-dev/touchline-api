@@ -11,16 +11,17 @@ public sealed record CreateTeamRequest(string Name);
 
 public sealed record RenameTeamRequest(string Name);
 
-/// <param name="Gameweek">Optional: the gameweek number the app thinks it's editing. If that gameweek has locked, the change is rejected.</param>
+/// <param name="GameweekId">The target gameweek id (required). If that gameweek has locked, nothing is saved (409 gameweek_locked).</param>
+/// <param name="Gameweek">Legacy: the target gameweek number, accepted when GameweekId is missing.</param>
 public sealed record SquadRequest(
-    string Formation, IReadOnlyList<int> Starters, IReadOnlyList<int> Bench, int? CaptainId, int? ViceCaptainId, int? Gameweek = null)
+    string Formation, IReadOnlyList<int> Starters, IReadOnlyList<int> Bench, int? CaptainId, int? ViceCaptainId, int? Gameweek = null, int? GameweekId = null)
 {
     public SquadSelection ToSelection() => new(Formation, Starters ?? [], Bench ?? [], CaptainId, ViceCaptainId);
 }
 
-public sealed record TransfersRequest(IReadOnlyList<int> Out, IReadOnlyList<int> In, int? Gameweek = null);
+public sealed record TransfersRequest(IReadOnlyList<int> Out, IReadOnlyList<int> In, int? Gameweek = null, int? GameweekId = null);
 
-public sealed record ChipRequest(string Chip, int? Gameweek = null);
+public sealed record ChipRequest(string Chip, int? Gameweek = null, int? GameweekId = null);
 
 public sealed record CreateLeagueRequest(string Name);
 

@@ -66,6 +66,7 @@ builder.Services.AddScoped<PointsService>();
 builder.Services.AddScoped<FantasyContextService>();
 builder.Services.AddScoped<LeagueService>();
 builder.Services.AddScoped<FantasyTeamService>();
+builder.Services.AddScoped<SafeWriteService>();
 builder.Services.AddScoped<PricingService>();
 builder.Services.AddScoped<AdminService>();
 

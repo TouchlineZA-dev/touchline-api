@@ -35,9 +35,41 @@ public abstract class FantasyControllerBase(CurrentUser currentUser, UserService
 }
 
 [Route("api/v1/fantasy/team")]
-public sealed class FantasyTeamController(CurrentUser currentUser, UserService users, FantasyTeamService teams)
+public sealed class FantasyTeamController(CurrentUser currentUser, UserService users, FantasyTeamService teams, SafeWriteService safe)
     : FantasyControllerBase(currentUser, users)
 {
+    /// <summary>Quote transfers for the target gameweek: costs, bank, free transfers, hit, violations and the versions to confirm with. Saves nothing.</summary>
+    [HttpPost("transfers/preview")]
+    public async Task<IActionResult> PreviewTransfers(TransferPreviewRequest request, CancellationToken ct) =>
+        Ok(await safe.PreviewAsync(await MeAsync(ct), request, ct));
+
+    /// <summary>
+    /// Confirm a quote. Needs the quote's gameweekId, squadVersion, priceRevision and quotedAtUtc, and an
+    /// Idempotency-Key header: retrying with the same key and body returns the original receipt.
+    /// </summary>
+    [HttpPost("transfers/confirm")]
+    public async Task<IActionResult> ConfirmTransfers(
+        TransferConfirmRequest request, [FromHeader(Name = "Idempotency-Key")] string? idempotencyKey, CancellationToken ct) =>
+        Ok(await safe.ConfirmAsync(await MeAsync(ct), request, idempotencyKey, ct));
+
+    /// <summary>Free transfers granted and used, and hits charged, per gameweek.</summary>
+    [HttpGet("transfers/ledger"), ETag]
+    public async Task<IActionResult> TransferLedger(CancellationToken ct) => Ok(await safe.LedgerAsync(await MeAsync(ct), ct));
+
+    /// <summary>A legal squad suggestion within the budget, or why none is possible. Saves nothing.</summary>
+    [HttpPost("autopick/preview")]
+    public async Task<IActionResult> AutopickPreview(AutopickRequest request, CancellationToken ct) =>
+        Ok(await safe.AutopickAsync(await MeAsync(ct), request, ct));
+
+    /// <summary>Chip entitlements this season and what can be done with each now.</summary>
+    [HttpGet("chips"), ETag]
+    public async Task<IActionResult> GetChips(CancellationToken ct) => Ok(await teams.ChipsAsync(await MeAsync(ct), ct));
+
+    /// <summary>Cancel Bench Boost or Triple Captain before its gameweek's deadline.</summary>
+    [HttpDelete("chips/{chip}")]
+    public async Task<IActionResult> CancelChip(string chip, [FromQuery] int? gameweekId, CancellationToken ct) =>
+        Ok(await teams.CancelChipAsync(await MeAsync(ct), chip, gameweekId, ct));
+
     /// <summary>My team for the current season (404 if none).</summary>
     [HttpGet, ETag]
     public async Task<IActionResult> Get(CancellationToken ct) => Ok(await teams.GetTeamAsync(await MeAsync(ct), ct));
@@ -154,6 +186,14 @@ public sealed class AdminController(
     {
         var me = await RequireAdminAsync(ct);
         return StatusCode(StatusCodes.Status201Created, await gameweeks.CreateAsync(request, time.GetUtcNow(), me.Id, ct));
+    }
+
+    /// <summary>After the deadline: freeze every team's entry and reconcile accepted receipts with the locked entries.</summary>
+    [HttpPost("gameweeks/{id:int}/lock")]
+    public async Task<IActionResult> LockGameweek(int id, CancellationToken ct)
+    {
+        await RequireAdminAsync(ct);
+        return Ok(await HttpContext.RequestServices.GetRequiredService<SafeWriteService>().LockReportAsync(id, time.GetUtcNow(), ct));
     }
 
     /// <summary>Change a future gameweek's deadline. A passed deadline never changes.</summary>
