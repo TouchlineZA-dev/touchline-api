@@ -39,7 +39,7 @@ Items that appear in several docs are listed once and cite every source.
 | 17 | 01 | Gate 3 | Expose score, phase, clock source, last update and stale status | 1 | match detail `clock`, `freshness` | done |
 | 18 | 01 | Regressions | Same snapshot ingested three times: one event set, points once | 1 | `Same_snapshot_ingested_three_times…`; `MatchFactsDecoder.DistinctEvents` | done |
 | 19 | 01 | Regressions | A fixture moved into another week: points follow the approved assignment; history records it | 1 | `Fixture_moved_to_another_week…` | done |
-| 20 | 01 | Regressions | A red card or goal rescinded: contribution removed; history has original and correcting revisions | 1, 5 | Removal: `Reissued_correction…` (Sprint 1). Revision history: Sprint 5 | partial |
+| 20 | 01 | Regressions | A red card or goal rescinded: contribution removed; history has original and correcting revisions | 1, 5 | removal (Sprint 1) and original + amendment revisions in history (Sprint 5) | done |
 | 21 | 01 | Gate 2.2 | Migrations tested on empty and on a populated previous release, with the restricted roles | 1 | `MigrationTests` (clean install, populated upgrade, rerun), API as `app_api_user` | done |
 | 22 | 01 | Gate 2.5 | Rehearse blank/double weeks, promoted clubs, club moves, season rollover | 1, 6 | Double/blank via assignments (Sprint 1); club moves and rollover tests in Sprint 6 | partial |
 | 23 | 01 | Gate 4: player detail | Stable identity, club, position, eligibility, minutes, upcoming fixtures, points history; duplicate names and club moves by id | 6 | | not done |
@@ -66,10 +66,10 @@ Items that appear in several docs are listed once and cite every source.
 | 39 | 02 | Public contract | Export OpenAPI from CI; contract tests on real envelopes | 6 | | not done |
 | 40 | 02 | Public contract | Local launch target and staging/production config: scoped role, Supabase settings, explicit origins | 6 | | not done |
 | 41 | 02 | Public contract | Monitor DB readiness and data freshness separately | 6 | | not done |
-| 42 | 02 | Scoring trustworthy | Finaliser uses `sync.gameweek_sync_status`; completeness for late facts and postponements | 5 | | not done |
-| 43 | 02 | Scoring trustworthy | Owners or schedules for creating gameweeks, finalising/rescoring and applying window prices | 5 | `docs/ops/fantasy-operations.md` | not done |
-| 44 | 02 | Scoring trustworthy | Postgres tests: repeated scoring, duplicate transfers, league capacity, two-device edits | 4, 5, 6 | two-device and duplicate-transfer tests (Sprint 4); repeated scoring Sprint 5; league capacity Sprint 6 | partial |
-| 45 | 02 | Release gate | A non-admin can't score; final score and rank match a hand calculation and stay stable after a rerun | 5 | | not done |
+| 42 | 02 | Scoring trustworthy | Finaliser uses `sync.gameweek_sync_status`; completeness for late facts and postponements | 5 | `SettlementService` completeness contract; legacy gate needs `marked_complete` | done |
+| 43 | 02 | Scoring trustworthy | Owners or schedules for creating gameweeks, finalising/rescoring and applying window prices | 5 | `docs/ops/fantasy-operations.md` | done |
+| 44 | 02 | Scoring trustworthy | Postgres tests: repeated scoring, duplicate transfers, league capacity, two-device edits | 4, 5, 6 | two-device, duplicate transfers (Sprint 4); repeated scoring (Sprint 5); league capacity Sprint 6 | partial |
+| 45 | 02 | Release gate | A non-admin can't score; final score and rank match a hand calculation and stay stable after a rerun | 5 | `Non_admins_cannot_score…`; hand-calculated 51/45 and stable rerun; ranks from the revision | done |
 
 ## Stage 2 / Gate 1: season rules
 
@@ -114,13 +114,13 @@ Items that appear in several docs are listed once and cite every source.
 
 | # | Doc | Section | Item | Sprint | Evidence | Status |
 |---|---|---|---|---|---|---|
-| 70 | 03, 01 | Stage 5.1 | State machine open → locked → live → awaiting_review → final, with reason, revision and time | 5 | | not done |
-| 71 | 03, 01 | Stage 5.2; ticket 5 | Completeness contract: verified zero, delayed, awarded, abandoned, manual resolution | 5 | | not done |
-| 72 | 03, 01 | Stage 5.3 | Per-fixture scoring, on-pitch intervals, preserved inputs, captain fallback after all fixtures, reasons recorded | 5 | | partial: per-fixture and intervals exist; reasons recorded in Sprint 5 |
-| 73 | 03, 01 | Stage 5.4 | Provisional, final and amendment revisions; atomic batches; resume without double counting | 5 | | not done |
-| 74 | 03, 01 | Stage 5.5 | Ranks from the same revision; ties, late joins, eligibility; cached, paged, efficient "my rank"; included in load tests | 5, 7 | | not done |
-| 75 | 03, 01 | Stage 5.6 | Support explanation view; audited correction workflow with preview and correction message | 5 | | not done |
-| 76 | 01 | Matchday ops | Week stays under review when whistles have gone but scoring data is short | 5 | | not done |
+| 70 | 03, 01 | Stage 5.1 | State machine open → locked → live → awaiting_review → final, with reason, revision and time | 5 | `app.gameweek_settlement`, transitions, `SettlementStates` | done |
+| 71 | 03, 01 | Stage 5.2; ticket 5 | Completeness contract: verified zero, delayed, awarded, abandoned, manual resolution | 5 | per-fixture outcomes incl. verified zero, delayed, awarded, abandoned, manual resolution | done |
+| 72 | 03, 01 | Stage 5.3 | Per-fixture scoring, on-pitch intervals, preserved inputs, captain fallback after all fixtures, reasons recorded | 5 | per-fixture breakdowns, reasons stored, captain fallback after all fixtures (no autosubs, conflict logged) | done |
+| 73 | 03, 01 | Stage 5.4 | Provisional, final and amendment revisions; atomic batches; resume without double counting | 5 | `app.score_revisions`/`score_revision_teams`, batched build, atomic publish, resume test | done |
+| 74 | 03, 01 | Stage 5.5 | Ranks from the same revision; ties, late joins, eligibility; cached, paged, efficient "my rank"; included in load tests | 5, 7 | standings from the published revision, paged, cached by revision, `me`, movement, history; load test Sprint 7 | partial |
+| 75 | 03, 01 | Stage 5.6 | Support explanation view; audited correction workflow with preview and correction message | 5 | `/points/explain`; corrections preview/publish with correction message | done |
+| 76 | 01 | Matchday ops | Week stays under review when whistles have gone but scoring data is short | 5 | `awaiting_review` with blockers | done |
 
 ## Stage 6: frontend contract
 
@@ -132,7 +132,7 @@ Items that appear in several docs are listed once and cite every source.
 | 80 | 03, 01 | Stage 6 table | Leagues: pagination, rank history, visibility, ownership transfer/deletion policy; tied ranks, concurrent joins, repeated joins, owner departure, public rank vs unpublished squad | 6 | | not done |
 | 81 | 03, 01 | Stage 6 table | Club and player detail, coverage flags, freshness, paging | 1, 6 | coverage and freshness (Sprint 1) | partial |
 | 82 | 03, 01 | Stage 6 table | Delivery: devices, follows, preferences, last synced state | 6 | proposal doc | not done |
-| 83 | 03 | Stage 6 | Shared standings cached by revision and page; manager responses scoped to the account | 5, 6 | | not done |
+| 83 | 03 | Stage 6 | Shared standings cached by revision and page; manager responses scoped to the account | 5, 6 | standings cached by revision + paged (Sprint 5); responses scoped to the account | done |
 | 84 | 03 | Stage 6 pass | Frontend developer completes the flow on staging APIs with no DB edits | 6 | | not done |
 
 ## Stage 7 / Gates 8–9: operate and secure
@@ -157,8 +157,8 @@ Items that appear in several docs are listed once and cite every source.
 
 | Status | Count |
 |---|---|
-| done | 49 |
-| partial | 13 |
-| not done | 32 |
+| done | 60 |
+| partial | 12 |
+| not done | 22 |
 | other owner / N/A / conflict | 3 |
 | **Total** | **97** |

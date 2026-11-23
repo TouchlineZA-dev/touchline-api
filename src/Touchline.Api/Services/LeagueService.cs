@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
 using Touchline.Api.Data;
 using Touchline.Api.Fantasy;
@@ -10,7 +11,9 @@ namespace Touchline.Api.Services;
 /// Private leagues (join by code only, no public list) and the Overall league of every team in the
 /// season, which has no table row and is worked out on request.
 /// </summary>
-public sealed class LeagueService(TouchlineDbContext db, PointsService points, Users.AccountService accounts, IOptions<FantasyRules> options)
+public sealed class LeagueService(
+    TouchlineDbContext db, PointsService points, Users.AccountService accounts, SchemaFeatures schema,
+    Microsoft.Extensions.Caching.Memory.IMemoryCache cache, IOptions<FantasyRules> options)
 {
     public const string OverallId = "overall";
 
@@ -156,7 +159,53 @@ public sealed class LeagueService(TouchlineDbContext db, PointsService points, U
     }
 
     /// <summary>Standings by season total, or a single gameweek with ?gameweek=N. Includes live provisional points.</summary>
-    public async Task<StandingsView> StandingsAsync(FantasyContext ctx, string leagueId, int? gameweekNumber, CancellationToken ct)
+    public const int DefaultPageSize = 50;
+    public const int MaxPageSize = 200;
+
+    public async Task<StandingsView> StandingsAsync(FantasyContext ctx, string leagueId, int? gameweekNumber, CancellationToken ct, int page = 1, int pageSize = DefaultPageSize)
+    {
+        page = Math.Max(1, page);
+        pageSize = Math.Clamp(pageSize <= 0 ? DefaultPageSize : pageSize, 1, MaxPageSize);
+        var revision = await RevisionLabelAsync(ctx, ct);
+        var key = $"standings:{ctx.Season.Id}:{leagueId.ToLowerInvariant()}:{gameweekNumber}:{revision}";
+        if (cache.TryGetValue(key, out StandingsView? cached) && cached is not null)
+        {
+            if (!string.Equals(leagueId, OverallId, StringComparison.OrdinalIgnoreCase)
+                && (ctx.Team is null || !cached.Rows.Any(r => r.FantasyTeamId == ctx.Team.Id)))
+            {
+                throw new ForbiddenException("Only members can see this league's standings.");
+            }
+            return Page(cached, page, pageSize, ctx.Team?.Id);
+        }
+        var full = await FullStandingsAsync(ctx, leagueId, gameweekNumber, ct);
+        full = full with { Revision = revision + (full.Provisional ? "+live" : "") };
+        // Shared standings are cached by revision (final points only change with a new published revision);
+        // while provisional points are included, only for the live-points cache period.
+        cache.Set(key, full, TimeSpan.FromSeconds(full.Provisional ? options.Value.LivePointsCacheSeconds : 300));
+        return Page(full, page, pageSize, ctx.Team?.Id);
+    }
+
+    private static StandingsView Page(StandingsView full, int page, int pageSize, int? myTeamId) => full with
+    {
+        Rows = full.Rows.Skip((page - 1) * pageSize).Take(pageSize).ToList(),
+        Page = page,
+        PageSize = pageSize,
+        TotalRows = full.Rows.Count,
+        Me = myTeamId is { } id ? full.Rows.FirstOrDefault(r => r.FantasyTeamId == id) : null,
+    };
+
+    /// <summary>"r{newest published revision id of the season}", or "legacy" before migration 011.</summary>
+    private async Task<string> RevisionLabelAsync(FantasyContext ctx, CancellationToken ct)
+    {
+        if (!await schema.HasTableAsync("app", "score_revisions", ct)) return "legacy";
+        var ids = ctx.Calendar.Gameweeks.Select(g => g.Id).ToArray();
+        var max = await db.Database.SqlQuery<int?>($"""
+            SELECT MAX(id) AS "Value" FROM app.score_revisions WHERE status = 'published' AND gameweek_id = ANY({ids})
+            """).FirstOrDefaultAsync(ct);
+        return $"r{max ?? 0}";
+    }
+
+    private async Task<StandingsView> FullStandingsAsync(FantasyContext ctx, string leagueId, int? gameweekNumber, CancellationToken ct)
     {
         GameweekInfo? gameweek = null;
         if (gameweekNumber is not null)
@@ -190,15 +239,30 @@ public sealed class LeagueService(TouchlineDbContext db, PointsService points, U
         }
 
         var totals = await points.TeamTotalsAsync(teamIds, ctx.Calendar, gameweek, ctx.Now, ct);
-        var ranked = LeagueRules.Rank(teamIds.Where(seasonTeams.ContainsKey).Select(t => Standing(t, seasonTeams, totals, useGameweek: gameweek is not null)));
+        var members = teamIds.Where(seasonTeams.ContainsKey).ToList();
+        var ranked = LeagueRules.Rank(members.Select(t => Standing(t, seasonTeams, totals, useGameweek: gameweek is not null)));
+
+        // Rank movement: the ranking before this gameweek's points (same tie rules).
+        var previous = gameweek is null
+            ? LeagueRules.Rank(members.Select(t =>
+              {
+                  var s = Standing(t, seasonTeams, totals, useGameweek: false);
+                  var week = totals.GetValueOrDefault(t, new TeamTotals(0, 0, false)).GameweekPoints;
+                  return s with { Points = s.Points - week, OverallPoints = s.OverallPoints - week };
+              })).ToDictionary(r => r.Entry.FantasyTeamId, r => r.Rank)
+            : null;
 
         return new StandingsView(
             leagueId.ToLowerInvariant(),
             name,
             gameweek?.Number,
             ranked.Any(r => r.Entry.Provisional),
-            ranked.Select(r => new StandingRowView(
-                r.Rank, r.Entry.FantasyTeamId, r.Entry.TeamName, r.Entry.Username, r.Entry.Points, r.Entry.OverallPoints, r.Entry.Provisional)).ToList());
+            ranked.Select(r =>
+            {
+                int? before = previous is not null && previous.TryGetValue(r.Entry.FantasyTeamId, out var p) ? p : null;
+                return new StandingRowView(r.Rank, r.Entry.FantasyTeamId, r.Entry.TeamName, r.Entry.Username, r.Entry.Points, r.Entry.OverallPoints,
+                    r.Entry.Provisional, before, before - r.Rank);
+            }).ToList());
     }
 
     private static StandingInput Standing(

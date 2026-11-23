@@ -232,7 +232,10 @@ public class AuditRuleTests
     [InlineData(new short[] { 5, 1 }, false)]   // not started yet
     public void Gameweek_with_a_postponed_fixture_can_still_be_finalised(short[] states, bool expected)
     {
-        Assert.Equal(expected, GameweekRules.CanFinalise(markedComplete: false, states.Select(s => (short?)s).ToList()));
+        // With the worker's evidence, a postponed fixture doesn't hold the week (default decision 1)...
+        Assert.Equal(expected, GameweekRules.CanFinalise(markedComplete: true, states.Select(s => (short?)s).ToList()));
+        // ...and without it, fixture states alone never finalise (runbook Part 1b).
+        Assert.False(GameweekRules.CanFinalise(markedComplete: false, states.Select(s => (short?)s).ToList()));
     }
 
     [Theory]

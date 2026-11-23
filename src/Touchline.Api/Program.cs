@@ -63,6 +63,8 @@ builder.Services.AddScoped<FantasyDataService>();
 builder.Services.AddScoped<SquadStore>();
 builder.Services.AddScoped<MatchFactsService>();
 builder.Services.AddScoped<PointsService>();
+builder.Services.AddScoped<SettlementService>();
+builder.Services.Configure<SettlementOptions>(builder.Configuration.GetSection(SettlementOptions.SectionName));
 builder.Services.AddScoped<FantasyContextService>();
 builder.Services.AddScoped<LeagueService>();
 builder.Services.AddScoped<FantasyTeamService>();

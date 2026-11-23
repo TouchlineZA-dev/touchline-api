@@ -14,6 +14,7 @@ These SQL files create and change the `app` tables that touchline-api owns. They
 | `008_rules_versions.sql` | Rules and points-table versions on gameweek entries and points results (Sprint 2, not applied yet) |
 | `009_accounts.sql` | Optional email, usernames, favourite club, suspension and deletion flags, rename history, notification preferences (Sprint 3, not applied yet) |
 | `010_safe_writes.sql` | Receipts with idempotency keys, granted free transfers, the locked deadline snapshot, cancellable chips (Sprint 4, not applied yet) |
+| `011_settlement.sql` | Gameweek state machine, fixture resolutions, score revisions and corrections (Sprint 5, not applied yet) |
 
 touchline-sync keeps the same SQL as Flyway versions, so a Flyway run there is a no-op for anything already applied here:
 
@@ -29,6 +30,7 @@ touchline-sync keeps the same SQL as Flyway versions, so a Flyway run there is a
 | 008 | V040 |
 | 009 | V041 |
 | 010 | V042 |
+| 011 | V043 |
 
 Change both copies together. From 007 on, file NNN is Flyway V(NNN+32). The API's database tests apply the pinned Flyway set (`tests/db/flyway`) and then these files from 007 on, so a new file here is tested before it reaches touchline-sync.
 

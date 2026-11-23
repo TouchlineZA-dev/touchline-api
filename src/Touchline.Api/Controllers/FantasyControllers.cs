@@ -124,6 +124,18 @@ public sealed class FantasyTeamController(CurrentUser currentUser, UserService u
     public async Task<IActionResult> Chips(ChipRequest request, CancellationToken ct) =>
         Ok(await teams.ActivateChipAsync(await MeAsync(ct), request, ct));
 
+    /// <summary>
+    /// Why my points are what they are: each player's points per fixture, multipliers with reasons, bench,
+    /// hits, the revision used and what changed since the previous revision.
+    /// </summary>
+    [HttpGet("points/explain"), ETag]
+    public async Task<IActionResult> Explain([FromQuery] int? gameweek, CancellationToken ct) =>
+        Ok(await teams.ExplainAsync(await MeAsync(ct), gameweek, ct));
+
+    /// <summary>My season so far: points, overall total and overall rank after each finalised gameweek.</summary>
+    [HttpGet("history"), ETag]
+    public async Task<IActionResult> History(CancellationToken ct) => Ok(await teams.HistoryAsync(await MeAsync(ct), ct));
+
     /// <summary>Points with a breakdown per player. Provisional (not saved) while the gameweek isn't finalised.</summary>
     [HttpGet("points"), ETag]
     public async Task<IActionResult> Points([FromQuery] int? gameweek, CancellationToken ct) =>
@@ -158,10 +170,13 @@ public sealed class FantasyLeaguesController(
         return NoContent();
     }
 
-    /// <summary>Standings: season totals, or one gameweek with ?gameweek=N. "overall" works as the id.</summary>
+    /// <summary>
+    /// Standings: season totals, or one gameweek with ?gameweek=N. "overall" works as the id. Paged
+    /// (?page, ?pageSize, max 200); "me" is my row wherever it falls; "revision" names the scores used.
+    /// </summary>
     [HttpGet("{id}/standings"), ETag]
-    public async Task<IActionResult> Standings(string id, [FromQuery] int? gameweek, CancellationToken ct) =>
-        Ok(await leagues.StandingsAsync(await ContextAsync(ct), id, gameweek, ct));
+    public async Task<IActionResult> Standings(string id, [FromQuery] int? gameweek, CancellationToken ct, [FromQuery] int page = 1, [FromQuery] int pageSize = LeagueService.DefaultPageSize) =>
+        Ok(await leagues.StandingsAsync(await ContextAsync(ct), id, gameweek, ct, page, pageSize));
 
     private async Task<FantasyContext> ContextAsync(CancellationToken ct) =>
         await contexts.LoadAsync(await MeAsync(ct), trackTeam: false, ct);
@@ -220,13 +235,69 @@ public sealed class AdminController(
         return Ok(new { fixtureId = id, history = await gameweeks.HistoryAsync(id, ct) });
     }
 
-    /// <summary>Finalise points. Safe to run again.</summary>
+    /// <summary>
+    /// Finalise: publishes the final revision once every fixture is complete (worker evidence) or resolved
+    /// by an admin. Never on fixture states alone. Before migration 011, needs the worker's evidence.
+    /// </summary>
     [HttpPost("gameweeks/{id:int}/score")]
     public async Task<IActionResult> Score(int id, CancellationToken ct)
     {
-        await RequireAdminAsync(ct);
-        return Ok(await points.FinaliseAsync(id, time.GetUtcNow(), ct));
+        var me = await RequireAdminAsync(ct);
+        var settlement = Settlement();
+        return Ok(await settlement.ReadyAsync(ct)
+            ? await settlement.FinaliseAsync(id, me.Id, time.GetUtcNow(), ct)
+            : await points.FinaliseAsync(id, time.GetUtcNow(), ct));
     }
+
+    /// <summary>The gameweek's state, per-fixture completeness and blockers. Read only.</summary>
+    [HttpGet("gameweeks/{id:int}/settlement")]
+    public async Task<IActionResult> Settlement(int id, CancellationToken ct)
+    {
+        await RequireAdminAsync(ct);
+        return Ok(await Settlement().EvaluateAsync(id, time.GetUtcNow(), ct));
+    }
+
+    /// <summary>Re-evaluate and record the state transition (reason, input revision, actor).</summary>
+    [HttpPost("gameweeks/{id:int}/settlement")]
+    public async Task<IActionResult> RecordSettlement(int id, CancellationToken ct)
+    {
+        var me = await RequireAdminAsync(ct);
+        return Ok(await Settlement().RecordStateAsync(id, me.Id, time.GetUtcNow(), ct));
+    }
+
+    /// <summary>Record an outcome for a finished fixture without worker evidence: verified_zero, manual_resolution or unattributed_resolved.</summary>
+    [HttpPost("fixtures/{id:int}/resolution")]
+    public async Task<IActionResult> ResolveFixture(int id, ResolveFixtureRequest request, CancellationToken ct)
+    {
+        var me = await RequireAdminAsync(ct);
+        return Ok(await Settlement().ResolveFixtureAsync(id, request, me.Id, time.GetUtcNow(), ct));
+    }
+
+    /// <summary>Preview a correction to a final gameweek: changed players, teams and overall ranks. Publishes nothing.</summary>
+    [HttpPost("gameweeks/{id:int}/corrections/preview")]
+    public async Task<IActionResult> PreviewCorrection(int id, CancellationToken ct)
+    {
+        await RequireAdminAsync(ct);
+        return Ok(await Settlement().PreviewCorrectionAsync(id, time.GetUtcNow(), ct));
+    }
+
+    /// <summary>Publish an amendment revision (source, reason, previous revision) with a correction message.</summary>
+    [HttpPost("gameweeks/{id:int}/corrections")]
+    public async Task<IActionResult> PublishCorrection(int id, CorrectionRequest request, CancellationToken ct)
+    {
+        var me = await RequireAdminAsync(ct);
+        return Ok(await Settlement().PublishCorrectionAsync(id, request, me.Id, time.GetUtcNow(), ct));
+    }
+
+    /// <summary>Every score revision of a gameweek, oldest first.</summary>
+    [HttpGet("gameweeks/{id:int}/revisions")]
+    public async Task<IActionResult> Revisions(int id, CancellationToken ct)
+    {
+        await RequireAdminAsync(ct);
+        return Ok(new { gameweekId = id, revisions = await Settlement().HistoryAsync(id, ct) });
+    }
+
+    private SettlementService Settlement() => HttpContext.RequestServices.GetRequiredService<SettlementService>();
 
     [HttpPost("transfer-windows")]
     public async Task<IActionResult> CreateTransferWindow(CreateTransferWindowRequest request, CancellationToken ct)
