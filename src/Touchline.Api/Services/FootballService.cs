@@ -113,10 +113,24 @@ public sealed class FootballService(
     /// <summary>Null for Sportmonks' stock "placeholder" image.</summary>
     public static string? ImageOrNull(string? url) => RealImageOrNull(url);
 
+    /// <summary>The current season of a competition (internal football.competitions.id).</summary>
+    public Task<SeasonSummary?> GetCurrentSeasonAsync(int competitionId, CancellationToken ct = default) =>
+        db.Seasons.Where(s => s.CompetitionId == competitionId && s.IsCurrent)
+            .Select(s => new SeasonSummary(s.Id, s.Name, s.CompetitionId, s.StartingAt, s.EndingAt))
+            .FirstOrDefaultAsync(ct);
+
+    /// <summary>
+    /// Fixtures of a season, optionally between two instants and/or for one club. Status and phase come
+    /// from MatchStateMatrix; a match that hasn't started has a null score.
+    /// </summary>
     public async Task<IReadOnlyList<FixtureSummary>> GetFixturesAsync(
-        int seasonId, DateTimeOffset? from, DateTimeOffset? to, CancellationToken ct = default)
+        int seasonId, DateTimeOffset? from, DateTimeOffset? to, CancellationToken ct = default, int? teamId = null)
     {
         var query = db.Fixtures.Where(f => f.SeasonId == seasonId);
+        if (teamId is not null)
+        {
+            query = query.Where(f => f.HomeTeamId == teamId || f.AwayTeamId == teamId);
+        }
 
         // Npgsql only writes UTC DateTimeOffset values to timestamptz.
         if (from is not null)
@@ -136,18 +150,26 @@ public sealed class FootballService(
         string NameOf(int? id) => id is not null && teamNames.TryGetValue(id.Value, out var n) ? n : "TBD";
 
         return fixtures
-            .Select(f => new FixtureSummary(
-                f.Id,
-                f.SportmonksFixtureId,
-                f.StartingAt,
-                MatchStatusExtensions.FromStateId(f.StateId),
-                f.StateId,
-                f.HomeTeamId,
-                NameOf(f.HomeTeamId),
-                f.AwayTeamId,
-                NameOf(f.AwayTeamId),
-                f.HomeScore,
-                f.AwayScore))
+            .Select(f =>
+            {
+                var state = MatchStateMatrix.For(f.StateId);
+                var showScore = state.Played || state.ResultFinal;
+                return new FixtureSummary(
+                    f.Id,
+                    f.SportmonksFixtureId,
+                    f.StartingAt,
+                    state.Status,
+                    f.StateId,
+                    f.HomeTeamId,
+                    NameOf(f.HomeTeamId),
+                    f.AwayTeamId,
+                    NameOf(f.AwayTeamId),
+                    showScore ? f.HomeScore ?? 0 : null,
+                    showScore ? f.AwayScore ?? 0 : null,
+                    state.Phase,
+                    state.NeedsReview,
+                    f.CompetitionId);
+            })
             .ToList();
     }
 

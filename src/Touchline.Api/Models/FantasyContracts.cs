@@ -74,7 +74,8 @@ public sealed record SquadView(
     int Version,
     bool Saved,
     IReadOnlyList<SquadPlayerView> Players,
-    IReadOnlyList<string> Warnings);
+    IReadOnlyList<string> Warnings,
+    DateTimeOffset? ServerTimeUtc = null);
 
 public sealed record TransferResult(
     int Transfers,
@@ -82,7 +83,8 @@ public sealed record TransferResult(
     int GameweekPointsCost,
     int? FreeTransfersLeft,
     decimal BudgetRemaining,
-    SquadView Squad);
+    SquadView Squad,
+    DateTimeOffset? ServerTimeUtc = null);
 
 public sealed record FixtureStatusView(
     int FixtureId, string HomeTeam, string AwayTeam, DateTimeOffset? KickoffUtc, MatchStatus Status, short? HomeScore, short? AwayScore);

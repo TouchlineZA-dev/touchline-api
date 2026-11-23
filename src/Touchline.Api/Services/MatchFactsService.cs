@@ -12,16 +12,16 @@ namespace Touchline.Api.Services;
 /// Loads football.player_lineups, football.match_events and football.players for a set of fixtures
 /// and hands each fixture to the pure MatchFactsDecoder. Read only.
 /// </summary>
-public sealed class MatchFactsService(TouchlineDbContext db, IOptions<FantasyRules> rules)
+public sealed class MatchFactsService(TouchlineDbContext db, PlayerIdBridge bridge, IOptions<FantasyRules> rules)
 {
-    private readonly GameweekRules _gameweekRules = new(rules.Value);
+    private readonly MatchClock _clock = new(rules.Value);
 
     public async Task<IReadOnlyList<PlayerFacts>> LoadAsync(IReadOnlyCollection<Fixture> fixtures, DateTimeOffset now, CancellationToken ct = default)
     {
         if (!Codes.MinutesCodesConfirmed) throw new SportmonksCodesNotConfirmedException();
 
         // Only live and finished fixtures can produce points (see MatchFactsDecoder.Counts).
-        var counted = fixtures.Where(f => MatchFactsDecoder.Counts(MatchStatusExtensions.FromStateId(f.StateId))).ToList();
+        var counted = fixtures.Where(f => MatchFactsDecoder.Counts(f.StateId)).ToList();
         if (counted.Count == 0) return [];
 
         var startingXi = Codes.LineupTypes.StartingXi!.Value;
@@ -36,15 +36,8 @@ public sealed class MatchFactsService(TouchlineDbContext db, IOptions<FantasyRul
             .Where(e => fixtureIds.Contains(e.FixtureId) && scoringTypes.Contains(e.TypeId) && e.Rescinded != true)
             .ToListAsync(ct);
 
-        var sportmonksIds = lineups.Select(l => l.SportmonksPlayerId!.Value)
-            .Concat(events.SelectMany(e => new[] { e.SportmonksPlayerId, e.SportmonksRelatedPlayerId }).Where(id => id is not null).Select(id => id!.Value))
-            .Distinct()
-            .ToList();
-        var players = (await db.Players
-                .Where(p => sportmonksIds.Contains(p.SportmonksPlayerId))
-                .Select(p => new { p.Id, p.SportmonksPlayerId, p.PositionId })
-                .ToListAsync(ct))
-            .ToDictionary(p => p.SportmonksPlayerId, p => new DecoderPlayer(p.Id, p.PositionId));
+        var players = (await bridge.ResolveAsync(PlayerIdBridge.IdsIn(lineups, events), ct))
+            .ToDictionary(p => p.Key, p => new DecoderPlayer(p.Value.Id, p.Value.PositionId));
 
         var latestEventMinute = await db.MatchEvents
             .Where(e => fixtureIds.Contains(e.FixtureId) && e.Minute != null)
@@ -54,9 +47,8 @@ public sealed class MatchFactsService(TouchlineDbContext db, IOptions<FantasyRul
 
         return counted.SelectMany(fixture =>
         {
-            var status = MatchStatusExtensions.FromStateId(fixture.StateId);
-            var endMinute = _gameweekRules.MatchEndMinute(
-                status, fixture.StartingAt, now, fixture.Length, latestEventMinute.GetValueOrDefault(fixture.Id));
+            // The same clock the match detail shows (MatchClock), so scoring and the timeline agree.
+            var endMinute = _clock.Read(fixture.StateId, fixture.StartingAt, fixture.Length, latestEventMinute.GetValueOrDefault(fixture.Id), now).Minute ?? 0;
             return MatchFactsDecoder.Decode(fixture, lineups, events, players, endMinute, startingXi, comingOnIsPlayerId);
         }).ToList();
     }

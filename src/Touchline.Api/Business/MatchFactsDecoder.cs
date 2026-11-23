@@ -25,11 +25,12 @@ public static class MatchFactsDecoder
     ];
 
     /// <summary>
-    /// Only live and finished fixtures produce points. Postponed, cancelled, abandoned, not started
-    /// and "awaiting updates" fixtures produce nothing, even if some events were recorded for them
-    /// (an abandoned match can have goals and cards from before it stopped).
+    /// Only fixtures played on the pitch (live or finished, per MatchStateMatrix.Played) produce points.
+    /// Postponed, cancelled, abandoned, not started, "awaiting updates", awarded and walk-over fixtures
+    /// produce nothing, even if some events were recorded for them (an abandoned match can have goals
+    /// and cards from before it stopped).
     /// </summary>
-    public static bool Counts(MatchStatus status) => status is MatchStatus.Live or MatchStatus.Finished;
+    public static bool Counts(short? stateId) => MatchStateMatrix.For(stateId).Played;
 
     /// <summary>
     /// The minute a player leaves (sub or red card), with stoppage time (team decision 2026-11-23):
@@ -53,8 +54,7 @@ public static class MatchFactsDecoder
         short startingXiType,
         bool comingOnIsPlayerId)
     {
-        var status = MatchStatusExtensions.FromStateId(fixture.StateId);
-        if (!Counts(status)) return [];
+        if (!Counts(fixture.StateId)) return [];
 
         var builders = new Dictionary<long, FactsBuilder>();
         FactsBuilder For(long sportmonksId, int? teamId)
@@ -74,8 +74,8 @@ public static class MatchFactsDecoder
             b.Started |= lineup.TypeId == startingXiType;
         }
 
-        var scoring = events
-            .Where(e => e.FixtureId == fixture.Id && e.Rescinded != true && ScoringEventTypes.Contains(e.TypeId))
+        var scoring = DistinctEvents(events
+            .Where(e => e.FixtureId == fixture.Id && e.Rescinded != true && ScoringEventTypes.Contains(e.TypeId)))
             .OrderBy(e => e.Minute ?? 0).ThenBy(e => e.ExtraMinute ?? 0).ThenBy(e => e.SortOrder ?? 0);
 
         foreach (var e in scoring)
@@ -124,7 +124,7 @@ public static class MatchFactsDecoder
             }
         }
 
-        var finished = status == MatchStatus.Finished;
+        var finished = MatchStatusExtensions.IsFinal(fixture.StateId);
         var result = new List<PlayerFacts>();
         foreach (var (sportmonksId, b) in builders)
         {
@@ -155,6 +155,14 @@ public static class MatchFactsDecoder
         }
         return result;
     }
+
+    /// <summary>
+    /// One row per provider event. The worker upserts on sportmonks_event_id, so duplicates shouldn't
+    /// exist; if the same snapshot is ever stored twice, the event still counts once (latest row wins).
+    /// </summary>
+    public static IEnumerable<MatchEvent> DistinctEvents(IEnumerable<MatchEvent> events) =>
+        events.GroupBy(e => e.SportmonksEventId > 0 ? (object)e.SportmonksEventId : e)
+            .Select(g => g.OrderByDescending(e => e.UpdatedAt).ThenByDescending(e => e.Id).First());
 
     private sealed class FactsBuilder
     {
