@@ -17,24 +17,26 @@ public sealed class TestTokens
     public const string Issuer = ProjectUrl + "/auth/v1";
     public const string OtherProjectIssuer = "https://otherproject.supabase.co/auth/v1";
 
-    private readonly ECDsaSecurityKey _key = NewKey("test-key-1");
+    private ECDsaSecurityKey _key = NewKey("test-key-1");
+    private readonly List<ECDsaSecurityKey> _published = [];
 
-    /// <summary>The JWKS document the stub serves at /auth/v1/.well-known/jwks.json.</summary>
-    public string JwksJson { get; }
-
-    public TestTokens()
+    /// <summary>The JWKS document the stub serves at /auth/v1/.well-known/jwks.json (public parts only, as Supabase publishes it).</summary>
+    public string JwksJson => JsonSerializer.Serialize(new
     {
-        var jwk = JsonWebKeyConverter.ConvertFromECDsaSecurityKey(_key);
-        jwk.Use = "sig";
-        jwk.Alg = SecurityAlgorithms.EcdsaSha256;
-        // Public part only, as Supabase publishes it.
-        JwksJson = JsonSerializer.Serialize(new
+        keys = _published.Select(k =>
         {
-            keys = new[]
-            {
-                new { kty = jwk.Kty, crv = jwk.Crv, x = jwk.X, y = jwk.Y, kid = jwk.Kid, use = jwk.Use, alg = jwk.Alg },
-            },
-        });
+            var jwk = JsonWebKeyConverter.ConvertFromECDsaSecurityKey(k);
+            return new { kty = jwk.Kty, crv = jwk.Crv, x = jwk.X, y = jwk.Y, kid = jwk.Kid, use = "sig", alg = SecurityAlgorithms.EcdsaSha256 };
+        }).ToArray(),
+    });
+
+    public TestTokens() => _published.Add(_key);
+
+    /// <summary>Key rotation as Supabase does it: a new signing key is published (the old one stays published) and new tokens use it.</summary>
+    public void Rotate(string kid)
+    {
+        _key = NewKey(kid);
+        _published.Add(_key);
     }
 
     public static ECDsaSecurityKey NewKey(string kid) => new(ECDsa.Create(ECCurve.NamedCurves.nistP256)) { KeyId = kid };
@@ -91,14 +93,16 @@ public sealed class TestTokens
 }
 
 /// <summary>Stands in for the Supabase JWKS endpoint so the real SupabaseSigningKeys code runs.</summary>
-public sealed class StubJwksHandler(string jwksJson) : HttpMessageHandler
+public sealed class StubJwksHandler(Func<string> jwks) : HttpMessageHandler
 {
+    public StubJwksHandler(string jwksJson) : this(() => jwksJson) { }
+
     protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken ct)
     {
         var ok = request.RequestUri?.ToString() == TestTokens.Issuer + "/.well-known/jwks.json";
         return Task.FromResult(new HttpResponseMessage(ok ? HttpStatusCode.OK : HttpStatusCode.NotFound)
         {
-            Content = new StringContent(ok ? jwksJson : "", Encoding.UTF8, "application/json"),
+            Content = new StringContent(ok ? jwks() : "", Encoding.UTF8, "application/json"),
         });
     }
 }

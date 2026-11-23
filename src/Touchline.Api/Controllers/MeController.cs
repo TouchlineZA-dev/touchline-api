@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Touchline.Api.Services;
 using Touchline.Api.Users;
 
@@ -21,14 +22,14 @@ public sealed class MeController(CurrentUser currentUser, UserService users, Acc
     public async Task<IActionResult> Get(CancellationToken ct) => Ok(await accounts.MeAsync(await MeAsync(ct), ct));
 
     /// <summary>Choose or change the username, set or clear the favourite club.</summary>
-    [HttpPatch]
+    [HttpPatch, EnableRateLimiting(RateLimitPolicies.Account)]
     public async Task<IActionResult> Patch(UpdateMeRequest request, CancellationToken ct) =>
         Ok(await accounts.UpdateAsync(await MeAsync(ct), request, ct));
 
     [HttpGet("notifications")]
     public async Task<IActionResult> GetNotifications(CancellationToken ct) => Ok(await accounts.NotificationsAsync(await MeAsync(ct), ct));
 
-    [HttpPatch("notifications")]
+    [HttpPatch("notifications"), EnableRateLimiting(RateLimitPolicies.Account)]
     public async Task<IActionResult> PatchNotifications(UpdateNotificationsRequest request, CancellationToken ct) =>
         Ok(await accounts.UpdateNotificationsAsync(await MeAsync(ct), request, ct));
 
@@ -37,7 +38,7 @@ public sealed class MeController(CurrentUser currentUser, UserService users, Acc
     public async Task<IActionResult> Export(CancellationToken ct) => Ok(await accounts.ExportAsync(await MeAsync(ct), ct));
 
     /// <summary>Delete my account: personal data is anonymised, history kept. Needs a recent sign-in.</summary>
-    [HttpDelete]
+    [HttpDelete, EnableRateLimiting(RateLimitPolicies.Account)]
     public async Task<IActionResult> Delete(CancellationToken ct) => Ok(await accounts.DeleteAsync(await MeAsync(ct), ct));
 
     private async Task<Models.AppUser> MeAsync(CancellationToken ct)

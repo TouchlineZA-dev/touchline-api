@@ -101,7 +101,15 @@ public sealed class ETagAttribute : Attribute, IAsyncResultFilter
 
             var etag = http.Items[SquadVersionKey] is int version ? SquadVersion.ETag(version, hash) : $"\"h-{hash}\"";
             http.Response.Headers.ETag = etag;
-            http.Response.Headers.CacheControl = "private, no-cache";
+            // Public football reads may be cached by shared caches; anything signed in is private to the caller
+            // and never shared (Gate 9 "cache public match reads separately from authenticated responses").
+            var path = http.Request.Path.Value ?? "";
+            var personal = http.Request.Headers.Authorization.Count > 0
+                || path.StartsWith("/api/v1/me", StringComparison.OrdinalIgnoreCase)
+                || path.StartsWith("/api/v1/fantasy", StringComparison.OrdinalIgnoreCase)
+                || path.StartsWith("/api/v1/admin", StringComparison.OrdinalIgnoreCase);
+            http.Response.Headers.CacheControl = personal ? "private, no-cache" : "public, max-age=15";
+            http.Response.Headers.Vary = "Authorization";
 
             var ifNoneMatch = http.Request.Headers.IfNoneMatch.ToString();
             if (ifNoneMatch.Split(',').Select(t => t.Trim()).Contains(etag))
