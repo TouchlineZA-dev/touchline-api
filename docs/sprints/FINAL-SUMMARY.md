@@ -253,3 +253,19 @@ Open each PR with the base shown and merge with "Create a merge commit". After a
 - [ ] Independent security review: findings fixed and retested, remaining risks approved in writing.
 - [ ] POPIA review by the responsible person.
 - [ ] Fill in and sign `docs/release/release-record.md` (go / hold / rollback, who decided, when).
+
+## Pull requests (opened with gh, 23 Nov 2026), in merge order
+
+| Order | touchline-api | touchline-sync |
+|---|---|---|
+| 0 | – | the sync owner's V042 branch `sprint/3-4-live-freshness-corrections` (no PR yet; his V039–V041 merged as #3) |
+| 1 | #6 Sprint 1 (base `main`) | #4 V043 (base `main`) |
+| 2 | #7 Sprint 2 | #5 V044 |
+| 3 | #8 Sprint 3 | #6 V045 |
+| 4 | #9 Sprint 4 | #7 V046 |
+| 5 | #10 Sprint 5 | #8 V047 |
+| 6 | #11 Sprint 6 | – |
+| 7 | #12 Sprint 7 | #9 V048 |
+| 8 | #13 Sprint 8 (base `sprint/7-operate-secure`) | – |
+
+Each PR's base is the previous sprint's branch: after one merges, retarget the next to `main`. Deploy the API through #13 (the `withdrawn_at` filter) before V040 runs in production.
