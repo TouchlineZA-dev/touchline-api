@@ -63,7 +63,7 @@
 2. **Record the evidence Settlement reads:** finished fixtures, events and lineups present, and stats present (`fixtures_complete`, `events_complete`, `stats_complete`, `marked_complete`).
 3. **Keep `marked_complete` sticky** (it already is). After a late correction, the API detects changed facts itself through the input revision (`amendmentNeeded`).
 4. **Exclude postponed fixtures from completeness** (default decision 1). This is still open on the worker side.
-5. **Group fixtures by `app.fixture_gameweek_assignments` once V039 is applied** (carried over).
+5. **Group fixtures by `app.fixture_gameweek_assignments` once V043 is applied** (carried over).
 
 ## Needs other owners
 
@@ -99,7 +99,7 @@
 ## Migration file names
 
 - touchline-api: `docs/migrations/011_settlement.sql`
-- touchline-sync: `db/migrations/V043__settlement.sql`
+- touchline-sync: `db/migrations/V047__settlement.sql`
 
 Not applied. Safe to rerun. Before 011, `POST /admin/gameweeks/{id}/score` uses the legacy path, which now needs the worker's `marked_complete` and every fixture settled, and the settlement, resolution and correction routes return `503 Schema not ready`.
 

@@ -159,6 +159,7 @@ public sealed class SettlementService(
     MatchFactsService facts,
     SquadStore squads,
     SchemaFeatures schema,
+    FootballReads reads,
     IMemoryCache cache,
     IOptions<FantasyRules> rules,
     IOptions<SettlementOptions> options)
@@ -177,8 +178,8 @@ public sealed class SettlementService(
     {
         var (info, _) = await GameweekAsync(gameweekId, ct);
         var fixtureIds = info.Fixtures.Select(f => f.Id).ToList();
-        var events = await db.MatchEvents.Where(e => fixtureIds.Contains(e.FixtureId)).ToListAsync(ct);
-        var lineups = await db.PlayerLineups.Where(l => fixtureIds.Contains(l.FixtureId)).ToListAsync(ct);
+        var events = await (await reads.EventsAsync(ct)).Where(e => fixtureIds.Contains(e.FixtureId)).ToListAsync(ct);
+        var lineups = await (await reads.LineupsAsync(ct)).Where(l => fixtureIds.Contains(l.FixtureId)).ToListAsync(ct);
         var known = (await db.Players
                 .Where(p => events.Select(e => e.SportmonksPlayerId).Contains(p.SportmonksPlayerId))
                 .Select(p => p.SportmonksPlayerId).ToListAsync(ct)).ToHashSet();
@@ -702,6 +703,6 @@ public sealed class SettlementService(
 
     private async Task RequireReadyAsync(CancellationToken ct)
     {
-        if (!await ReadyAsync(ct)) throw new SchemaNotReadyException("Settlement needs docs/migrations/011_settlement.sql (touchline-sync V043).");
+        if (!await ReadyAsync(ct)) throw new SchemaNotReadyException("Settlement needs docs/migrations/011_settlement.sql (touchline-sync V047).");
     }
 }

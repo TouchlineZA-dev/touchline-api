@@ -12,7 +12,7 @@
 | Every FPL difference listed for product sign-off | `docs/rules/rulebook-2026-27-v1.md` §15 (12 capabilities, one row each); `GET /api/v1/rules` → `differencesFromFplClassic`; `Rules_endpoint_publishes_version_2026_27_v1…` | done; sign-off is a human item |
 | Every scoring category has an attributable input, a worked example, a missing-data policy and a passing test | `docs/rules/coverage-matrix.md` (minutes, goal, assist, clean sheet, yellow, red/second yellow, own goal; saves, defensive contributions and penalties marked unsupported) | done |
 | Reference totals match | `docs/rules/reference-week.md`: Squad A **65**, Squad B **61**, each hand-calculated. The independent `tests/db/reference/tools/score_gw9.py` gives the same. `Reference_squad_totals_match_the_hand_calculation` (engine) and `Every_reference_player_scores_what_the_hand_calculation_says` (30 players) | done; the second human reviewer is a human item |
-| Past entries keep their rules version | migration 008 / V040; finalising stamps `rules_version` and `points_table_version`; `Finalising_stamps_the_rules_version_and_a_new_version_never_rescores_the_past`; `TeamPointsView.rulesVersion` | done; applies when 008 is run (the code works before it) |
+| Past entries keep their rules version | migration 008 / V044; finalising stamps `rules_version` and `points_table_version`; `Finalising_stamps_the_rules_version_and_a_new_version_never_rescores_the_past`; `TeamPointsView.rulesVersion` | done; applies when 008 is run (the code works before it) |
 | Rulebook doc + `GET /api/v1/rules` (version `2026-27.v1`) covering ties, late entry, reassignment, corrections, chip periods, sale-price rounding | rulebook §1–§14; `Fantasy/Rulebook.cs` (built from `FantasyRules`, so it can't drift from the code) | done |
 | Deadline: exact instant in UTC + SAST; history protected; when a future deadline may change | `GameweekRef.deadlineSast`; `PUT /admin/gameweeks/{id}/deadline` refuses a passed deadline; `A_passed_deadline_never_changes…`; `Deadline_is_published_in_utc_and_sast` | done |
 | Late entry: starts at the next open deadline, unlimited transfers before its first deadline, no earlier points | `TransferRules.UnlimitedFreeTransfers(…, targetIsTeamsFirstGameweek)`; `FantasyTeamService.IsTeamsFirstGameweekAsync`; `Late_entrants_get_unlimited_free_transfers…`. No earlier points because there are no earlier entries | done |
@@ -110,7 +110,7 @@ The five Part 1b default decisions stand as listed in `sprint-1-report.md` and a
 ## Migration file names
 
 - touchline-api: `docs/migrations/008_rules_versions.sql`
-- touchline-sync: `db/migrations/V040__rules_versions.sql`
+- touchline-sync: `db/migrations/V044__rules_versions.sql`
 
 Not applied. Safe to rerun.
 

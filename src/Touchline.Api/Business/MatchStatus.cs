@@ -113,6 +113,16 @@ public static class MatchStateMatrix
     public static IReadOnlyCollection<MatchState> All => Known.Values.ToList();
 
     /// <summary>
+    /// States in which a fixture SHOULD be live and therefore polled: in play 2, 6, 9, 22, 23; breaks
+    /// 3, 4, 21, 25; interrupted or pending 11, 16, 18, 19, 26. The sync owner's list (touchline-sync V040,
+    /// sync.live_fixture_health, from Sportmonks /v3/core/states). It decides freshness and stalled-poll
+    /// checks only; it doesn't change Status or scoring (a suspended or delayed match still isn't scored).
+    /// </summary>
+    public static readonly IReadOnlySet<short> ShouldBeLiveStates = new HashSet<short> { 2, 3, 4, 6, 9, 11, 16, 18, 19, 21, 22, 23, 25, 26 };
+
+    public static bool ShouldBeLive(short? stateId) => stateId is { } id && ShouldBeLiveStates.Contains(id);
+
+    /// <summary>
     /// The interpretation of a provider state. A null state (no state synced yet) is a scheduled match.
     /// An unrecognised state is Unknown and needs review.
     /// </summary>

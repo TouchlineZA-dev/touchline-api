@@ -20,6 +20,7 @@
 | 5 Settlement | pushed | `sprint/5-settlement` | `sprint/5-migrations` | `sprint-5-report.md` |
 | 6 Frontend contract | pushed | `sprint/6-frontend-contract` | none (no migration) | `sprint-6-report.md` |
 | 7 Operate and secure | pushed | `sprint/7-operate-secure` | `sprint/7-migrations` | `sprint-7-report.md` |
+| 8 Sync alignment | pushed | `sprint/8-sync-alignment` | none (stack renumbered) | `sprint-8-report.md` |
 
 ## PR links in merge order
 
@@ -43,14 +44,16 @@ Open each PR with the base shown and merge with "Create a merge commit". After a
 
 ## Migration versions in order (none applied)
 
+**Before ours:** the sync owner's V039–V041 (on touchline-sync `main`) and V042 (his branch `sprint/3-4-live-freshness-corrections`). His V042 PR must merge before ours. Ours were renumbered from V039–V044 to V043–V048 in Sprint 8 (`sprint-8-report.md`).
+
 | touchline-api | touchline-sync | What |
 |---|---|---|
-| 007_gameweek_calendar.sql | V039 | persisted gameweek numbers; fixture→gameweek assignment history |
-| 008_rules_versions.sql | V040 | rules and points-table versions on entries and points |
-| 009_accounts.sql | V041 | optional email, usernames, favourite club, suspension and deletion, rename history, notification preferences |
-| 010_safe_writes.sql | V042 | receipts and idempotency, granted transfers, locked snapshot, chip cancellation |
-| 011_settlement.sql | V043 | state machine, fixture resolutions, score revisions |
-| 012_admin_audit_log.sql | V044 | admin audit log |
+| 007_gameweek_calendar.sql | V043 | persisted gameweek numbers; fixture→gameweek assignment history |
+| 008_rules_versions.sql | V044 | rules and points-table versions on entries and points |
+| 009_accounts.sql | V045 | optional email, usernames, favourite club, suspension and deletion, rename history, notification preferences |
+| 010_safe_writes.sql | V046 | receipts and idempotency, granted transfers, locked snapshot, chip cancellation |
+| 011_settlement.sql | V047 | state machine, fixture resolutions, score revisions |
+| 012_admin_audit_log.sql | V048 | admin audit log |
 
 **About these migrations:**
 - Each one is safe to rerun and grants no DELETE.
@@ -66,7 +69,7 @@ Open each PR with the base shown and merge with "Create a merge commit". After a
 3. **Completeness evidence:**
    - Populate `sync.gameweek_sync_status` (0 rows today). Until then every finished fixture needs an admin resolution before finalising.
    - Exclude postponed fixtures (state 10) from completeness.
-   - Once V039 is live, group fixtures by `app.fixture_gameweek_assignments`.
+   - Once V043 is live, group fixtures by `app.fixture_gameweek_assignments`.
 4. **Reissued corrections:** mark the stale `match_events` row `rescinded = true` (preferred) or delete it. The API handles both.
 5. **Schema gaps:**
    - Add a Flyway migration for `football.standings`, which exists in production with no migration.

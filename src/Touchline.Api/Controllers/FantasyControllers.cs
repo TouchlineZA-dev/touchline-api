@@ -342,6 +342,27 @@ public sealed class AdminController(
 
     private SettlementService Settlement() => HttpContext.RequestServices.GetRequiredService<SettlementService>();
 
+    /// <summary>
+    /// Diagnostics for the matchday operator: live fixtures whose poller has stalled (alert when any), the
+    /// newest football commit, and the provider quota the worker last saw. Details stay admin-only.
+    /// </summary>
+    [HttpGet("diagnostics")]
+    public async Task<IActionResult> Diagnostics(CancellationToken ct)
+    {
+        await RequireAdminAsync(ct);
+        var health = HttpContext.RequestServices.GetRequiredService<HealthService>();
+        var stalled = await health.StalledLiveFixturesAsync(ct);
+        var freshness = await health.FreshnessAsync(ct);
+        return Ok(new
+        {
+            alerts = stalled.Alert ? new[] { $"{stalled.Count} live fixture(s) not observed by the worker for 3+ minutes (stalled poller)." } : [],
+            stalledLiveFixtures = stalled,
+            freshness,
+            providerQuota = await health.ProviderQuotaAsync(ct),
+            checkedAtUtc = time.GetUtcNow(),
+        });
+    }
+
     /// <summary>Staging only: (re)create the two reference managers and reset their private league (archive + recreate).</summary>
     [HttpPost("staging-kit/reset")]
     public async Task<IActionResult> ResetStagingKit(CancellationToken ct)

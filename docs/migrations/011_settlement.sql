@@ -1,4 +1,4 @@
--- 011 (touchline-sync V043): settlement, revisions and corrections (API Sprint 5).
+-- 011 (touchline-sync V047): settlement, revisions and corrections (API Sprint 5).
 --
 -- Why: 03-Leruo-API Stage 5 / handbook Gate 7. A settled week must be rebuildable and explainable
 -- from durable records: a state machine with reasons, an explicit per-fixture completeness outcome

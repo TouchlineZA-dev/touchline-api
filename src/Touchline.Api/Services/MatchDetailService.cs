@@ -37,6 +37,8 @@ public sealed class MatchDetailService(
     TouchlineDbContext db,
     PlayerIdBridge bridge,
     GameweekService gameweeks,
+    FootballReads reads,
+    SchemaFeatures schema,
     IOptions<FantasyRules> rules,
     IOptions<FreshnessOptions> freshness)
 {
@@ -61,8 +63,8 @@ public sealed class MatchDetailService(
         var stats = await db.TeamMatchStats.Where(s => s.FixtureId == fixtureId)
             .Select(s => new { s.TeamId, s.TypeId, s.Value, s.Location, s.UpdatedAt, s.CreatedAt })
             .ToListAsync(ct);
-        var lineups = await db.PlayerLineups.Where(l => l.FixtureId == fixtureId).ToListAsync(ct);
-        var allEvents = MatchFactsDecoder.DistinctEvents(await db.MatchEvents.Where(e => e.FixtureId == fixtureId).ToListAsync(ct)).ToList();
+        var lineups = await (await reads.LineupsAsync(ct)).Where(l => l.FixtureId == fixtureId).ToListAsync(ct);
+        var allEvents = MatchFactsDecoder.DistinctEvents(await (await reads.EventsAsync(ct)).Where(e => e.FixtureId == fixtureId).ToListAsync(ct)).ToList();
         var events = allEvents.Where(e => e.Rescinded != true).ToList();
 
         var teamIds = new[] { fixture.HomeTeamId, fixture.AwayTeamId }.Where(t => t is not null).Select(t => t!.Value).ToList();
@@ -150,7 +152,8 @@ public sealed class MatchDetailService(
             .ToList();
         var lastCommitted = timestamps.Max();
         var firstObserved = new[] { fixture.CreatedAt }.Concat(allEvents.Select(e => e.CreatedAt)).Min();
-        var fresh = Freshness(fixture, state, lastCommitted, now);
+        var sync = await SyncFreshnessAsync(fixture.Id, ct);
+        var fresh = sync is null ? Freshness(fixture, state, lastCommitted, now) : SyncFreshness(fixture, state, sync, now);
 
         var calendar = await gameweeks.GetCalendarAsync(fixture.SeasonId, ct);
         var gameweek = calendar.ForFixture(fixture.Id);
@@ -177,12 +180,13 @@ public sealed class MatchDetailService(
             fresh with
             {
                 Timestamps = new TimestampsView(
-                    ProviderTimestampUtc: null,
+                    ProviderTimestampUtc: sync?.LastProviderAt,
                     FirstObservedUtc: firstObserved,
-                    DbCommittedUtc: lastCommitted,
+                    DbCommittedUtc: sync?.LastChangedAt ?? lastCommitted,
                     ApiPublishedUtc: now),
             },
-            Revision(fixture, allEvents, lineups));
+            sync is null ? Revision(fixture, allEvents, lineups) : $"s{sync.Revision}",
+            sync is null ? "api_content_hash" : "sync.fixture_freshness");
     }
 
     /// <summary>
@@ -224,9 +228,66 @@ public sealed class MatchDetailService(
             var closes = kickoff.AddMinutes(o.WindowAfterKickoffMinutes);
             inWindow = now >= opens && now <= closes;
             stale = (inWindow && age > TimeSpan.FromMinutes(o.StaleAfterMinutes) && !state.Settled)
-                    || (now > closes && !state.Settled && lastCommitted < closes);
+                    || (now > closes && !state.Settled && lastCommitted < closes)
+                    || (MatchStateMatrix.ShouldBeLive(fixture.StateId) && age > TimeSpan.FromMinutes(o.StaleAfterMinutes));
         }
         return new FreshnessView(lastCommitted, now, stale, inWindow, o.StaleAfterMinutes, (int)Math.Max(0, age.TotalMinutes), null);
+    }
+
+    internal sealed class SyncFreshnessRow
+    {
+        public int Revision { get; set; }
+        public DateTimeOffset LastObservedAt { get; set; }
+        public DateTimeOffset LastChangedAt { get; set; }
+        public DateTimeOffset? LastProviderAt { get; set; }
+        public string? PollHealth { get; set; }
+    }
+
+    /// <summary>
+    /// The worker's own record of a fixture (touchline-sync V040): its committed revision, when it was
+    /// last observed and changed, and for fixtures that should be live, sync.live_fixture_health's
+    /// poll_health. Null before V040 is applied or before the worker first records the fixture.
+    /// </summary>
+    private async Task<SyncFreshnessRow?> SyncFreshnessAsync(int fixtureId, CancellationToken ct)
+    {
+        if (!await schema.HasTableAsync("sync", "fixture_freshness", ct)) return null;
+        var health = await schema.HasTableAsync("sync", "live_fixture_health", ct);
+        return health
+            ? await db.Database.SqlQuery<SyncFreshnessRow>($"""
+                SELECT ff.revision AS "Revision", ff.last_observed_at AS "LastObservedAt", ff.last_changed_at AS "LastChangedAt",
+                       ff.last_provider_at AS "LastProviderAt", h.poll_health AS "PollHealth"
+                FROM sync.fixture_freshness ff
+                LEFT JOIN sync.live_fixture_health h ON h.fixture_id = ff.fixture_id
+                WHERE ff.fixture_id = {fixtureId}
+                """).FirstOrDefaultAsync(ct)
+            : await db.Database.SqlQuery<SyncFreshnessRow>($"""
+                SELECT revision AS "Revision", last_observed_at AS "LastObservedAt", last_changed_at AS "LastChangedAt",
+                       last_provider_at AS "LastProviderAt", NULL::text AS "PollHealth"
+                FROM sync.fixture_freshness WHERE fixture_id = {fixtureId}
+                """).FirstOrDefaultAsync(ct);
+    }
+
+    /// <summary>
+    /// Freshness from the worker's observations. For a fixture that should be live (the sync owner's state
+    /// list), stale means the poller stalled (poll_health = 'stalled': not observed for 3 minutes); a quiet
+    /// match that is still being observed is not stale. Otherwise the window rule applies, measured from
+    /// the last observation rather than the last change.
+    /// </summary>
+    private FreshnessView SyncFreshness(Fixture fixture, MatchState state, SyncFreshnessRow sync, DateTimeOffset now)
+    {
+        var window = Freshness(fixture, state, sync.LastObservedAt, now);
+        var stale = MatchStateMatrix.ShouldBeLive(fixture.StateId) && sync.PollHealth is not null
+            ? sync.PollHealth == "stalled"
+            : window.Stale;
+        return window with
+        {
+            LastUpdatedUtc = sync.LastChangedAt,
+            Stale = stale,
+            Source = "sync.fixture_freshness",
+            PollHealth = sync.PollHealth,
+            LastObservedUtc = sync.LastObservedAt,
+            AgeMinutes = (int)Math.Max(0, (now - sync.LastObservedAt).TotalMinutes),
+        };
     }
 
     private static string Waiting(MatchState state, DateTimeOffset? kickoff, DateTimeOffset now)

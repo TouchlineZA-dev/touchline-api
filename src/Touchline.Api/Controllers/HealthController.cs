@@ -33,7 +33,8 @@ public sealed class HealthController(HealthService health, TimeProvider time) : 
     public async Task<IActionResult> Freshness(CancellationToken ct)
     {
         var report = await health.FreshnessAsync(ct);
-        return Ok(new { fresh = report.Fresh, lastFootballCommitUtc = report.LastFootballCommitUtc, ageMinutes = report.AgeMinutes,
-            staleAfterHours = report.StaleAfterHours, checkedAtUtc = time.GetUtcNow() });
+        var stalled = await health.StalledLiveFixturesAsync(ct);
+        return Ok(new { fresh = report.Fresh && !stalled.Alert, lastFootballCommitUtc = report.LastFootballCommitUtc, ageMinutes = report.AgeMinutes,
+            staleAfterHours = report.StaleAfterHours, stalledLiveFixtures = stalled.Count, checkedAtUtc = time.GetUtcNow() });
     }
 }

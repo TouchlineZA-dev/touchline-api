@@ -10,7 +10,7 @@ namespace Touchline.Api.Services;
 /// <summary>Where a fixture's gameweek came from.</summary>
 public enum AssignmentSource
 {
-    /// <summary>A row in app.fixture_gameweek_assignments (migration 007 / V039).</summary>
+    /// <summary>A row in app.fixture_gameweek_assignments (migration 007 / V043).</summary>
     Persisted,
     /// <summary>Legacy: the gameweek whose SAST dates contain the kickoff (used until 007 is applied, or for a fixture with no row yet).</summary>
     DateWindow,
@@ -252,7 +252,7 @@ public sealed class GameweekService(TouchlineDbContext db, IOptions<FantasyRules
     {
         if (!await schema.HasTableAsync("app", "fixture_gameweek_assignments", ct))
         {
-            throw new SchemaNotReadyException("Fixture assignments need docs/migrations/007_gameweek_calendar.sql (touchline-sync V039).");
+            throw new SchemaNotReadyException("Fixture assignments need docs/migrations/007_gameweek_calendar.sql (touchline-sync V043).");
         }
         if (string.IsNullOrWhiteSpace(request.Reason)) throw new RuleViolationException("Every fixture move needs a reason.");
 

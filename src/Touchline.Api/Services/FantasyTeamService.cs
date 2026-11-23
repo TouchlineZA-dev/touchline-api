@@ -283,7 +283,7 @@ public sealed class FantasyTeamService(
     {
         if (!await schema.HasColumnAsync("app", "fantasy_chip_usage", "cancelled_at", ct))
         {
-            throw new SchemaNotReadyException("Cancelling a chip needs docs/migrations/010_safe_writes.sql (touchline-sync V042).");
+            throw new SchemaNotReadyException("Cancelling a chip needs docs/migrations/010_safe_writes.sql (touchline-sync V046).");
         }
         var ctx = await contexts.LoadAsync(user, trackTeam: false, ct);
         var team = ctx.RequireTeam();

@@ -83,7 +83,7 @@ None this sprint.
 ## Migration file names
 
 - touchline-api: `docs/migrations/012_admin_audit_log.sql`
-- touchline-sync: `db/migrations/V044__admin_audit_log.sql`
+- touchline-sync: `db/migrations/V048__admin_audit_log.sql`
 
 Not applied. Safe to rerun. Before 012, nothing is audited and everything else works.
 

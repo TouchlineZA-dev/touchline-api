@@ -1,4 +1,4 @@
--- 010 (touchline-sync V042): deadline-safe writes (API Sprint 4).
+-- 010 (touchline-sync V046): deadline-safe writes (API Sprint 4).
 --
 -- Why: 03-Leruo-API Stage 4 / handbook Gate 6. Every accepted manager action needs exactly one
 -- receipt, a retried request must return its original result, the transfer allowance must be

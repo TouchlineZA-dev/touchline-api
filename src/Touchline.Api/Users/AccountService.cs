@@ -346,7 +346,7 @@ public sealed class AccountService(
 
     private async Task<AccountRow> RequireAccountColumnsAsync(int userId, CancellationToken ct) =>
         await AccountAsync(userId, ct) ?? throw new SchemaNotReadyException(
-            "Account changes need docs/migrations/009_accounts.sql (touchline-sync V041).");
+            "Account changes need docs/migrations/009_accounts.sql (touchline-sync V045).");
 
     private async Task<AccountRow?> AccountAsync(int userId, CancellationToken ct)
     {

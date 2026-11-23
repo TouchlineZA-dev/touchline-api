@@ -6,7 +6,7 @@
 - **Machine-readable copy:** `GET /api/v1/rules` (public, no sign-in). It is generated from the same settings the API scores with (`Fantasy` section of `appsettings.json`), so the published rules and the applied rules can't drift apart.
 
 **Versioning**
-- Every scored gameweek entry and points row records the rules version and points-table version it was scored under (migration 008 / V040).
+- Every scored gameweek entry and points row records the rules version and points-table version it was scored under (migration 008 / V044).
 - A new version never rescores the past: finalising skips any entry already scored under another version.
 - Changing a rule means publishing `2026-27.v2` (or a new season's v1) before the gameweek it first applies to.
 
@@ -114,7 +114,7 @@ A starter who doesn't play scores 0. Bench players count only with Bench Boost.
 ## 11. Double and blank weeks; fixture reassignment
 
 - **Double and blank weeks:** a player scores in every fixture assigned to the gameweek, and the scores are added up. A gameweek with no fixture for his club scores 0 for him.
-- **Assignment:** fixtures belong to the gameweek they are **assigned** to. The assignment is persisted with its history: when, why and who (migration 007 / V039).
+- **Assignment:** fixtures belong to the gameweek they are **assigned** to. The assignment is persisted with its history: when, why and who (migration 007 / V043).
 - **Postponed fixtures** (default decision 1, open for sign-off):
   - a postponed fixture leaves its gameweek, which doesn't wait for it;
   - when the fixture is rescheduled, an admin assigns it to the gameweek containing the new kickoff, and points count there;

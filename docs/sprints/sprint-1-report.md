@@ -20,7 +20,7 @@
 | Fixture list filters by date, competition, club | `?date=` (SAST day), `?competitionId=`, `?teamId=`; `Fixture_list_filters…` | done |
 | Timestamps: provider, first observation, DB commit, API publication | `freshness.timestamps` (provider timestamp null: not stored) | done |
 | 8 regression tests (03 Stage 1 table + handbook) | goal in first half, no lineup, worker outage, corrected scorer, postponed/changed kickoff, same snapshot ×3, half-time reopen, fixture moved | done |
-| Calendar: persisted number, explicit assignment with history, backfill, writes return server time | migration 007 / V039; `GameweekService`; admin `PUT /admin/fixtures/{id}/gameweek`, `GET /admin/fixtures/{id}/gameweek-history`; `ServerTimeUtc` on squad and transfer responses; `MigrationTests` | done; applies when V039 is run |
+| Calendar: persisted number, explicit assignment with history, backfill, writes return server time | migration 007 / V043; `GameweekService`; admin `PUT /admin/fixtures/{id}/gameweek`, `GET /admin/fixtures/{id}/gameweek-history`; `ServerTimeUtc` on squad and transfer responses; `MigrationTests` | done; applies when V043 is run |
 | Standings from football.standings: W/D/L, GF/GA/GD, deductions, tie-break state, official vs derived, awarded without invented events, Netlify filters and tie rules | `GET /api/v1/standings`; `Table_follows_netlify_rules…` | done |
 | Architecture test: no Sportmonks credentials or worker URL; handler fails on any host but JWKS | `ArchitectureTests` (outbound guard on every `HttpClient`, config scan, source scan) | done |
 | Step 0a: alignment doc | `docs/plans/backend-integration-alignment.md` | done |
@@ -100,7 +100,7 @@ Each match detail response carries `freshness.timestamps`:
 ## Needs sync team
 
 1. Add a Flyway migration for `football.standings`. It exists in production but no migration creates it. Tests mirror it in `tests/db/supplement/001_football_standings.sql`.
-2. After V039 is applied, make the completeness writer group fixtures by `app.fixture_gameweek_assignments` (the newest row per fixture) instead of SAST date windows.
+2. After V043 is applied, make the completeness writer group fixtures by `app.fixture_gameweek_assignments` (the newest row per fixture) instead of SAST date windows.
 3. Exclude state 10 (postponed) from gameweek completeness (default decision 1).
 4. On reissued corrections, mark the stale `match_events` row `rescinded = true` (preferred) or delete it. The API handles both (default decision 2).
 5. Scheduler (default decision 5): run the Python worker and retire the Netlify football schedules at one recorded cutover, never both at once. The worker has locking, job rows and the `is_current` contract, and is the one designed to write `gameweek_sync_status`.
@@ -131,7 +131,7 @@ The five defaults below come from runbook Part 1b. They are implemented or plann
 1. **Postponed fixtures:** the original gameweek doesn't wait; the fixture's outcome is "postponed".
    - When rescheduled, an admin records a new assignment (`PUT /admin/fixtures/{id}/gameweek`) to the gameweek containing the new kickoff, and points count there (FPL-style blank then double).
    - With no new date, the fixture stays unassigned.
-   - V039 doesn't backfill postponed, cancelled or abandoned fixtures.
+   - V043 doesn't backfill postponed, cancelled or abandoned fixtures.
    - The worker should exclude state 10 from completeness (needs sync team #3).
 2. **Reissued corrections:** both worker behaviours are supported, hard-deleting the stale event or marking it rescinded (preferred).
    - The API excludes rescinded or removed events and the revision changes.
@@ -166,7 +166,7 @@ Sprint 1 also introduced these new decisions:
 ## Migration file names
 
 - touchline-api: `docs/migrations/007_gameweek_calendar.sql`
-- touchline-sync: `db/migrations/V039__gameweek_calendar.sql` (identical SQL plus a one-line header)
+- touchline-sync: `db/migrations/V043__gameweek_calendar.sql` (identical SQL plus a one-line header)
 
 Not applied. Safe to rerun. The API works before and after it's applied.
 

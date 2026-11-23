@@ -8,7 +8,7 @@ using Touchline.Api.Models;
 namespace Touchline.Api.Services;
 
 public sealed class FootballService(
-    TouchlineDbContext db, IOptions<FootballOptions> options, IOptions<FantasyRules> fantasy, AvailabilityService availability)
+    TouchlineDbContext db, IOptions<FootballOptions> options, IOptions<FantasyRules> fantasy, AvailabilityService availability, FootballReads reads)
 {
     /// <summary>
     /// Price when app.player_prices has no row: the position's minimum price (Fantasy:Pricing),
@@ -103,17 +103,31 @@ public sealed class FootballService(
     /// </summary>
     public async Task<Dictionary<long, int>> GetLatestClubsAsync(int seasonId, CancellationToken ct = default)
     {
-        var clubs = await db.Database.SqlQuery<PlayerClubRow>($"""
-            SELECT DISTINCT ON (l.sportmonks_player_id)
-                   l.sportmonks_player_id AS "SportmonksPlayerId",
-                   l.team_id              AS "TeamId"
-            FROM football.player_lineups l
-            JOIN football.fixtures f ON f.id = l.fixture_id
-            WHERE f.season_id = {seasonId}
-              AND l.sportmonks_player_id IS NOT NULL
-              AND l.team_id IS NOT NULL
-            ORDER BY l.sportmonks_player_id, f.starting_at DESC NULLS LAST
-            """).ToListAsync(ct);
+        // Withdrawn lineup rows (touchline-sync V041) don't count; before V041 there are none.
+        var clubs = await (await reads.LineupsHaveWithdrawnAsync(ct)
+            ? db.Database.SqlQuery<PlayerClubRow>($"""
+                SELECT DISTINCT ON (l.sportmonks_player_id)
+                       l.sportmonks_player_id AS "SportmonksPlayerId",
+                       l.team_id              AS "TeamId"
+                FROM football.player_lineups l
+                JOIN football.fixtures f ON f.id = l.fixture_id
+                WHERE f.season_id = {seasonId}
+                  AND l.sportmonks_player_id IS NOT NULL
+                  AND l.team_id IS NOT NULL
+                  AND l.withdrawn_at IS NULL
+                ORDER BY l.sportmonks_player_id, f.starting_at DESC NULLS LAST
+                """)
+            : db.Database.SqlQuery<PlayerClubRow>($"""
+                SELECT DISTINCT ON (l.sportmonks_player_id)
+                       l.sportmonks_player_id AS "SportmonksPlayerId",
+                       l.team_id              AS "TeamId"
+                FROM football.player_lineups l
+                JOIN football.fixtures f ON f.id = l.fixture_id
+                WHERE f.season_id = {seasonId}
+                  AND l.sportmonks_player_id IS NOT NULL
+                  AND l.team_id IS NOT NULL
+                ORDER BY l.sportmonks_player_id, f.starting_at DESC NULLS LAST
+                """)).ToListAsync(ct);
 
         return clubs.ToDictionary(c => c.SportmonksPlayerId, c => c.TeamId);
     }

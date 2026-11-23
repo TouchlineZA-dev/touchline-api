@@ -28,7 +28,7 @@ Items that appear in several docs are listed once and cite every source.
 | 6 | 03, 01 | Stage 1 table, row 3; Architecture acceptance test | Worker outage: confirmed score, last observation, stale status; zero outbound football requests | 1 | `Worker_outage_reads_succeed_marked_stale_with_zero_outbound_requests`; `ArchitectureTests` | done (code side); staging run with the worker stopped is the joint sign-off |
 | 7 | 03, 01 | Stage 1 table, row 4; regressions | Corrected scorer, unchanged score: timeline updated, identifiable revision, points move exactly once | 1 | `Corrected_scorer_with_unchanged_score…`, `Reissued_correction_under_a_new_id_never_double_counts` | done |
 | 8 | 03, 01 | Stage 1 table, row 5; regressions | Postponement or changed kickoff: football state correct; fantasy week resolved separately; a locked entry can't be rewritten without a recorded decision | 1 | `Postponed_fixture_shows_its_state…`, `Fixture_moved_to_another_week…locked_weeks_need_a_decision` | done |
-| 9 | 03, 01 | Stage 1; Gate 2.3 | Persist stable gameweek numbers and intentional fixture assignments with history | 1 | migration 007 / V039; `GameweekService`; `Populated_upgrade_backfills…` | done (applies when 007 is run) |
+| 9 | 03, 01 | Stage 1; Gate 2.3 | Persist stable gameweek numbers and intentional fixture assignments with history | 1 | migration 007 / V043; `GameweekService`; `Populated_upgrade_backfills…` | done (applies when 007 is run) |
 | 10 | 03, 01 | Stage 1; Gate 2.4 | Writes include server time, target gameweek id and deadline | 1 | `gameweekId` on every write; `gameweek`, `version`, `serverTimeUtc` in responses (Sprint 4) | done |
 | 11 | 03, 01 | Stage 1; Gate 4 standings | Official or reconciled PSL standings, with a policy for deductions and awarded results | 1 | `GET /api/v1/standings`, `StandingsService`; `Table_follows_netlify_rules…` | done |
 | 12 | 03 | Stage 1 pass | A historical match served completely from a populated DB | 1 | `GET /api/v1/fixtures/{id}` (events, lineups, subs, stats, coverage, freshness, revision) | done |
@@ -79,7 +79,7 @@ Items that appear in several docs are listed once and cite every source.
 | 47 | 03, 01 | Stage 2 table; FPL parity | Each FPL Classic difference listed for product sign-off (12 capabilities) | 2 | rulebook §15; `/rules` `differencesFromFplClassic` | done (sign-off is human) |
 | 48 | 01 | Gate 1.2–1.3 | Coverage matrix: confirmed zero, missing, delayed, unsupported per field; what blocks settlement; what the API shows | 2 | `docs/rules/coverage-matrix.md` | done |
 | 49 | 03, 01 | Stage 2 pass; Gate 1 pass | Reference squads independently calculated; a second reviewer reproduces them | 2 | `docs/rules/reference-week.md` (65, 61); `ReferenceWeekTests`; `tools/score_gw9.py` | done (second human reviewer pending) |
-| 50 | 03 | Stage 2 pass | Keep the rules version on historical entries | 2 | migration 008 / V040; `Finalising_stamps_the_rules_version…` | done |
+| 50 | 03 | Stage 2 pass | Keep the rules version on historical entries | 2 | migration 008 / V044; `Finalising_stamps_the_rules_version…` | done |
 | 51 | 03, 01 | Stage 2 deadline row | Publish the exact deadline; protect published history; when a future deadline may change | 2 | `deadlineSast`; `PUT /admin/gameweeks/{id}/deadline`; rulebook §3 | done |
 | 52 | 01 | Gate 1.4 | Machine-readable rulebook for mobile | 2 | `GET /api/v1/rules` | done |
 | 53 | 03 | Stage 2 scoring row | Version the points table | 2 | `2026-27.points.v1`, stored per entry and points row | done |

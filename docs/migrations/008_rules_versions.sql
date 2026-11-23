@@ -1,4 +1,4 @@
--- 008 (touchline-sync V040): remember which rules scored each entry.
+-- 008 (touchline-sync V044): remember which rules scored each entry.
 --
 -- Why: 03-Leruo-API Stage 2 — "a manager should later identify which rules were used to score it",
 -- and a new rules version must never rescore the past. The API publishes the rulebook as version
