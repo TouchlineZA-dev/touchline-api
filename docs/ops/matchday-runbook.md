@@ -10,7 +10,8 @@ This is adapted from the handbook's "Matchday operations". API routes are in `do
   - check the published deadline in SAST (`GET /api/v1/gameweeks`, and `deadlineSast` on any squad response);
   - check fixture assignments (match detail `gameweek`), and review postponements (`phase: Postponed`) and moves.
 - **Feed:**
-  - `GET /api/v1/health/freshness` must be `fresh`. A healthy server with a stale feed still needs attention;
+  - `GET /api/v1/health/freshness` must be `fresh` with `stalledLiveFixtures: 0`. A healthy server with a stale feed still needs attention;
+  - `GET /api/v1/admin/diagnostics` shows the provider quota the worker last saw (`sync.provider_quota`) and any stalled live fixtures;
   - the worker must have recent commits, and there must be one active scheduler (needs sync team).
 - **Smoke test:** run a synthetic match read and a staging manager's transfer preview.
 - **People:** confirm the on-call primary, the backup and the support escalation route.
@@ -20,6 +21,7 @@ This is adapted from the handbook's "Matchday operations". API routes are in `do
 
 | Signal | Action | Evidence of recovery |
 |---|---|---|
+| **Stalled live fixture**: `GET /api/v1/admin/diagnostics` has `alerts` (from `sync.live_fixture_health.poll_health = 'stalled'`: a should-be-live fixture not observed by the worker for 3+ minutes), or `/health/freshness` shows `stalledLiveFixtures > 0` | Page the sync owner straight away: the poller is down or rate-limited (check `providerQuota`), or two writers are fighting over the scheduler lease. The API keeps serving the last committed score with `stale: true` | `stalledLiveFixtures` back to 0; match detail `freshness.pollHealth` is `healthy` or `healthy_quiet` |
 | `freshness.stale: true` on a live match, or `/health/freshness` not fresh | Check the worker (sync team): upstream response, quota, scheduler. The API keeps serving the last score with stale flags; nothing to do in the API | Match `revision` changes again, `stale: false` |
 | A match regresses (wrong score or scorer) | Wait for the worker's correction. The API shows whatever is committed. After final, use the corrections workflow | `revision` changes; corrected points in `explain` |
 | Duplicate or misleading pushes | Not applicable until delivery exists (`docs/api/delivery-proposal.md`) | – |

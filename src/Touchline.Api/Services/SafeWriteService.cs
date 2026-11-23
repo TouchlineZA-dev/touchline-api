@@ -161,7 +161,7 @@ public sealed class SafeWriteService(
     {
         if (!await schema.HasTableAsync("app", "fantasy_receipts", ct))
         {
-            throw new SchemaNotReadyException("Transfer confirmation needs docs/migrations/010_safe_writes.sql (touchline-sync V042).");
+            throw new SchemaNotReadyException("Transfer confirmation needs docs/migrations/010_safe_writes.sql (touchline-sync V046).");
         }
         if (string.IsNullOrWhiteSpace(idempotencyKey) || idempotencyKey.Length > 100)
         {

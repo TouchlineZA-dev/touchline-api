@@ -27,14 +27,14 @@ touchline-sync keeps the same SQL as Flyway versions, so a Flyway run there is a
 | 004 | V036 |
 | 005 | V037 |
 | 006 | V038 |
-| 007 | V039 |
-| 008 | V040 |
-| 009 | V041 |
-| 010 | V042 |
-| 011 | V043 |
-| 012 | V044 |
+| 007 | V043 |
+| 008 | V044 |
+| 009 | V045 |
+| 010 | V046 |
+| 011 | V047 |
+| 012 | V048 |
 
-Change both copies together. From 007 on, file NNN is Flyway V(NNN+32). The API's database tests apply the pinned Flyway set (`tests/db/flyway`) and then these files from 007 on, so a new file here is tested before it reaches touchline-sync.
+Change both copies together. From 007 on, file NNN is Flyway V(NNN+36): V039–V042 are the sync owner's (version drift and worker grants, live freshness, corrections and completeness, operations). The API's database tests apply the pinned Flyway set (`tests/db/flyway`) and then these files from 007 on, so a new file here is tested before it reaches touchline-sync.
 
 The API code works before a new file is applied: it checks for new tables and columns (`Data/SchemaFeatures.cs`) and falls back to the old behaviour.
 

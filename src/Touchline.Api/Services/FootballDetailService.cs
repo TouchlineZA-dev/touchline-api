@@ -38,6 +38,7 @@ public sealed class FootballDetailService(
     GameweekService gameweeks,
     StandingsService standings,
     SchemaFeatures schema,
+    FootballReads reads,
     IOptions<FantasyRules> rules)
 {
     private readonly PlayerScoring _scoring = new(rules.Value);
@@ -54,12 +55,13 @@ public sealed class FootballDetailService(
         var price = await db.PlayerPrices.Where(p => p.PlayerId == playerId && p.SeasonId == season.Id).Select(p => (decimal?)p.Price).FirstOrDefaultAsync(ct)
             ?? football.DefaultPrice(position);
         var available = await availability.GetAsync(season.Id, ct);
-        var inLineups = await db.PlayerLineups.AnyAsync(l => l.SportmonksPlayerId == player.SportmonksPlayerId && db.Fixtures.Any(f => f.Id == l.FixtureId && f.SeasonId == season.Id), ct);
+        var lineupRows = await reads.LineupsAsync(ct);
+        var inLineups = await lineupRows.AnyAsync(l => l.SportmonksPlayerId == player.SportmonksPlayerId && db.Fixtures.Any(f => f.Id == l.FixtureId && f.SeasonId == season.Id), ct);
         var hasOverride = await schema.HasTableAsync("app", "player_availability_overrides", ct)
             && await db.AvailabilityOverrides.AnyAsync(o => o.PlayerId == playerId && o.SeasonId == season.Id, ct);
 
         // Every season fixture he lined up in or appears in an event for, with the club he played for then.
-        var appearances = await db.PlayerLineups
+        var appearances = await lineupRows
             .Where(l => l.SportmonksPlayerId == player.SportmonksPlayerId)
             .Join(db.Fixtures.Where(f => f.SeasonId == season.Id), l => l.FixtureId, f => f.Id, (l, f) => new { f.Id, l.TeamId })
             .ToListAsync(ct);
@@ -137,8 +139,8 @@ public sealed class FootballDetailService(
             .Where(f => MatchStatusExtensions.IsFinal(f.StateId) && f.HomeTeamId is not null && f.AwayTeamId is not null && f.HomeScore is not null && f.AwayScore is not null)
             .ToDictionary(f => f.Id);
         var ids = fixtures.Keys.ToList();
-        var events = MatchFactsDecoder.DistinctEvents(await db.MatchEvents.Where(e => ids.Contains(e.FixtureId)).ToListAsync(ct)).Where(e => e.Rescinded != true).ToList();
-        var lineups = await db.PlayerLineups.Where(l => ids.Contains(l.FixtureId)).ToListAsync(ct);
+        var events = MatchFactsDecoder.DistinctEvents(await (await reads.EventsAsync(ct)).Where(e => ids.Contains(e.FixtureId)).ToListAsync(ct)).Where(e => e.Rescinded != true).ToList();
+        var lineups = await (await reads.LineupsAsync(ct)).Where(l => ids.Contains(l.FixtureId)).ToListAsync(ct);
         var smIds = events.SelectMany(e => new[] { e.SportmonksPlayerId, e.SportmonksRelatedPlayerId }).Concat(lineups.Select(l => l.SportmonksPlayerId))
             .Where(x => x is not null).Select(x => x!.Value).Distinct().ToList();
         var players = await db.Players.Where(p => smIds.Contains(p.SportmonksPlayerId)).ToDictionaryAsync(p => p.SportmonksPlayerId, ct);

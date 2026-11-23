@@ -20,6 +20,7 @@
 | 5 Settlement | pushed | `sprint/5-settlement` | `sprint/5-migrations` | `sprint-5-report.md` |
 | 6 Frontend contract | pushed | `sprint/6-frontend-contract` | none (no migration) | `sprint-6-report.md` |
 | 7 Operate and secure | pushed | `sprint/7-operate-secure` | `sprint/7-migrations` | `sprint-7-report.md` |
+| 8 Sync alignment | pushed | `sprint/8-sync-alignment` | none (stack renumbered) | `sprint-8-report.md` |
 
 ## PR links in merge order
 
@@ -43,14 +44,16 @@ Open each PR with the base shown and merge with "Create a merge commit". After a
 
 ## Migration versions in order (none applied)
 
+**Before ours:** the sync owner's V039–V041 (on touchline-sync `main`) and V042 (his branch `sprint/3-4-live-freshness-corrections`). His V042 PR must merge before ours. Ours were renumbered from V039–V044 to V043–V048 in Sprint 8 (`sprint-8-report.md`).
+
 | touchline-api | touchline-sync | What |
 |---|---|---|
-| 007_gameweek_calendar.sql | V039 | persisted gameweek numbers; fixture→gameweek assignment history |
-| 008_rules_versions.sql | V040 | rules and points-table versions on entries and points |
-| 009_accounts.sql | V041 | optional email, usernames, favourite club, suspension and deletion, rename history, notification preferences |
-| 010_safe_writes.sql | V042 | receipts and idempotency, granted transfers, locked snapshot, chip cancellation |
-| 011_settlement.sql | V043 | state machine, fixture resolutions, score revisions |
-| 012_admin_audit_log.sql | V044 | admin audit log |
+| 007_gameweek_calendar.sql | V043 | persisted gameweek numbers; fixture→gameweek assignment history |
+| 008_rules_versions.sql | V044 | rules and points-table versions on entries and points |
+| 009_accounts.sql | V045 | optional email, usernames, favourite club, suspension and deletion, rename history, notification preferences |
+| 010_safe_writes.sql | V046 | receipts and idempotency, granted transfers, locked snapshot, chip cancellation |
+| 011_settlement.sql | V047 | state machine, fixture resolutions, score revisions |
+| 012_admin_audit_log.sql | V048 | admin audit log |
 
 **About these migrations:**
 - Each one is safe to rerun and grants no DELETE.
@@ -66,7 +69,7 @@ Open each PR with the base shown and merge with "Create a merge commit". After a
 3. **Completeness evidence:**
    - Populate `sync.gameweek_sync_status` (0 rows today). Until then every finished fixture needs an admin resolution before finalising.
    - Exclude postponed fixtures (state 10) from completeness.
-   - Once V039 is live, group fixtures by `app.fixture_gameweek_assignments`.
+   - Once V043 is live, group fixtures by `app.fixture_gameweek_assignments`.
 4. **Reissued corrections:** mark the stale `match_events` row `rescinded = true` (preferred) or delete it. The API handles both.
 5. **Schema gaps:**
    - Add a Flyway migration for `football.standings`, which exists in production with no migration.
@@ -250,3 +253,19 @@ Open each PR with the base shown and merge with "Create a merge commit". After a
 - [ ] Independent security review: findings fixed and retested, remaining risks approved in writing.
 - [ ] POPIA review by the responsible person.
 - [ ] Fill in and sign `docs/release/release-record.md` (go / hold / rollback, who decided, when).
+
+## Pull requests (opened with gh, 23 Nov 2026), in merge order
+
+| Order | touchline-api | touchline-sync |
+|---|---|---|
+| 0 | – | the sync owner's V042 (branch `sprint/3-4-live-freshness-corrections`, no PR yet; his V039–V041 merged as #3). V043 is already on sync main, so his V042 must be renamed V049 (or applied with outOfOrder) |
+| 1 | #6 Sprint 1 (merged) | #4 V043 (merged) |
+| 2 | #14 Sprint 2 (replaces #7, auto-closed when its base branch was deleted) | #10 V044 (replaces #5, auto-closed when its base branch was deleted) |
+| 3 | #8 Sprint 3 | #6 V045 |
+| 4 | #9 Sprint 4 | #7 V046 |
+| 5 | #10 Sprint 5 | #8 V047 |
+| 6 | #11 Sprint 6 | – |
+| 7 | #12 Sprint 7 | #9 V048 |
+| 8 | #13 Sprint 8 | – |
+
+Every touchline-api PR now targets `main` (rebased onto main after #6 merged), so no PR depends on a branch that gets deleted on merge. The touchline-sync PRs #6–#9 still target the previous `sprint/n-migrations` branch: retarget each to `main` before its parent merges. Deploy the API through #13 (the `withdrawn_at` filter) before V040 runs in production.

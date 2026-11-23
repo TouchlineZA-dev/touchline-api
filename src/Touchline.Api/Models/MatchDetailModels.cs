@@ -93,8 +93,13 @@ public sealed record FreshnessView(
     bool InMatchWindow,
     int StaleAfterMinutes,
     int AgeMinutes,
-    TimestampsView? Timestamps);
+    TimestampsView? Timestamps,
+    string Source = "api",
+    string? PollHealth = null,
+    DateTimeOffset? LastObservedUtc = null);
 
+/// <param name="Revision">The worker's committed revision ("s{n}" from sync.fixture_freshness) when available, otherwise the API's content hash ("r-…").</param>
+/// <param name="RevisionSource">"sync.fixture_freshness" or "api_content_hash".</param>
 public sealed record MatchDetailView(
     MatchFixtureView Fixture,
     ClockView Clock,
@@ -105,4 +110,5 @@ public sealed record MatchDetailView(
     IReadOnlyList<TeamStatView> Stats,
     CoverageView Coverage,
     FreshnessView Freshness,
-    string Revision);
+    string Revision,
+    string RevisionSource = "api_content_hash");

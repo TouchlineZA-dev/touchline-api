@@ -23,9 +23,9 @@ public sealed record TestDb(string Name, string AdminConnectionString, string Ap
 /// </summary>
 public static class TestDatabase
 {
-    /// <summary>docs/migrations 001–006 are V033–V038, already in the pinned Flyway set.</summary>
+    /// <summary>docs/migrations 001–006 are V033–V038, already in the pinned Flyway set; 007+ are V043+ (V039–V042 belong to the sync owner).</summary>
     public const int FirstPendingApiMigration = 7;
-    public const int ApiMigrationVersionOffset = 32;
+    public const int ApiMigrationVersionOffset = 36;
 
     /// <summary>Password the test sets for app_api_user (the migrations' own role passwords are never used).</summary>
     private const string ApiRolePassword = "api-test-only";
@@ -115,7 +115,8 @@ public static class TestDatabase
             }
             if (upToVersion is null)
             {
-                foreach (var file in Directory.GetFiles(Path.Combine(RepoRoot(), "tests", "db", "supplement"), "*.sql").Order())
+                var supplement = Path.Combine(RepoRoot(), "tests", "db", "supplement");
+                foreach (var file in (Directory.Exists(supplement) ? Directory.GetFiles(supplement, "*.sql") : []).Order())
                 {
                     await Exec(conn, await File.ReadAllTextAsync(file));
                 }
@@ -153,7 +154,7 @@ public static class TestDatabase
     }
 
     /// <summary>
-    /// The combined, ordered migration list: pinned Flyway V001… then docs/migrations 007+ as V039+.
+    /// The combined, ordered migration list: pinned Flyway V001… then docs/migrations 007+ as V043+.
     /// </summary>
     public static IReadOnlyList<(int Version, string Sql)> Migrations()
     {

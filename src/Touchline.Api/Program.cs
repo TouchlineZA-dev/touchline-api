@@ -52,6 +52,7 @@ builder.Services.AddDbContext<TouchlineDbContext>(options => options
 // Services
 builder.Services.Configure<FootballOptions>(builder.Configuration.GetSection(FootballOptions.SectionName));
 builder.Services.AddSingleton<SchemaFeatures>();
+builder.Services.AddScoped<FootballReads>();
 builder.Services.AddScoped<AvailabilityService>();
 builder.Services.AddScoped<FootballService>();
 builder.Services.AddScoped<PlayerIdBridge>();

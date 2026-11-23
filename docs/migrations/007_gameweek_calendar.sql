@@ -1,4 +1,4 @@
--- 007 (touchline-sync V039): a persisted fantasy calendar.
+-- 007 (touchline-sync V043): a persisted fantasy calendar.
 --
 -- Why: the API derived gameweek numbers from row order and fixture membership from SAST date
 -- windows at read time. An inserted early week renumbered every later week, and a rescheduled
@@ -61,7 +61,7 @@ COMMENT ON TABLE app.fixture_gameweek_assignments IS
 
 -- 3. Backfill from the date windows the API used until now --------------------------------------
 INSERT INTO app.fixture_gameweek_assignments (fixture_id, gameweek_id, reason)
-SELECT f.id, g.id, 'Backfilled by V039 from the gameweek''s SAST date window'
+SELECT f.id, g.id, 'Backfilled by V043 from the gameweek''s SAST date window'
 FROM football.fixtures f
 JOIN app.gameweeks g
   ON g.season_id = f.season_id

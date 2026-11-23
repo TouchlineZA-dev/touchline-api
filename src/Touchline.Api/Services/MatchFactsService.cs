@@ -12,7 +12,7 @@ namespace Touchline.Api.Services;
 /// Loads football.player_lineups, football.match_events and football.players for a set of fixtures
 /// and hands each fixture to the pure MatchFactsDecoder. Read only.
 /// </summary>
-public sealed class MatchFactsService(TouchlineDbContext db, PlayerIdBridge bridge, IOptions<FantasyRules> rules)
+public sealed class MatchFactsService(TouchlineDbContext db, PlayerIdBridge bridge, FootballReads reads, IOptions<FantasyRules> rules)
 {
     private readonly MatchClock _clock = new(rules.Value);
 
@@ -29,17 +29,17 @@ public sealed class MatchFactsService(TouchlineDbContext db, PlayerIdBridge brid
         var scoringTypes = MatchFactsDecoder.ScoringEventTypes.ToArray();
 
         var fixtureIds = counted.Select(f => f.Id).ToList();
-        var lineups = await db.PlayerLineups
+        var lineups = await (await reads.LineupsAsync(ct))
             .Where(l => fixtureIds.Contains(l.FixtureId) && l.SportmonksPlayerId != null)
             .ToListAsync(ct);
-        var events = await db.MatchEvents
+        var events = await (await reads.EventsAsync(ct))
             .Where(e => fixtureIds.Contains(e.FixtureId) && scoringTypes.Contains(e.TypeId) && e.Rescinded != true)
             .ToListAsync(ct);
 
         var players = (await bridge.ResolveAsync(PlayerIdBridge.IdsIn(lineups, events), ct))
             .ToDictionary(p => p.Key, p => new DecoderPlayer(p.Value.Id, p.Value.PositionId));
 
-        var latestEventMinute = await db.MatchEvents
+        var latestEventMinute = await (await reads.EventsAsync(ct))
             .Where(e => fixtureIds.Contains(e.FixtureId) && e.Minute != null)
             .GroupBy(e => e.FixtureId)
             .Select(g => new { FixtureId = g.Key, Minute = g.Max(e => e.Minute) })

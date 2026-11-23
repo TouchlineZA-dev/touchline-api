@@ -1,4 +1,4 @@
--- 012 (touchline-sync V044): audit log for privileged operations (API Sprint 7).
+-- 012 (touchline-sync V048): audit log for privileged operations (API Sprint 7).
 --
 -- Why: 03-Leruo-API Stage 7 / handbook Gate 9: "keep actor, timestamp, reason and outcome for
 -- consequential operations" (scoring, pricing, calendar, corrections, admin resets, suspensions).

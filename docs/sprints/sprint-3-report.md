@@ -107,7 +107,7 @@ Neither is a conflict with Part 3 rules.
 ## Migration file names
 
 - touchline-api: `docs/migrations/009_accounts.sql`
-- touchline-sync: `db/migrations/V041__accounts.sql`
+- touchline-sync: `db/migrations/V045__accounts.sql`
 
 Not applied. Safe to rerun. Before 009:
 - sign-in still works, including without email (placeholder);

@@ -1,4 +1,4 @@
--- 009 (touchline-sync V041): account and team onboarding (API Sprint 3).
+-- 009 (touchline-sync V045): account and team onboarding (API Sprint 3).
 --
 -- Why: 03-Leruo-API Stage 3 / handbook Gate 5. The verified Supabase subject is the permanent
 -- account key, so email becomes optional (Apple relay, phone sign-in, Facebook without an email).

@@ -103,7 +103,7 @@ Nothing new. Earlier lists stand.
 ## Migration file names
 
 - touchline-api: `docs/migrations/010_safe_writes.sql`
-- touchline-sync: `db/migrations/V042__safe_writes.sql`
+- touchline-sync: `db/migrations/V046__safe_writes.sql`
 
 Not applied. Safe to rerun. Before 010, all existing writes work (with the new target-gameweek and version checks), while these need it:
 - `POST /transfers/confirm` and chip cancellation return `503 Schema not ready`;

@@ -21,7 +21,7 @@ public sealed class AvailabilitySet(IReadOnlySet<long> inLineups, IReadOnlyDicti
 /// in the season, unless an admin override says otherwise. Before a season has any lineups (a
 /// pre-season price run), the previous PSL season's lineups are used.
 /// </summary>
-public sealed class AvailabilityService(TouchlineDbContext db, ILogger<AvailabilityService> logger)
+public sealed class AvailabilityService(TouchlineDbContext db, FootballReads reads, ILogger<AvailabilityService> logger)
 {
     public async Task<AvailabilitySet> GetAsync(int seasonId, CancellationToken ct = default)
     {
@@ -61,7 +61,7 @@ public sealed class AvailabilityService(TouchlineDbContext db, ILogger<Availabil
     private async Task<HashSet<long>> LineupPlayersAsync(int seasonId, CancellationToken ct)
     {
         short[] squadTypes = [SportmonksCodes.LineupTypes.StartingXi!.Value, SportmonksCodes.LineupTypes.Bench!.Value];
-        var ids = await (from l in db.PlayerLineups
+        var ids = await (from l in await reads.LineupsAsync(ct)
                          join f in db.Fixtures on l.FixtureId equals f.Id
                          where f.SeasonId == seasonId && l.SportmonksPlayerId != null && squadTypes.Contains(l.TypeId)
                          select l.SportmonksPlayerId!.Value).Distinct().ToListAsync(ct);
