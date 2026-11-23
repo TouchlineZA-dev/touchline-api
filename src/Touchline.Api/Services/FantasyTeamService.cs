@@ -140,7 +140,7 @@ public sealed class FantasyTeamService(
         if (!outcome.Check.IsValid) throw new RuleViolationException(outcome.Check.Errors, "These transfers break some rules");
 
         // Unlimited free transfers before the Gameweek 1 deadline and with Wildcard active.
-        var unlimited = TransferRules.UnlimitedFreeTransfers(gameweek.IsFirst, squad.Entry.Chip);
+        var unlimited = TransferRules.UnlimitedFreeTransfers(gameweek.IsFirst, squad.Entry.Chip, await IsTeamsFirstGameweekAsync(team.Id, gameweek, ctx.Calendar, ct));
         var cost = _transferRules.Calculate(squad.Entry.TransfersMade, outIds.Count, unlimited);
 
         // Each incoming player takes over the outgoing player's row: same starter/bench spot and armband.
@@ -268,6 +268,16 @@ public sealed class FantasyTeamService(
         return squad;
     }
 
+    /// <summary>
+    /// Late entry (rulebook §5): the team has no squad in any earlier gameweek, so this is the first
+    /// gameweek it plays. Its transfers are free until that gameweek's deadline.
+    /// </summary>
+    private async Task<bool> IsTeamsFirstGameweekAsync(int teamId, GameweekInfo gameweek, SeasonCalendar calendar, CancellationToken ct)
+    {
+        var earlier = calendar.Gameweeks.Where(g => g.Number < gameweek.Number).Select(g => g.Id).ToList();
+        return !await db.FantasySquads.AnyAsync(p => p.FantasyTeamId == teamId && earlier.Contains(p.GameweekId), ct);
+    }
+
     private static IEnumerable<int> PairIncoming(IReadOnlyList<int> outIds, IReadOnlyList<int> inIds, IReadOnlyDictionary<int, FantasyPlayer> players)
     {
         // Same pairing as SquadRules.ApplyTransfers: each outgoing player gets the first unmatched incoming player of his position.
@@ -303,7 +313,7 @@ public sealed class FantasyTeamService(
         }
 
         var players = await data.LoadPlayersAsync(ctx.Season.Id, squad.Picks.Select(p => p.PlayerId), ct);
-        var unlimited = TransferRules.UnlimitedFreeTransfers(gameweek.IsFirst, squad.Entry.Chip);
+        var unlimited = TransferRules.UnlimitedFreeTransfers(gameweek.IsFirst, squad.Entry.Chip, await IsTeamsFirstGameweekAsync(team.Id, gameweek, ctx.Calendar, ct));
         int? freeLeft = unlimited ? null : Math.Max(0, _rules.FreeTransfersPerGameweek - squad.Entry.TransfersMade);
 
         var views = squad.Picks.Select(p =>

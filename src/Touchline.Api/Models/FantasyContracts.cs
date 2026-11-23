@@ -43,7 +43,12 @@ public sealed record TeamView(
     decimal? SquadValue,
     GameweekRef? NextGameweek);
 
-public sealed record GameweekRef(int Id, int Number, string Name, DateOnly StartDate, DateOnly EndDate, DateTimeOffset? Deadline, bool Locked);
+/// <param name="Deadline">The exact deadline instant (UTC).</param>
+/// <param name="DeadlineSast">The same instant in South African time (UTC+02:00), ISO 8601.</param>
+public sealed record GameweekRef(int Id, int Number, string Name, DateOnly StartDate, DateOnly EndDate, DateTimeOffset? Deadline, bool Locked)
+{
+    public string? DeadlineSast => Deadline?.ToOffset(TimeSpan.FromHours(2)).ToString("yyyy-MM-dd'T'HH:mm:sszzz", System.Globalization.CultureInfo.InvariantCulture);
+}
 
 public sealed record SquadPlayerView(
     int PlayerId,
@@ -112,7 +117,8 @@ public sealed record TeamPointsView(
     int TransferCost,
     int BenchPoints,
     IReadOnlyList<FixtureStatusView> Fixtures,
-    IReadOnlyList<PlayerPointsView> Players);
+    IReadOnlyList<PlayerPointsView> Players,
+    string? RulesVersion = null);
 
 public sealed record LeagueSummaryView(
     string Id,
