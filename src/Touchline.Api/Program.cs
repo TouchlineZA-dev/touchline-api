@@ -20,7 +20,7 @@ builder.Services
     .AddControllers()
     .AddJsonOptions(o => o.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 builder.Services.AddProblemDetails();
-builder.Services.AddOpenApi();
+builder.Services.AddTouchlineOpenApi();
 builder.Services.AddHttpContextAccessor();
 
 // Database
@@ -51,6 +51,9 @@ builder.Services.AddScoped<FootballService>();
 builder.Services.AddScoped<PlayerIdBridge>();
 builder.Services.AddScoped<MatchDetailService>();
 builder.Services.AddScoped<StandingsService>();
+builder.Services.AddScoped<FootballDetailService>();
+builder.Services.AddScoped<StagingKitService>();
+builder.Services.Configure<StagingKitOptions>(builder.Configuration.GetSection(StagingKitOptions.SectionName));
 builder.Services.Configure<FreshnessOptions>(builder.Configuration.GetSection(FreshnessOptions.SectionName));
 builder.Services.AddScoped<GameweekService>();
 builder.Services.AddScoped<HealthService>();
@@ -81,19 +84,27 @@ builder.Services.Configure<AccountOptions>(builder.Configuration.GetSection(Acco
 
 const string FrontendCors = "frontend";
 var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? [];
+// Origins come from per-environment configuration (Cors:AllowedOrigins). ETag is exposed so browser
+// clients can read the squad version and send it back in If-Match.
 builder.Services.AddCors(o => o.AddPolicy(FrontendCors, p => p
     .WithOrigins(allowedOrigins)
     .AllowAnyHeader()
-    .AllowAnyMethod()));
+    .AllowAnyMethod()
+    .WithExposedHeaders("ETag")));
 
 var app = builder.Build();
 
 app.UseExceptionHandler();
 app.UseStatusCodePages();
 
-if (app.Environment.IsDevelopment())
+// The OpenAPI document is public contract information (docs/api/openapi-v1.json is exported from it).
+// Served in Development and Testing, or anywhere OpenApi:Expose is true. The Scalar UI is Development only.
+if (app.Environment.IsDevelopment() || app.Environment.IsEnvironment("Testing") || builder.Configuration.GetValue<bool>("OpenApi:Expose"))
 {
     app.MapOpenApi();               // /openapi/v1.json
+}
+if (app.Environment.IsDevelopment())
+{
     app.MapScalarApiReference();    // /scalar
 }
 
