@@ -249,7 +249,7 @@ public sealed class PricingService(
             .GroupBy(x => x.Team)
             .ToDictionary(g => g.Key, g => g.Select(x => x.Fixture).ToList());
 
-        static bool Remaining(Fixture f) => MatchStatusExtensions.FromStateId(f.StateId) is MatchStatus.Scheduled or MatchStatus.Live;
+        static bool Remaining(Fixture f) => MatchStatusExtensions.FromStateId(f.StateId) is MatchStatus.Scheduled or MatchStatus.Live or MatchStatus.Unknown;
         var averageLeft = byTeam.Count == 0 ? 0 : (int)Math.Round(byTeam.Values.Average(list => list.Count(Remaining)));
 
         return (playerId, sportmonksId) =>

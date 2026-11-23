@@ -169,7 +169,7 @@ public sealed class FantasyTeamService(
         await transaction.CommitAsync(ct);
 
         var view = await SquadViewAsync(ctx, team, gameweek, await squads.LoadAsync(team.Id, gameweek, ctx.Calendar, ct), outcome.Check.Warnings, ct);
-        return new TransferResult(outIds.Count, cost.RequestCost, cost.GameweekCost, cost.FreeTransfersLeft, team.BudgetRemaining, view);
+        return new TransferResult(outIds.Count, cost.RequestCost, cost.GameweekCost, cost.FreeTransfersLeft, team.BudgetRemaining, view, ctx.Now);
     }
 
     /// <summary>POST /chips for the next gameweek. Each chip once per season, one chip per gameweek.</summary>
@@ -299,7 +299,7 @@ public sealed class FantasyTeamService(
         if (squad is null)
         {
             return new SquadView(team.Id, gameweek.ToRef(ctx.Now), null, null, null, null, 0, 0, null,
-                team.BudgetRemaining, 0m, Version: 0, Saved: false, [], ["No squad picked yet."]);
+                team.BudgetRemaining, 0m, Version: 0, Saved: false, [], ["No squad picked yet."], ctx.Now);
         }
 
         var players = await data.LoadPlayersAsync(ctx.Season.Id, squad.Picks.Select(p => p.PlayerId), ct);
@@ -344,6 +344,7 @@ public sealed class FantasyTeamService(
             squad.Entry.Version,
             squad.Saved,
             views,
-            allWarnings);
+            allWarnings,
+            ctx.Now);
     }
 }

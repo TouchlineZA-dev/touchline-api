@@ -53,15 +53,16 @@ public sealed class GameweekRules(FantasyRules rules)
 
     /// <summary>
     /// A gameweek can be finalised when the sync worker marked it complete, or when it's over: every
-    /// fixture has a final result (state 5, 7 or 8) or won't be played this gameweek (postponed,
-    /// cancelled or abandoned), and at least one is final. Without the second part a single
-    /// postponed match would keep its gameweek open for ever; it scores nothing either way, and when
-    /// it's rescheduled it counts in whichever gameweek its new date falls in.
+    /// fixture is settled in the provider-state matrix (a final result, an awarded/walk-over result, or
+    /// won't be played this gameweek: postponed, cancelled, abandoned), and at least one was played to a
+    /// final result. Without the second part a single postponed match would keep its gameweek open for
+    /// ever; it scores nothing either way, and when it's rescheduled it counts in whichever gameweek it
+    /// is assigned to. Sprint 5 replaces this with the completeness contract.
     /// </summary>
     public static bool CanFinalise(bool markedComplete, IReadOnlyCollection<short?> fixtureStates) =>
         markedComplete
         || (fixtureStates.Any(MatchStatusExtensions.IsFinal)
-            && fixtureStates.All(s => MatchStatusExtensions.IsFinal(s) || MatchStatusExtensions.FromStateId(s) == MatchStatus.NoResult));
+            && fixtureStates.All(s => MatchStateMatrix.For(s).Settled));
 }
 
 /// <summary>Private league rules (section 10).</summary>

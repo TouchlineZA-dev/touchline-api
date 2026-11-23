@@ -10,6 +10,7 @@ These SQL files create and change the `app` tables that touchline-api owns. They
 | `004_seed_gameweeks_2026_27.sql` | The 28 gameweeks of the 2026/27 PSL season |
 | `005_rls_policies_for_api.sql` | Policies so `app_api_user` can use the 003 tables with row-level security on |
 | `006_player_availability_overrides.sql` | Admin overrides for which players can be picked and priced (insert only) |
+| `007_gameweek_calendar.sql` | Persisted gameweek numbers and the insert-only fixture→gameweek assignment history (Sprint 1, not applied yet) |
 
 touchline-sync keeps the same SQL as Flyway versions, so a Flyway run there is a no-op for anything already applied here:
 
@@ -21,8 +22,11 @@ touchline-sync keeps the same SQL as Flyway versions, so a Flyway run there is a
 | 004 | V036 |
 | 005 | V037 |
 | 006 | V038 |
+| 007 | V039 |
 
-Change both copies together.
+Change both copies together. From 007 on, file NNN is Flyway V(NNN+32). The API's database tests apply the pinned Flyway set (`tests/db/flyway`) and then these files from 007 on, so a new file here is tested before it reaches touchline-sync.
+
+The API code works before a new file is applied: it checks for new tables and columns (`Data/SchemaFeatures.cs`) and falls back to the old behaviour.
 
 Rules for these files:
 

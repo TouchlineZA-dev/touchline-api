@@ -35,11 +35,9 @@ public sealed class MeEndpointTests(PostgresFixture db) : IClassFixture<Postgres
     private Task<long> ProfileCount(Guid sub) =>
         db.ScalarAsync<long>("SELECT count(*) FROM app.users WHERE auth_user_id = $1", sub);
 
-    private Task<int> CreateFantasyTeam(int userId) => db.ScalarAsync<int>("""
-        WITH season AS (INSERT INTO football.seasons DEFAULT VALUES RETURNING id)
-        INSERT INTO app.fantasy_teams (user_id, season_id, name)
-        SELECT $1, id, 'Test XI' FROM season RETURNING id
-        """, userId);
+    private async Task<int> CreateFantasyTeam(int userId) => await db.ScalarAsync<int>("""
+        INSERT INTO app.fantasy_teams (user_id, season_id, name) VALUES ($1, $2, 'Test XI') RETURNING id
+        """, userId, await db.NewSeasonAsync());
 
     private Task<int> TeamOwner(int teamId) =>
         db.ScalarAsync<int>("SELECT user_id FROM app.fantasy_teams WHERE id = $1", teamId);

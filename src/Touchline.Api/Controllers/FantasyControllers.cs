@@ -139,8 +139,24 @@ public sealed class AdminController(
     [HttpPost("gameweeks")]
     public async Task<IActionResult> CreateGameweek(CreateGameweekRequest request, CancellationToken ct)
     {
+        var me = await RequireAdminAsync(ct);
+        return StatusCode(StatusCodes.Status201Created, await gameweeks.CreateAsync(request, time.GetUtcNow(), me.Id, ct));
+    }
+
+    /// <summary>Move a fixture to another gameweek (or unassign it). Recorded with reason and admin. Needs migration 007.</summary>
+    [HttpPut("fixtures/{id:int}/gameweek")]
+    public async Task<IActionResult> AssignFixture(int id, AssignFixtureRequest request, CancellationToken ct)
+    {
+        var me = await RequireAdminAsync(ct);
+        return Ok(await gameweeks.AssignFixtureAsync(id, request, me.Id, time.GetUtcNow(), ct));
+    }
+
+    /// <summary>A fixture's gameweek assignment history, newest first.</summary>
+    [HttpGet("fixtures/{id:int}/gameweek-history")]
+    public async Task<IActionResult> FixtureGameweekHistory(int id, CancellationToken ct)
+    {
         await RequireAdminAsync(ct);
-        return StatusCode(StatusCodes.Status201Created, await gameweeks.CreateAsync(request, time.GetUtcNow(), ct));
+        return Ok(new { fixtureId = id, history = await gameweeks.HistoryAsync(id, ct) });
     }
 
     /// <summary>Finalise points. Safe to run again.</summary>

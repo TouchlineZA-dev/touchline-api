@@ -32,7 +32,10 @@ public record FixtureSummary(
     int? AwayTeamId,
     string AwayTeam,
     short? HomeScore,
-    short? AwayScore);
+    short? AwayScore,
+    MatchPhase Phase = MatchPhase.Scheduled,
+    bool NeedsReview = false,
+    int? CompetitionId = null);
 
 public record GameweekSummary(
     int Id,
@@ -41,7 +44,8 @@ public record GameweekSummary(
     DateOnly EndDate,
     bool IsActive,
     int? SeasonId,
-    bool ReadyToScore);
+    bool ReadyToScore,
+    int? Number = null);
 
 public record HealthReport(bool DatabaseReachable, string? DatabaseError, LastSyncJob? LastSyncJob);
 
