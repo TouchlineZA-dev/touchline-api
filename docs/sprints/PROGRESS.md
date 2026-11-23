@@ -47,8 +47,8 @@ None.
 | Order | touchline-api | touchline-sync |
 |---|---|---|
 | 0 | – | the sync owner's V042 branch `sprint/3-4-live-freshness-corrections` (no PR yet; his V039–V041 merged as #3) |
-| 1 | #6 Sprint 1 (base `main`) | #4 V043 (base `main`) |
-| 2 | #7 Sprint 2 | #5 V044 |
+| 1 | #6 Sprint 1 (base `main`) | #4 V043 (merged) |
+| 2 | #7 Sprint 2 | #10 V044 (replaces #5, auto-closed when its base branch was deleted) |
 | 3 | #8 Sprint 3 | #6 V045 |
 | 4 | #9 Sprint 4 | #7 V046 |
 | 5 | #10 Sprint 5 | #8 V047 |
