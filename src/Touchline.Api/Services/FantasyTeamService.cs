@@ -89,7 +89,7 @@ public sealed class FantasyTeamService(
         db.FantasySquads.AddRange(picks);
         await squads.ApplySelectionAsync(picks, selection, ct);
         db.GameweekEntries.Add(SquadStore.NewEntry(team.Id, gameweek.Id, selection.Formation));
-        team.BudgetRemaining = _rules.Budget - selection.AllPlayers.Sum(id => players[id].Price);
+        team.BudgetRemaining = _squadRules.BudgetAfterFirstPick(selection, players);
         await db.SaveChangesAsync(ct);
         await transaction.CommitAsync(ct);
 
@@ -140,7 +140,7 @@ public sealed class FantasyTeamService(
         if (!outcome.Check.IsValid) throw new RuleViolationException(outcome.Check.Errors, "These transfers break some rules");
 
         // Unlimited free transfers before the Gameweek 1 deadline and with Wildcard active.
-        var unlimited = gameweek.IsFirst || squad.Entry.Chip == Chips.Wildcard;
+        var unlimited = TransferRules.UnlimitedFreeTransfers(gameweek.IsFirst, squad.Entry.Chip);
         var cost = _transferRules.Calculate(squad.Entry.TransfersMade, outIds.Count, unlimited);
 
         // Each incoming player takes over the outgoing player's row: same starter/bench spot and armband.
@@ -303,7 +303,7 @@ public sealed class FantasyTeamService(
         }
 
         var players = await data.LoadPlayersAsync(ctx.Season.Id, squad.Picks.Select(p => p.PlayerId), ct);
-        var unlimited = gameweek.IsFirst || squad.Entry.Chip == Chips.Wildcard;
+        var unlimited = TransferRules.UnlimitedFreeTransfers(gameweek.IsFirst, squad.Entry.Chip);
         int? freeLeft = unlimited ? null : Math.Max(0, _rules.FreeTransfersPerGameweek - squad.Entry.TransfersMade);
 
         var views = squad.Picks.Select(p =>

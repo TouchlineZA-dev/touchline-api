@@ -90,6 +90,10 @@ public sealed class SquadRules(FantasyRules rules)
         return check;
     }
 
+    /// <summary>Budget left after a first squad pick: the budget minus the players' current prices.</summary>
+    public decimal BudgetAfterFirstPick(SquadSelection selection, IReadOnlyDictionary<int, FantasyPlayer> players) =>
+        rules.Budget - selection.AllPlayers.Distinct().Sum(id => players[id].Price);
+
     /// <summary>
     /// A lineup change rearranges the same 15 players: formation, starters, bench and captaincy.
     /// Adding or removing players needs a transfer.
