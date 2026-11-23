@@ -46,14 +46,14 @@ None.
 
 | Order | touchline-api | touchline-sync |
 |---|---|---|
-| 0 | – | the sync owner's V042 branch `sprint/3-4-live-freshness-corrections` (no PR yet; his V039–V041 merged as #3) |
-| 1 | #6 Sprint 1 (base `main`) | #4 V043 (merged) |
-| 2 | #7 Sprint 2 | #10 V044 (replaces #5, auto-closed when its base branch was deleted) |
+| 0 | – | the sync owner's V042 (branch `sprint/3-4-live-freshness-corrections`, no PR yet; his V039–V041 merged as #3). V043 is already on sync main, so his V042 must be renamed V049 (or applied with outOfOrder) |
+| 1 | #6 Sprint 1 (merged) | #4 V043 (merged) |
+| 2 | #14 Sprint 2 (replaces #7, auto-closed when its base branch was deleted) | #10 V044 (replaces #5, auto-closed when its base branch was deleted) |
 | 3 | #8 Sprint 3 | #6 V045 |
 | 4 | #9 Sprint 4 | #7 V046 |
 | 5 | #10 Sprint 5 | #8 V047 |
 | 6 | #11 Sprint 6 | – |
 | 7 | #12 Sprint 7 | #9 V048 |
-| 8 | #13 Sprint 8 (base `sprint/7-operate-secure`) | – |
+| 8 | #13 Sprint 8 | – |
 
-Each PR's base is the previous sprint's branch: after one merges, retarget the next to `main`. Deploy the API through #13 (the `withdrawn_at` filter) before V040 runs in production.
+Every touchline-api PR now targets `main` (rebased onto main after #6 merged), so no PR depends on a branch that gets deleted on merge. The touchline-sync PRs #6–#9 still target the previous `sprint/n-migrations` branch: retarget each to `main` before its parent merges. Deploy the API through #13 (the `withdrawn_at` filter) before V040 runs in production.
