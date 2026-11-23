@@ -31,6 +31,12 @@ public sealed class FantasyRules
     /// <summary>Gameweek deadline: this many minutes before the first kickoff of the gameweek.</summary>
     public int DeadlineMinutesBeforeFirstKickoff { get; set; } = 90;
 
+    /// <summary>Every squad, lineup, transfer and chip write must name its target gameweek id (Sprint 4).</summary>
+    public bool RequireTargetGameweek { get; set; } = true;
+
+    /// <summary>A transfer quote can be confirmed for this many minutes (and never after the deadline).</summary>
+    public int TransferQuoteMinutes { get; set; } = 15;
+
     // ---- Transfers and chips -----------------------------------------------------------
 
     /// <summary>Free transfers per gameweek. Unused ones do not roll over.</summary>

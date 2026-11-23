@@ -29,7 +29,7 @@ Items that appear in several docs are listed once and cite every source.
 | 7 | 03, 01 | Stage 1 table, row 4; regressions | Corrected scorer, unchanged score: timeline updated, identifiable revision, points move exactly once | 1 | `Corrected_scorer_with_unchanged_score…`, `Reissued_correction_under_a_new_id_never_double_counts` | done |
 | 8 | 03, 01 | Stage 1 table, row 5; regressions | Postponement or changed kickoff: football state correct; fantasy week resolved separately; a locked entry can't be rewritten without a recorded decision | 1 | `Postponed_fixture_shows_its_state…`, `Fixture_moved_to_another_week…locked_weeks_need_a_decision` | done |
 | 9 | 03, 01 | Stage 1; Gate 2.3 | Persist stable gameweek numbers and intentional fixture assignments with history | 1 | migration 007 / V039; `GameweekService`; `Populated_upgrade_backfills…` | done (applies when 007 is run) |
-| 10 | 03, 01 | Stage 1; Gate 2.4 | Writes include server time, target gameweek id and deadline | 1 | `SquadView.ServerTimeUtc`, `TransferResult.ServerTimeUtc`; gameweek id and deadline already in `gameweek` | partial: every write naming its target week is Sprint 4 |
+| 10 | 03, 01 | Stage 1; Gate 2.4 | Writes include server time, target gameweek id and deadline | 1 | `gameweekId` on every write; `gameweek`, `version`, `serverTimeUtc` in responses (Sprint 4) | done |
 | 11 | 03, 01 | Stage 1; Gate 4 standings | Official or reconciled PSL standings, with a policy for deductions and awarded results | 1 | `GET /api/v1/standings`, `StandingsService`; `Table_follows_netlify_rules…` | done |
 | 12 | 03 | Stage 1 pass | A historical match served completely from a populated DB | 1 | `GET /api/v1/fixtures/{id}` (events, lineups, subs, stats, coverage, freshness, revision) | done |
 | 13 | 03, 01 | Stage 1 pass; Gate 3 | Measure worker-commit → API visibility separately from provider delay | 1 | `freshness.timestamps` (firstObserved, dbCommitted, apiPublished; provider timestamp null); method in sprint-1-report | done |
@@ -62,13 +62,13 @@ Items that appear in several docs are listed once and cite every source.
 | 35 | 02 | Public contract | `kickoffUtc` vs web `kickoff`; retire synthetic ratings | 6 | | not done |
 | 36 | 02 | Public contract | Port `/standings`, `/player-rankings`, `/matches?fixtureId=` with their filters and tie rules | 1, 6 | `/standings` (Sprint 1), match detail (Sprint 1); `/player-rankings` and the `/matches` alias in Sprint 6 | partial |
 | 37 | 02 | Public contract | Headlines and category contract through C#, `/news/headlines?max=` compatibility | 6 | | not done |
-| 38 | 02 | Public contract | Request/response examples; keep 400/401/403/404/409/503; expose ETag to browser origins; atomic version checks; two-client test | 4, 6 | | not done |
+| 38 | 02 | Public contract | Request/response examples; keep 400/401/403/404/409/503; expose ETag to browser origins; atomic version checks; two-client test | 4, 6 | `docs/api/errors.md`; codes on every error; ETag/If-Match atomic (team lock + concurrency token); two-client test. Browser ETag exposure and examples: Sprint 6 | partial |
 | 39 | 02 | Public contract | Export OpenAPI from CI; contract tests on real envelopes | 6 | | not done |
 | 40 | 02 | Public contract | Local launch target and staging/production config: scoped role, Supabase settings, explicit origins | 6 | | not done |
 | 41 | 02 | Public contract | Monitor DB readiness and data freshness separately | 6 | | not done |
 | 42 | 02 | Scoring trustworthy | Finaliser uses `sync.gameweek_sync_status`; completeness for late facts and postponements | 5 | | not done |
 | 43 | 02 | Scoring trustworthy | Owners or schedules for creating gameweeks, finalising/rescoring and applying window prices | 5 | `docs/ops/fantasy-operations.md` | not done |
-| 44 | 02 | Scoring trustworthy | Postgres tests: repeated scoring, duplicate transfers, league capacity, two-device edits | 4, 5, 6 | | not done |
+| 44 | 02 | Scoring trustworthy | Postgres tests: repeated scoring, duplicate transfers, league capacity, two-device edits | 4, 5, 6 | two-device and duplicate-transfer tests (Sprint 4); repeated scoring Sprint 5; league capacity Sprint 6 | partial |
 | 45 | 02 | Release gate | A non-admin can't score; final score and rank match a hand calculation and stay stable after a rerun | 5 | | not done |
 
 ## Stage 2 / Gate 1: season rules
@@ -100,15 +100,15 @@ Items that appear in several docs are listed once and cite every source.
 
 | # | Doc | Section | Item | Sprint | Evidence | Status |
 |---|---|---|---|---|---|---|
-| 61 | 03, 01 | Stage 4 table | Initial pick validation and autopick preview | 4 | | not done |
-| 62 | 03, 01 | Stage 4 table | Pre-deadline writes name the week; expired week → conflict with current state | 4 | | not done |
-| 63 | 03, 01 | Stage 4 table | Transfer preview with versions | 4 | | not done |
-| 64 | 03, 01 | Stage 4 table | Transfer confirm at one decision point; idempotency key bound to manager, operation and payload | 4 | | not done |
-| 65 | 03, 01 | Stage 4 table | Chips: entitlements, one per week, activation/cancellation, effect on hits; Free Hit restoration | 4 | | partial: Free Hit is N/A under our rules |
-| 66 | 03, 01 | Stage 4 table | Immutable deadline entry; carry-forward; rivals' picks hidden | 4 | | not done |
-| 67 | 03, 01 | Stage 4 | DB-backed concurrent-write check, including concurrent first saves | 4 | | not done |
-| 68 | 01 | Matchday ops | Reconcile accepted receipts with locked entries at the deadline | 4 | | not done |
-| 69 | 03, 01 | Stage 6 | Error semantics with machine-readable codes | 4 | | not done |
+| 61 | 03, 01 | Stage 4 table | Initial pick validation and autopick preview | 4 | `ValidateSquad` inside the team lock; `POST /autopick/preview` | done |
+| 62 | 03, 01 | Stage 4 table | Pre-deadline writes name the week; expired week → conflict with current state | 4 | `WritableGameweek` with `gameweekId`; `gameweek_locked` with current state | done |
+| 63 | 03, 01 | Stage 4 table | Transfer preview with versions | 4 | `POST /transfers/preview` | done |
+| 64 | 03, 01 | Stage 4 table | Transfer confirm at one decision point; idempotency key bound to manager, operation and payload | 4 | `POST /transfers/confirm` + `app.fantasy_receipts` | done |
+| 65 | 03, 01 | Stage 4 table | Chips: entitlements, one per week, activation/cancellation, effect on hits; Free Hit restoration | 4 | `GET/DELETE /chips`; Wildcard waives hits; Free Hit N/A | done (Free Hit N/A) |
+| 66 | 03, 01 | Stage 4 table | Immutable deadline entry; carry-forward; rivals' picks hidden | 4 | `SquadStore.LockAsync`, `POST /admin/gameweeks/{id}/lock`; no endpoint shows rivals squads | done |
+| 67 | 03, 01 | Stage 4 | DB-backed concurrent-write check, including concurrent first saves | 4 | team row lock + version concurrency token; race tests | done |
+| 68 | 01 | Matchday ops | Reconcile accepted receipts with locked entries at the deadline | 4 | lock report `reconciled` | done |
+| 69 | 03, 01 | Stage 6 | Error semantics with machine-readable codes | 4 | `docs/api/errors.md` | done |
 
 ## Stage 5 / Gate 7: settlement
 
@@ -140,7 +140,7 @@ Items that appear in several docs are listed once and cite every source.
 | # | Doc | Section | Item | Sprint | Evidence | Status |
 |---|---|---|---|---|---|---|
 | 85 | 03, 01 | Stage 7 | CI runs the full suite with DB tests required; record the result against the revision | 7 | CI already sets `TOUCHLINE_REQUIRE_DB_TESTS` | partial |
-| 86 | 03, 01 | Stage 7 | Postgres cases: concurrent mutations, deadline freeze, settlement interruption, duplicate retries; full gameweek replay | 4, 5, 7 | | not done |
+| 86 | 03, 01 | Stage 7 | Postgres cases: concurrent mutations, deadline freeze, settlement interruption, duplicate retries; full gameweek replay | 4, 5, 7 | concurrent mutations, deadline freeze, duplicate retries (Sprint 4); settlement interruption and replay Sprints 5 and 7 | partial |
 | 87 | 03, 01 | Stage 7; Gate 8 | Load test: standings, deadline writes, cache misses, goal updates; handbook targets | 7 | | not done |
 | 88 | 03, 01 | Gate 9 identity | Pinned issuer/audience, signatures, expiry; key rotation, expiry, suspension tests | 7 | partly exists (`TokenValidationTests`) | partial |
 | 89 | 03, 01 | Gate 9 ownership | Every private read/write per role; ownership checked in ASP.NET because RLS is broad; effective permissions of direct Supabase roles | 7 | | not done |
@@ -157,8 +157,8 @@ Items that appear in several docs are listed once and cite every source.
 
 | Status | Count |
 |---|---|
-| done | 39 |
-| partial | 12 |
-| not done | 43 |
+| done | 49 |
+| partial | 13 |
+| not done | 32 |
 | other owner / N/A / conflict | 3 |
 | **Total** | **97** |

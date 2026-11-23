@@ -100,6 +100,11 @@ public class TouchlineDbContext(DbContextOptions<TouchlineDbContext> options) : 
 
         b.Entity<PointsResult>().Property(x => x.Breakdown).HasColumnType("jsonb");
 
+        // Atomic version check (Sprint 4): every UPDATE of an entry carries WHERE version = <the version read>,
+        // in the same transaction as the write. If another request changed it first, 0 rows match and the
+        // write fails with DbUpdateConcurrencyException (409 stale_squad).
+        b.Entity<FantasyGameweekEntry>().Property(x => x.Version).IsConcurrencyToken();
+
         foreach (var entity in b.Model.GetEntityTypes())
         {
             foreach (var property in entity.GetProperties())

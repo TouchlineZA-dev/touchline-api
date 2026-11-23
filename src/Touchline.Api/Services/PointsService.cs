@@ -203,7 +203,7 @@ public sealed class PointsService(
         {
             // A new rules version never rescores the past: an entry already scored under other rules is kept.
             if (keptVersions.Contains(teamId)) continue;
-            var squad = await squads.EnsureAsync(teamId, info, calendar, now, ct);
+            var squad = await squads.LockAsync(teamId, info, calendar, now, ct);
             if (squad is null) continue; // never picked a squad
 
             var breakdowns = squad.Picks.ToDictionary(p => p.PlayerId, p => live.For(p.PlayerId));
