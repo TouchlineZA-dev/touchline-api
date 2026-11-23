@@ -15,6 +15,7 @@ public sealed class FantasyTeamService(
     PointsService points,
     LeagueService leagues,
     SchemaFeatures schema,
+    SettlementService settlement,
     IOptions<FantasyRules> options)
 {
     private readonly FantasyRules _rules = options.Value;
@@ -371,6 +372,43 @@ public sealed class FantasyTeamService(
         }
         return await db.ChipUsage.Where(c => c.FantasyTeamId == teamId && c.SeasonId == seasonId)
             .Select(c => new ChipRow(c.Id, c.Chip, c.GameweekId, false)).ToListAsync(ct);
+    }
+
+    /// <summary>GET /points/explain: defaults to the current gameweek.</summary>
+    public async Task<object> ExplainAsync(AppUser user, int? gameweekNumber, CancellationToken ct)
+    {
+        var ctx = await contexts.LoadAsync(user, trackTeam: false, ct);
+        var team = ctx.RequireTeam();
+        var gameweek = gameweekNumber is not null
+            ? ctx.Calendar.ByNumber(gameweekNumber.Value) ?? throw new NotFoundException($"Gameweek {gameweekNumber} doesn't exist.")
+            : ctx.Calendar.Current(ctx.Now) ?? throw new NotFoundException("No gameweek has started yet.");
+        return await settlement.ExplainAsync(team, gameweek, ctx.Calendar, ctx.Now, ct);
+    }
+
+    /// <summary>GET /history: per finalised gameweek, the team's points, overall total and overall rank after that week.</summary>
+    public async Task<object> HistoryAsync(AppUser user, CancellationToken ct)
+    {
+        var ctx = await contexts.LoadAsync(user, trackTeam: false, ct);
+        var team = ctx.RequireTeam();
+        var teamIds = await db.FantasyTeams.Where(t => t.SeasonId == ctx.Season.Id).Select(t => t.Id).ToListAsync(ct);
+        var entries = await db.GameweekEntries.Where(e => teamIds.Contains(e.FantasyTeamId) && e.ScoredAt != null && e.Points != null)
+            .Select(e => new { e.FantasyTeamId, e.GameweekId, Points = e.Points!.Value }).ToListAsync(ct);
+        var running = teamIds.ToDictionary(id => id, _ => 0);
+        var rows = new List<object>();
+        int? previousRank = null;
+        foreach (var gw in ctx.Calendar.Gameweeks)
+        {
+            var week = entries.Where(e => e.GameweekId == gw.Id).ToList();
+            if (week.Count == 0) continue;
+            foreach (var e in week) running[e.FantasyTeamId] += e.Points;
+            var mine = week.FirstOrDefault(e => e.FantasyTeamId == team.Id);
+            if (mine is null) continue;
+            var rank = running.Count(kv => kv.Value > running[team.Id]) + 1;
+            rows.Add(new { gameweekId = gw.Id, gameweek = gw.Number, points = mine.Points, overallPoints = running[team.Id], overallRank = rank,
+                rankMovement = previousRank is null ? (int?)null : previousRank - rank });
+            previousRank = rank;
+        }
+        return new { teamId = team.Id, gameweeks = rows, serverTimeUtc = ctx.Now };
     }
 
     /// <summary>GET /points: defaults to the current gameweek (the latest whose deadline has passed).</summary>

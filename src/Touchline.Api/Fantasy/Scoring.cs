@@ -170,7 +170,8 @@ public sealed record TeamPickPoints(
     bool IsViceCaptain,
     PointsBreakdown Points);
 
-public sealed record PickScore(int PlayerId, int BasePoints, int Multiplier, bool Counted, int Contribution);
+/// <param name="Reason">Why the pick counted with this multiplier (stored with every scored result).</param>
+public sealed record PickScore(int PlayerId, int BasePoints, int Multiplier, bool Counted, int Contribution, string Reason = "");
 
 public sealed record TeamGameweekScore(
     int Total,
@@ -200,12 +201,32 @@ public sealed class TeamScoring(FantasyRules rules)
             return 1;
         }
 
+        var fixtures = captain?.Points.Fixtures ?? 0;
+        string ReasonFor(TeamPickPoints p, bool counted, int multiplier)
+        {
+            if (!counted) return "Bench: no automatic substitutions; bench points count only with Bench Boost.";
+            var bench = p.IsStarter ? "" : "Bench Boost. ";
+            if (p.IsCaptain)
+            {
+                return captainPlayed
+                    ? $"{bench}Captain played, ×{multiplier}{(tripleCaptain ? " (Triple Captain)" : "")}."
+                    : $"{bench}Captain played 0 minutes in all {fixtures} of the gameweek's fixtures, so ×1; the vice-captain takes the armband.";
+            }
+            if (p.IsViceCaptain)
+            {
+                return captainPlayed
+                    ? $"{bench}Vice-captain, ×{multiplier} (the captain played)."
+                    : $"{bench}Vice-captain takes the armband, ×{multiplier}: the captain played 0 minutes across the whole gameweek.";
+            }
+            return p.IsStarter ? (p.Points.Minutes == 0 ? "Starter who didn't play: scores 0 (no automatic substitutions)." : "Starter.") : "Bench Boost.";
+        }
+
         var scores = picks.Select(p =>
         {
             // No auto-subs: a starter who didn't play just scores 0. Bench only counts with Bench Boost.
             var counted = p.IsStarter || benchBoost;
             var multiplier = counted ? MultiplierFor(p) : 0;
-            return new PickScore(p.PlayerId, p.Points.Total, multiplier, counted, p.Points.Total * multiplier);
+            return new PickScore(p.PlayerId, p.Points.Total, multiplier, counted, p.Points.Total * multiplier, ReasonFor(p, counted, multiplier));
         }).ToList();
 
         var beforeHits = scores.Sum(s => s.Contribution);
@@ -266,6 +287,7 @@ public static class PointsBreakdownJson
         node["multiplier"] = pick.Multiplier;
         node["counted"] = pick.Counted;
         node["contribution"] = pick.Contribution;
+        node["reason"] = pick.Reason;
         return node.ToJsonString();
     }
 

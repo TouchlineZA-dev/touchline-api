@@ -15,7 +15,7 @@ namespace Touchline.Api.Tests.Auth;
 /// Every outbound HTTP request goes through <see cref="OutboundGuard"/>: only the Supabase JWKS
 /// endpoint is allowed (architecture rule: the API never calls Sportmonks or the sync worker).
 /// </summary>
-public sealed class TestApiFactory(string connectionString, TestTokens tokens, TimeProvider? time = null) : WebApplicationFactory<Program>
+public sealed class TestApiFactory(string connectionString, TestTokens tokens, TimeProvider? time = null, IReadOnlyDictionary<string, string>? settings = null) : WebApplicationFactory<Program>
 {
     public OutboundGuard Outbound { get; } = new();
 
@@ -25,6 +25,7 @@ public sealed class TestApiFactory(string connectionString, TestTokens tokens, T
         builder.UseSetting("ConnectionStrings:Touchline", connectionString);
         builder.UseSetting("Supabase:Url", TestTokens.ProjectUrl);
         builder.UseSetting("Supabase:JwtSecret", "");
+        foreach (var (key, value) in settings ?? new Dictionary<string, string>()) builder.UseSetting(key, value);
 
         builder.ConfigureTestServices(services =>
         {

@@ -109,6 +109,7 @@ public sealed class SeasonRuleDbTests(FootballDbFixture f) : IClassFixture<Footb
         }
         await f.Db.ExecAsync("INSERT INTO app.fantasy_gameweek_entries (fantasy_team_id, gameweek_id, formation) VALUES ($1, $2, '4-4-2')", team, gw);
         await f.EventAsync(fixture, FootballDbFixture.NextId(), 14, f.Home, players[14].Sm, null, 10);
+        await f.Db.ExecAsync("INSERT INTO sync.gameweek_sync_status (gameweek_id, fixtures_complete, events_complete, stats_complete, marked_complete) VALUES ($1, true, true, true, true)", gw);
 
         using (var scope = f.Api.Services.CreateScope())
         {

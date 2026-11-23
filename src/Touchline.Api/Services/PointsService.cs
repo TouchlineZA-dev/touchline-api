@@ -29,6 +29,7 @@ public sealed class PointsService(
     GameweekService gameweeks,
     IMemoryCache cache,
     SchemaFeatures schema,
+    SettlementService settlement,
     IOptions<FantasyRules> options)
 {
     private readonly FantasyRules _rules = options.Value;
@@ -104,7 +105,8 @@ public sealed class PointsService(
                     s.Contribution,
                     breakdowns[pick.PlayerId]);
             }).OrderBy(p => p.IsStarter ? 0 : 1).ThenBy(p => p.Position).ToList(),
-            await RulesVersionAsync(team.Id, gameweek.Id, final, ct));
+            await RulesVersionAsync(team.Id, gameweek.Id, final, ct),
+            final ? await settlement.PublishedRevisionAsync(gameweek.Id, ct) : null);
     }
 
     /// <summary>
@@ -187,8 +189,9 @@ public sealed class PointsService(
         if (!GameweekRules.CanFinalise(markedComplete, info.Fixtures.Select(f => f.StateId).ToList()))
         {
             throw new ConflictException(
-                "Not every fixture in this gameweek is final (state 5, 7 or 8), and the sync worker hasn't marked it complete.",
-                "Gameweek not finished");
+                "The sync worker hasn't marked this gameweek complete, or a fixture isn't settled. Finalising never relies on fixture states alone; " +
+                "apply docs/migrations/011 to record admin resolutions.",
+                "Gameweek not finished", code: "settlement_blocked");
         }
 
         var live = await PlayerPointsAsync(info, now, useCache: false, ct);

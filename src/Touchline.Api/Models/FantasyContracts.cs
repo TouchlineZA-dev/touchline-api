@@ -1,5 +1,6 @@
 using Touchline.Api.Business;
 using Touchline.Api.Fantasy;
+using Touchline.Api.Services;
 
 namespace Touchline.Api.Models;
 
@@ -121,7 +122,8 @@ public sealed record TeamPointsView(
     int BenchPoints,
     IReadOnlyList<FixtureStatusView> Fixtures,
     IReadOnlyList<PlayerPointsView> Players,
-    string? RulesVersion = null);
+    string? RulesVersion = null,
+    RevisionView? Revision = null);
 
 public sealed record LeagueSummaryView(
     string Id,
@@ -133,11 +135,15 @@ public sealed record LeagueSummaryView(
     int? MyRank,
     bool Provisional);
 
+/// <param name="PreviousRank">Rank before the current gameweek's points; Movement = PreviousRank − Rank (positive = up).</param>
 public sealed record StandingRowView(
-    int Rank, int FantasyTeamId, string TeamName, string Username, int Points, int OverallPoints, bool Provisional);
+    int Rank, int FantasyTeamId, string TeamName, string Username, int Points, int OverallPoints, bool Provisional,
+    int? PreviousRank = null, int? Movement = null);
 
+/// <param name="Revision">The published score revisions the totals come from ("r{id}"), plus "+live" while provisional points are included.</param>
 public sealed record StandingsView(
-    string LeagueId, string Name, int? Gameweek, bool Provisional, IReadOnlyList<StandingRowView> Rows);
+    string LeagueId, string Name, int? Gameweek, bool Provisional, IReadOnlyList<StandingRowView> Rows,
+    int Page = 1, int PageSize = 0, int TotalRows = 0, string? Revision = null, StandingRowView? Me = null);
 
 public sealed record SnapshotView(
     TeamView Team,

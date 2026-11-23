@@ -78,10 +78,10 @@ public sealed class MatchStateMatrixTests
     [Fact]
     public void Awarded_and_postponed_fixtures_are_settled_for_finalising_but_suspended_is_not()
     {
-        Assert.True(GameweekRules.CanFinalise(false, [5, 17]));
-        Assert.True(GameweekRules.CanFinalise(false, [5, 10]));
-        Assert.False(GameweekRules.CanFinalise(false, [5, 11]));
-        Assert.False(GameweekRules.CanFinalise(false, [5, 99]));
+        Assert.True(GameweekRules.CanFinalise(true, [5, 17]));
+        Assert.True(GameweekRules.CanFinalise(true, [5, 10]));
+        Assert.False(GameweekRules.CanFinalise(true, [5, 11]));
+        Assert.False(GameweekRules.CanFinalise(true, [5, 99]));
     }
 
     [Fact]
