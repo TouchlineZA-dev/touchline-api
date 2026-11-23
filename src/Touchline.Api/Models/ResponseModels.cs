@@ -38,7 +38,11 @@ public record FixtureSummary(
     short? AwayScore,
     MatchPhase Phase = MatchPhase.Scheduled,
     bool NeedsReview = false,
-    int? CompetitionId = null);
+    int? CompetitionId = null)
+{
+    /// <summary>Deprecated alias of KickoffUtc for the web client during the rollout (docs/api/web-migration.md). Same instant, UTC.</summary>
+    public DateTimeOffset? Kickoff => KickoffUtc;
+}
 
 public record GameweekSummary(
     int Id,

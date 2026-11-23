@@ -162,6 +162,24 @@ public sealed class FantasyLeaguesController(
     public async Task<IActionResult> Join(JoinLeagueRequest request, CancellationToken ct) =>
         Ok(await leagues.JoinAsync(await ContextAsync(ct), request, ct));
 
+    /// <summary>Hand the league to another member (owner only). This is how an owner departs.</summary>
+    [HttpPost("{id:int}/owner")]
+    public async Task<IActionResult> TransferOwnership(int id, TransferOwnershipRequest request, CancellationToken ct) =>
+        Ok(await leagues.TransferOwnershipAsync(await ContextAsync(ct), id, request.FantasyTeamId, ct));
+
+    /// <summary>Archive the league (owner only). History is kept; nothing is deleted.</summary>
+    [HttpPost("{id:int}/archive")]
+    public async Task<IActionResult> Archive(int id, CancellationToken ct)
+    {
+        await leagues.ArchiveAsync(await ContextAsync(ct), id, ct);
+        return NoContent();
+    }
+
+    /// <summary>My rank in the league after each finalised gameweek.</summary>
+    [HttpGet("{id}/history"), ETag]
+    public async Task<IActionResult> RankHistory(string id, CancellationToken ct) =>
+        Ok(await leagues.RankHistoryAsync(await ContextAsync(ct), id, ct));
+
     /// <summary>Leave a league (the owner can't).</summary>
     [HttpPost("{id:int}/leave")]
     public async Task<IActionResult> Leave(int id, CancellationToken ct)
@@ -298,6 +316,14 @@ public sealed class AdminController(
     }
 
     private SettlementService Settlement() => HttpContext.RequestServices.GetRequiredService<SettlementService>();
+
+    /// <summary>Staging only: (re)create the two reference managers and reset their private league (archive + recreate).</summary>
+    [HttpPost("staging-kit/reset")]
+    public async Task<IActionResult> ResetStagingKit(CancellationToken ct)
+    {
+        await RequireAdminAsync(ct);
+        return Ok(await HttpContext.RequestServices.GetRequiredService<StagingKitService>().ResetAsync(ct));
+    }
 
     [HttpPost("transfer-windows")]
     public async Task<IActionResult> CreateTransferWindow(CreateTransferWindowRequest request, CancellationToken ct)

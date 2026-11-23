@@ -141,6 +141,72 @@ public sealed class LeagueService(
         return new LeagueSummaryView(league.Id.ToString(), league.Name, false, league.OwnerUserId == ctx.User.Id, null, active + 1, null, false);
     }
 
+    /// <summary>
+    /// The owner hands the league to another active member (the owner can't leave, so this is how an owner
+    /// departs). Nothing is deleted.
+    /// </summary>
+    public async Task<LeagueSummaryView> TransferOwnershipAsync(FantasyContext ctx, int leagueId, int toFantasyTeamId, CancellationToken ct)
+    {
+        await using var transaction = await db.Database.BeginTransactionAsync(ct);
+        var league = await db.Leagues.FromSql($"SELECT * FROM app.leagues WHERE id = {leagueId} FOR UPDATE").AsTracking().FirstOrDefaultAsync(ct);
+        if (league is null || !league.IsActive) throw new NotFoundException("That league doesn't exist.");
+        if (league.OwnerUserId != ctx.User.Id) throw new ForbiddenException("Only the league owner can hand it over.");
+        var target = await (from m in db.LeagueMembers
+                            join t in db.FantasyTeams on m.FantasyTeamId equals t.Id
+                            where m.LeagueId == leagueId && m.FantasyTeamId == toFantasyTeamId && m.LeftAt == null
+                            select new { t.UserId }).FirstOrDefaultAsync(ct)
+            ?? throw new RuleViolationException("The new owner must be a current member of the league.");
+        if (target.UserId == ctx.User.Id) throw new RuleViolationException("You already own this league.");
+        league.OwnerUserId = target.UserId;
+        await db.SaveChangesAsync(ct);
+        await transaction.CommitAsync(ct);
+        var members = await db.LeagueMembers.CountAsync(m => m.LeagueId == leagueId && m.LeftAt == null, ct);
+        return new LeagueSummaryView(league.Id.ToString(), league.Name, false, false, null, members, null, false);
+    }
+
+    /// <summary>The owner archives the league: it disappears from members' lists and can't be joined; history is kept (no DELETE).</summary>
+    public async Task ArchiveAsync(FantasyContext ctx, int leagueId, CancellationToken ct)
+    {
+        var league = await db.Leagues.AsTracking().FirstOrDefaultAsync(l => l.Id == leagueId && l.IsActive, ct)
+            ?? throw new NotFoundException("That league doesn't exist.");
+        if (league.OwnerUserId != ctx.User.Id) throw new ForbiddenException("Only the league owner can archive it.");
+        league.IsActive = false;
+        await db.SaveChangesAsync(ct);
+    }
+
+    /// <summary>My rank in a league after each finalised gameweek (members only; "overall" works too).</summary>
+    public async Task<object> RankHistoryAsync(FantasyContext ctx, string leagueId, CancellationToken ct)
+    {
+        var team = ctx.RequireTeam();
+        List<int> teamIds;
+        if (string.Equals(leagueId, OverallId, StringComparison.OrdinalIgnoreCase))
+        {
+            teamIds = await db.FantasyTeams.Where(t => t.SeasonId == ctx.Season.Id).Select(t => t.Id).ToListAsync(ct);
+        }
+        else
+        {
+            if (!int.TryParse(leagueId, out var id)) throw new NotFoundException("That league doesn't exist.");
+            teamIds = await db.LeagueMembers.Where(m => m.LeagueId == id && m.LeftAt == null).Select(m => m.FantasyTeamId).ToListAsync(ct);
+            if (!teamIds.Contains(team.Id)) throw new ForbiddenException("Only members can see this league's history.");
+        }
+        var users = await (from t in db.FantasyTeams join u in db.Users on t.UserId equals u.Id where teamIds.Contains(t.Id)
+                           select new { t.Id, t.Name, u.Username }).ToDictionaryAsync(x => x.Id, ct);
+        var entries = await db.GameweekEntries.Where(e => teamIds.Contains(e.FantasyTeamId) && e.ScoredAt != null && e.Points != null)
+            .Select(e => new { e.FantasyTeamId, e.GameweekId, Points = e.Points!.Value }).ToListAsync(ct);
+        var running = teamIds.ToDictionary(t => t, _ => 0);
+        var rows = new List<object>();
+        foreach (var gw in ctx.Calendar.Gameweeks)
+        {
+            var week = entries.Where(e => e.GameweekId == gw.Id).ToList();
+            if (week.Count == 0) continue;
+            foreach (var e in week) running[e.FantasyTeamId] += e.Points;
+            var ranked = LeagueRules.Rank(running.Select(kv => new StandingInput(kv.Key, users[kv.Key].Name, users[kv.Key].Username,
+                kv.Value, kv.Value, false)));
+            rows.Add(new { gameweekId = gw.Id, gameweek = gw.Number, rank = ranked.First(r => r.Entry.FantasyTeamId == team.Id).Rank, points = running[team.Id] });
+        }
+        return new { leagueId = leagueId.ToLowerInvariant(), teamId = team.Id, history = rows };
+    }
+
     /// <summary>Leaving sets left_at (no DELETE). The owner can't leave their own league.</summary>
     public async Task LeaveAsync(FantasyContext ctx, int leagueId, CancellationToken ct)
     {

@@ -12,7 +12,7 @@ namespace Touchline.Api.Tests.SafeWrites;
 /// </summary>
 public sealed class FantasyWorld
 {
-    public sealed record Pool(Dictionary<string, int> Players, int PastGameweek, int NextGameweek);
+    public sealed record Pool(Dictionary<string, int> Players, int PastGameweek, int NextGameweek, List<int> Clubs, Dictionary<string, long> SportmonksIds);
 
     private static readonly SemaphoreSlim Gate = new(1, 1);
     private static readonly Dictionary<string, Pool> Pools = [];
@@ -25,6 +25,7 @@ public sealed class FantasyWorld
         {
             if (Pools.TryGetValue(f.Db.Name, out var existing)) return existing;
             var players = new Dictionary<string, int>();
+            var smIds = new Dictionary<string, long>();
             var clubs = new List<int>();
             for (var c = 0; c < 6; c++) clubs.Add(await f.TeamAsync($"Club {c}", $"C{c}"));
 
@@ -41,6 +42,7 @@ public sealed class FantasyWorld
                 {
                     var p = await f.PlayerAsync($"C{c} {code}", position);
                     players[$"c{c}-{code}"] = p.Id;
+                    smIds[$"c{c}-{code}"] = p.SportmonksId;
                     await f.LineupAsync(fixtures[c / 2], clubs[c], p.SportmonksId, 11);
                     await f.Db.ExecAsync("INSERT INTO app.player_prices (player_id, season_id, price) VALUES ($1, $2, $3)", p.Id, f.SeasonId, price);
                 }
@@ -48,7 +50,7 @@ public sealed class FantasyWorld
 
             var past = await f.GameweekAsync("World GW past", DateOnly.FromDateTime(f.Clock.Now.AddDays(-10).UtcDateTime), DateOnly.FromDateTime(f.Clock.Now.AddDays(-4).UtcDateTime), f.Clock.Now.AddDays(-9));
             var next = await f.GameweekAsync("World GW next", DateOnly.FromDateTime(f.Clock.Now.AddDays(2).UtcDateTime), DateOnly.FromDateTime(f.Clock.Now.AddDays(8).UtcDateTime), f.Clock.Now.AddDays(3));
-            var pool = new Pool(players, past, next);
+            var pool = new Pool(players, past, next, clubs, smIds);
             Pools[f.Db.Name] = pool;
             return pool;
         }

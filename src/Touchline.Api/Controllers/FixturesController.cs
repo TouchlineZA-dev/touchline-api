@@ -16,7 +16,7 @@ public sealed class FixturesController(FootballService football, MatchDetailServ
     [HttpGet, ETag]
     public async Task<IActionResult> GetAll(
         [FromQuery] DateTimeOffset? from, [FromQuery] DateTimeOffset? to, [FromQuery] DateOnly? date,
-        [FromQuery] int? competitionId, [FromQuery] int? teamId, CancellationToken ct)
+        [FromQuery] int? competitionId, [FromQuery] int? teamId, CancellationToken ct, [FromQuery] int? page = null, [FromQuery] int? pageSize = null)
     {
         var season = competitionId is { } id
             ? await football.GetCurrentSeasonAsync(id, ct)
@@ -35,8 +35,9 @@ public sealed class FixturesController(FootballService football, MatchDetailServ
             to = from.Value.AddDays(1).AddTicks(-1);
         }
 
-        var fixtures = await football.GetFixturesAsync(season.Id, from, to, ct, teamId);
-        return Ok(new { season = new { season.Id, season.Name, season.CompetitionId }, count = fixtures.Count, fixtures, serverTimeUtc = time.GetUtcNow() });
+        var all = await football.GetFixturesAsync(season.Id, from, to, ct, teamId);
+        var (fixtures, paging) = Page(all, page, pageSize);
+        return Ok(new { season = new { season.Id, season.Name, season.CompetitionId }, count = fixtures.Count, fixtures, paging, serverTimeUtc = time.GetUtcNow() });
     }
 
     /// <summary>

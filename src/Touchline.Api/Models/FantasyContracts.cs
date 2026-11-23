@@ -28,6 +28,8 @@ public sealed record CreateLeagueRequest(string Name);
 
 public sealed record JoinLeagueRequest(string Code);
 
+public sealed record TransferOwnershipRequest(int FantasyTeamId);
+
 public sealed record CreateGameweekRequest(int SeasonId, string Name, DateOnly StartDate, DateOnly EndDate, DateTimeOffset? DeadlineAt = null);
 
 public sealed record CreateTransferWindowRequest(int SeasonId, string Name, DateOnly OpensOn, DateOnly ClosesOn);
