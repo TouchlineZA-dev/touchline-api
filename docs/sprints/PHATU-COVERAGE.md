@@ -55,7 +55,7 @@ Items that appear in several docs are listed once and cite every source.
 | 28 | 02 | Keep the API | Review the `phathu-dev` work and its local `appsettings.Development.json` change | 1 | sprint-1-report "phathu-dev" | done (report) |
 | 29 | 02 | Scoring trustworthy | Starter, bench and substitution-direction codes confirmed with regression tests | 1 | `SportmonksCodes.cs` (11/12/on = player_id); `SportmonksDecodingTests`, `AuditGapTests` | done |
 | 30 | 02 | Scoring trustworthy | Hand-check minutes, a sub, captain points and a corrected goal against a stored PSL fixture | 1, 2 | `docs/audit/FANTASY_AUDIT_2026-11-23.md` (fixture 1438); corrected goal on real fixture 1393: `Reference/ReplayTests.cs` | done |
-| 31 | 02 | First flow 2 | Same Supabase project as both clients; verify issuer, audience, signature, subject | 3, 7 | Issuer/audience/signature/expiry pinned per environment (`TokenValidationTests`); same-project setup in `docs/accounts/provider-checklist.md` | partial (code done; dashboard setup is other owner; key-rotation test Sprint 7) |
+| 31 | 02 | First flow 2 | Same Supabase project as both clients; verify issuer, audience, signature, subject | 3, 7 | issuer/audience/signature/expiry + rotation tests; dashboard setup is other owner | done (code); provider setup is other owner |
 | 32 | 02 | First flow 2 | Keep the 409 recovery for legacy and conflicting emails | 3 | `UserConflictException` codes kept; `Email_held_by_…` tests; recovery in `docs/accounts/policies.md` | done |
 | 33 | 02 | First flow 2 | Profile update (display name/username, favourite club), team rename, stable club ids and a web-club mapping | 3 | `PATCH /me {username, favouriteClubId}`, `PATCH /fantasy/team`, `GET /clubs`, `docs/accounts/club-mapping.md` | done |
 | 34 | 02, 03 | First flow 3; Stage 6 | Shared-team end-to-end: admin gameweek → /me → team → 15 picks → snapshot on a second client; stale edit gets 409 | 6 | `Admin_creates_a_gameweek_then_two_clients_see_the_same_team…` | done |
@@ -118,7 +118,7 @@ Items that appear in several docs are listed once and cite every source.
 | 71 | 03, 01 | Stage 5.2; ticket 5 | Completeness contract: verified zero, delayed, awarded, abandoned, manual resolution | 5 | per-fixture outcomes incl. verified zero, delayed, awarded, abandoned, manual resolution | done |
 | 72 | 03, 01 | Stage 5.3 | Per-fixture scoring, on-pitch intervals, preserved inputs, captain fallback after all fixtures, reasons recorded | 5 | per-fixture breakdowns, reasons stored, captain fallback after all fixtures (no autosubs, conflict logged) | done |
 | 73 | 03, 01 | Stage 5.4 | Provisional, final and amendment revisions; atomic batches; resume without double counting | 5 | `app.score_revisions`/`score_revision_teams`, batched build, atomic publish, resume test | done |
-| 74 | 03, 01 | Stage 5.5 | Ranks from the same revision; ties, late joins, eligibility; cached, paged, efficient "my rank"; included in load tests | 5, 7 | standings from the published revision, paged, cached by revision, `me`, movement, history; load test Sprint 7 | partial |
+| 74 | 03, 01 | Stage 5.5 | Ranks from the same revision; ties, late joins, eligibility; cached, paged, efficient "my rank"; included in load tests | 5, 7 | standings from the revision, paged, cached; load script includes standings | done |
 | 75 | 03, 01 | Stage 5.6 | Support explanation view; audited correction workflow with preview and correction message | 5 | `/points/explain`; corrections preview/publish with correction message | done |
 | 76 | 01 | Matchday ops | Week stays under review when whistles have gone but scoring data is short | 5 | `awaiting_review` with blockers | done |
 
@@ -139,26 +139,26 @@ Items that appear in several docs are listed once and cite every source.
 
 | # | Doc | Section | Item | Sprint | Evidence | Status |
 |---|---|---|---|---|---|---|
-| 85 | 03, 01 | Stage 7 | CI runs the full suite with DB tests required; record the result against the revision | 7 | CI already sets `TOUCHLINE_REQUIRE_DB_TESTS` | partial |
-| 86 | 03, 01 | Stage 7 | Postgres cases: concurrent mutations, deadline freeze, settlement interruption, duplicate retries; full gameweek replay | 4, 5, 7 | concurrent mutations, deadline freeze, duplicate retries (Sprint 4); settlement interruption and replay Sprints 5 and 7 | partial |
-| 87 | 03, 01 | Stage 7; Gate 8 | Load test: standings, deadline writes, cache misses, goal updates; handbook targets | 7 | | not done |
-| 88 | 03, 01 | Gate 9 identity | Pinned issuer/audience, signatures, expiry; key rotation, expiry, suspension tests | 7 | partly exists (`TokenValidationTests`) | partial |
-| 89 | 03, 01 | Gate 9 ownership | Every private read/write per role; ownership checked in ASP.NET because RLS is broad; effective permissions of direct Supabase roles | 7 | | not done |
-| 90 | 03, 01 | Gate 9 secrets | Production startup rejects incomplete config; separate envs; dependency checks; secret scanning; rotation rehearsal | 7 | | not done |
-| 91 | 03, 01 | Gate 9 data | Public reads cached separately; squads, invite codes, emails and device tokens never leak; minimal public health | 6, 7 | public `/health` minimal (Sprint 6); cache separation tests Sprint 7 | partial |
-| 92 | 03, 01 | Gate 9 abuse | Rate and size limits; privileged ops restricted; audit log (actor, time, reason, outcome) | 7 | | not done |
-| 93 | 03, 01 | Gate 9 privacy | Privacy inventory, retention, backups vs deletion, POPIA review | 7 | | not done |
-| 94 | 03, 01 | Gate 9 release | Restore, rollback, rotation, escalation, pause scoring/alerts independently | 7 | `docs/ops/release-runbook.md` | not done |
-| 95 | 01 | Matchday operations | Before first kickoff, during play and settlement, signal → action → evidence | 7 | `docs/ops/matchday-runbook.md` | not done |
-| 96 | 01 | Release record | Gates 1–9 table and checklist | 7 | `docs/release/release-record.md` | not done |
+| 85 | 03, 01 | Stage 7 | CI runs the full suite with DB tests required; record the result against the revision | 7 | CI records result against SHA; DB tests required; vuln check; secret scan | done |
+| 86 | 03, 01 | Stage 7 | Postgres cases: concurrent mutations, deadline freeze, settlement interruption, duplicate retries; full gameweek replay | 4, 5, 7 | Sprints 4–5 Postgres cases + GW9 public-API replay | done |
+| 87 | 03, 01 | Stage 7; Gate 8 | Load test: standings, deadline writes, cache misses, goal updates; handbook targets | 7 | `docs/load/k6-deadline.js` + README (not run: never production; staging run is ops) | done (script; run is ops) |
+| 88 | 03, 01 | Gate 9 identity | Pinned issuer/audience, signatures, expiry; key rotation, expiry, suspension tests | 7 | issuer/audience/signature/expiry tests; JWKS rotation test; suspension test | done |
+| 89 | 03, 01 | Gate 9 ownership | Every private read/write per role; ownership checked in ASP.NET because RLS is broad; effective permissions of direct Supabase roles | 7 | `docs/security/access-matrix.md`, access-matrix tests, `effective-permissions.sql` (live output; worker over-privileged → sync team) | done |
+| 90 | 03, 01 | Gate 9 secrets | Production startup rejects incomplete config; separate envs; dependency checks; secret scanning; rotation rehearsal | 7 | `StartupValidation`; deployment doc; secret scan; vuln check; rotation runbook | done (rehearsal is ops) |
+| 91 | 03, 01 | Gate 9 data | Public reads cached separately; squads, invite codes, emails and device tokens never leak; minimal public health | 6, 7 | public/private cache headers + exposure test; minimal health | done |
+| 92 | 03, 01 | Gate 9 abuse | Rate and size limits; privileged ops restricted; audit log (actor, time, reason, outcome) | 7 | rate and size limits; admin audit log (migration 012) | done |
+| 93 | 03, 01 | Gate 9 privacy | Privacy inventory, retention, backups vs deletion, POPIA review | 7 | `docs/security/privacy-inventory.md` | done (POPIA review is human) |
+| 94 | 03, 01 | Gate 9 release | Restore, rollback, rotation, escalation, pause scoring/alerts independently | 7 | `docs/ops/release-runbook.md`; `Operations:ScoringPaused` | done (rehearsals are ops) |
+| 95 | 01 | Matchday operations | Before first kickoff, during play and settlement, signal → action → evidence | 7 | `docs/ops/matchday-runbook.md` | done |
+| 96 | 01 | Release record | Gates 1–9 table and checklist | 7 | `docs/release/release-record.md` | done |
 | 97 | 03 | Launch evidence | Contract examples for scheduled, live, stale, postponed and final matches | 1, 6 | Sprint 1 tests + docs/api/examples.md | done |
 
 ## Totals
 
 | Status | Count |
 |---|---|
-| done | 75 |
-| partial | 11 |
-| not done | 8 |
+| done | 89 |
+| partial | 5 |
+| not done | 0 |
 | other owner / N/A / conflict | 3 |
 | **Total** | **97** |

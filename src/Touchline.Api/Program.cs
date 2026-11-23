@@ -16,12 +16,18 @@ if (builder.Environment.IsDevelopment())
     builder.Configuration.AddDotEnv();
 }
 
+// Staging and Production refuse to start with incomplete or unsafe configuration.
+StartupValidation.ThrowIfInvalid(builder.Configuration, builder.Environment);
+
 builder.Services
     .AddControllers()
     .AddJsonOptions(o => o.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 builder.Services.AddProblemDetails();
 builder.Services.AddTouchlineOpenApi();
 builder.Services.AddHttpContextAccessor();
+builder.Services.Configure<OperationsOptions>(builder.Configuration.GetSection(OperationsOptions.SectionName));
+builder.Services.AddTouchlineRateLimits(builder.Configuration);
+builder.Services.AddSingleton<AdminAuditFilter>();
 
 // Database
 var connectionString = builder.Configuration.GetConnectionString("Touchline");
@@ -108,8 +114,22 @@ if (app.Environment.IsDevelopment())
     app.MapScalarApiReference();    // /scalar
 }
 
+// Size limit: refuse oversized bodies before they reach model binding (413).
+var maxBody = builder.Configuration.GetSection(OperationsOptions.SectionName).Get<OperationsOptions>()?.MaxRequestBodyBytes ?? 64 * 1024;
+app.Use(async (context, next) =>
+{
+    if (context.Request.ContentLength > maxBody)
+    {
+        context.Response.StatusCode = StatusCodes.Status413PayloadTooLarge;
+        await context.Response.WriteAsJsonAsync(new { title = "Request too large", status = 413, code = "request_too_large" });
+        return;
+    }
+    await next();
+});
+
 app.UseCors(FrontendCors);
 app.UseAuthentication();
+app.UseRateLimiter();
 app.UseAuthorization();
 app.MapControllers();
 

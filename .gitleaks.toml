@@ -1,0 +1,15 @@
+# Secret scanning config for CI (docs/security/secret-rotation.md).
+# Extends gitleaks' default rules. The allowlist covers test-only credentials for throwaway databases
+# and the redacted copy of the sync repo's role migration; real secrets live only in .env (git-ignored)
+# and the hosting secret store.
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Test-only values"
+paths = [
+  '''tests/db/flyway/V001__schemas_roles_permissions\.sql''',
+  '''tests/Touchline\.Api\.Tests/Db/TestDatabase\.cs''',
+  '''tests/Touchline\.Api\.Tests/Security/SecurityTests\.cs''',
+  '''\.env\.example''',
+]

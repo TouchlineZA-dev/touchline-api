@@ -31,7 +31,7 @@ public sealed class TestApiFactory(string connectionString, TestTokens tokens, T
         {
             services.ConfigureHttpClientDefaults(b => b.AddHttpMessageHandler(() => new OutboundGuardHandler(Outbound)));
             services.AddHttpClient(SupabaseSigningKeys.HttpClientName)
-                .ConfigurePrimaryHttpMessageHandler(() => new StubJwksHandler(tokens.JwksJson));
+                .ConfigurePrimaryHttpMessageHandler(() => new StubJwksHandler(() => tokens.JwksJson));
             if (time is not null) services.Replace(ServiceDescriptor.Singleton(time));
         });
     }

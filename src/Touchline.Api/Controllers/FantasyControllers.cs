@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Touchline.Api.Models;
 using Touchline.Api.Services;
 using Touchline.Api.Users;
@@ -23,6 +24,7 @@ public abstract class FantasyControllerBase(CurrentUser currentUser, UserService
     {
         if (currentUser.AuthUserId is not { } authUserId) throw new ForbiddenException("Token has no valid 'sub' claim.");
         var me = await users.GetOrCreateAsync(authUserId, currentUser.Email, ct);
+        HttpContext.Items[AdminAuditFilter.UserIdKey] = me.Id;
         if (!HttpMethods.IsGet(Request.Method) && !HttpMethods.IsHead(Request.Method))
         {
             await HttpContext.RequestServices.GetRequiredService<AccountService>().RequireCanWriteAsync(me.Id, ct);
@@ -39,6 +41,7 @@ public sealed class FantasyTeamController(CurrentUser currentUser, UserService u
     : FantasyControllerBase(currentUser, users)
 {
     /// <summary>Quote transfers for the target gameweek: costs, bank, free transfers, hit, violations and the versions to confirm with. Saves nothing.</summary>
+    [EnableRateLimiting(RateLimitPolicies.FantasyWrites)]
     [HttpPost("transfers/preview")]
     public async Task<IActionResult> PreviewTransfers(TransferPreviewRequest request, CancellationToken ct) =>
         Ok(await safe.PreviewAsync(await MeAsync(ct), request, ct));
@@ -47,6 +50,7 @@ public sealed class FantasyTeamController(CurrentUser currentUser, UserService u
     /// Confirm a quote. Needs the quote's gameweekId, squadVersion, priceRevision and quotedAtUtc, and an
     /// Idempotency-Key header: retrying with the same key and body returns the original receipt.
     /// </summary>
+    [EnableRateLimiting(RateLimitPolicies.FantasyWrites)]
     [HttpPost("transfers/confirm")]
     public async Task<IActionResult> ConfirmTransfers(
         TransferConfirmRequest request, [FromHeader(Name = "Idempotency-Key")] string? idempotencyKey, CancellationToken ct) =>
@@ -57,6 +61,7 @@ public sealed class FantasyTeamController(CurrentUser currentUser, UserService u
     public async Task<IActionResult> TransferLedger(CancellationToken ct) => Ok(await safe.LedgerAsync(await MeAsync(ct), ct));
 
     /// <summary>A legal squad suggestion within the budget, or why none is possible. Saves nothing.</summary>
+    [EnableRateLimiting(RateLimitPolicies.FantasyWrites)]
     [HttpPost("autopick/preview")]
     public async Task<IActionResult> AutopickPreview(AutopickRequest request, CancellationToken ct) =>
         Ok(await safe.AutopickAsync(await MeAsync(ct), request, ct));
@@ -66,6 +71,7 @@ public sealed class FantasyTeamController(CurrentUser currentUser, UserService u
     public async Task<IActionResult> GetChips(CancellationToken ct) => Ok(await teams.ChipsAsync(await MeAsync(ct), ct));
 
     /// <summary>Cancel Bench Boost or Triple Captain before its gameweek's deadline.</summary>
+    [EnableRateLimiting(RateLimitPolicies.FantasyWrites)]
     [HttpDelete("chips/{chip}")]
     public async Task<IActionResult> CancelChip(string chip, [FromQuery] int? gameweekId, CancellationToken ct) =>
         Ok(await teams.CancelChipAsync(await MeAsync(ct), chip, gameweekId, ct));
@@ -75,12 +81,12 @@ public sealed class FantasyTeamController(CurrentUser currentUser, UserService u
     public async Task<IActionResult> Get(CancellationToken ct) => Ok(await teams.GetTeamAsync(await MeAsync(ct), ct));
 
     /// <summary>Rename my team (3–30 characters). Keeps the team id, picks, leagues and ranks; the old name goes to history.</summary>
-    [HttpPatch]
+    [HttpPatch, EnableRateLimiting(RateLimitPolicies.Account)]
     public async Task<IActionResult> Rename(RenameTeamRequest request, CancellationToken ct) =>
         Ok(await teams.RenameTeamAsync(await MeAsync(ct), request, ct));
 
     /// <summary>Create my team. Only a name is needed.</summary>
-    [HttpPost]
+    [HttpPost, EnableRateLimiting(RateLimitPolicies.Account)]
     public async Task<IActionResult> Create(CreateTeamRequest request, CancellationToken ct) =>
         StatusCode(StatusCodes.Status201Created, await teams.CreateTeamAsync(await MeAsync(ct), request, ct));
 
@@ -103,23 +109,27 @@ public sealed class FantasyTeamController(CurrentUser currentUser, UserService u
     }
 
     /// <summary>First full squad pick: 15 players, formation, captain, vice-captain and bench order.</summary>
+    [EnableRateLimiting(RateLimitPolicies.FantasyWrites)]
     [HttpPut("squad")]
     public async Task<IActionResult> SaveSquad(SquadRequest request, CancellationToken ct) =>
         Ok(await teams.SaveSquadAsync(await MeAsync(ct), request, ct));
 
     /// <summary>Change formation, starters, bench or captaincy for the next gameweek. Accepts If-Match.</summary>
+    [EnableRateLimiting(RateLimitPolicies.FantasyWrites)]
     [HttpPut("lineup")]
     public async Task<IActionResult> SaveLineup(
         SquadRequest request, [FromHeader(Name = "If-Match")] string? ifMatch, CancellationToken ct) =>
         Ok(await teams.SaveLineupAsync(await MeAsync(ct), request, ifMatch, ct));
 
     /// <summary>Transfers for the next gameweek. Returns the points cost and free transfers left. Accepts If-Match.</summary>
+    [EnableRateLimiting(RateLimitPolicies.FantasyWrites)]
     [HttpPost("transfers")]
     public async Task<IActionResult> Transfers(
         TransfersRequest request, [FromHeader(Name = "If-Match")] string? ifMatch, CancellationToken ct) =>
         Ok(await teams.MakeTransfersAsync(await MeAsync(ct), request, ifMatch, ct));
 
     /// <summary>Play bench_boost, triple_captain or wildcard for the next gameweek.</summary>
+    [EnableRateLimiting(RateLimitPolicies.FantasyWrites)]
     [HttpPost("chips")]
     public async Task<IActionResult> Chips(ChipRequest request, CancellationToken ct) =>
         Ok(await teams.ActivateChipAsync(await MeAsync(ct), request, ct));
@@ -153,11 +163,12 @@ public sealed class FantasyLeaguesController(
         Ok(await leagues.MyLeaguesAsync(await ContextAsync(ct), ct));
 
     /// <summary>Create a private league. My team joins automatically; only I see the join code.</summary>
-    [HttpPost]
+    [HttpPost, EnableRateLimiting(RateLimitPolicies.Account)]
     public async Task<IActionResult> Create(CreateLeagueRequest request, CancellationToken ct) =>
         StatusCode(StatusCodes.Status201Created, await leagues.CreateAsync(await ContextAsync(ct), request, ct));
 
     /// <summary>Join with an exact join code.</summary>
+    [EnableRateLimiting(RateLimitPolicies.Account)]
     [HttpPost("join")]
     public async Task<IActionResult> Join(JoinLeagueRequest request, CancellationToken ct) =>
         Ok(await leagues.JoinAsync(await ContextAsync(ct), request, ct));
@@ -176,7 +187,7 @@ public sealed class FantasyLeaguesController(
     }
 
     /// <summary>My rank in the league after each finalised gameweek.</summary>
-    [HttpGet("{id}/history"), ETag]
+    [HttpGet("{id}/history"), ETag, EnableRateLimiting(RateLimitPolicies.Standings)]
     public async Task<IActionResult> RankHistory(string id, CancellationToken ct) =>
         Ok(await leagues.RankHistoryAsync(await ContextAsync(ct), id, ct));
 
@@ -192,7 +203,7 @@ public sealed class FantasyLeaguesController(
     /// Standings: season totals, or one gameweek with ?gameweek=N. "overall" works as the id. Paged
     /// (?page, ?pageSize, max 200); "me" is my row wherever it falls; "revision" names the scores used.
     /// </summary>
-    [HttpGet("{id}/standings"), ETag]
+    [HttpGet("{id}/standings"), ETag, EnableRateLimiting(RateLimitPolicies.Standings)]
     public async Task<IActionResult> Standings(string id, [FromQuery] int? gameweek, CancellationToken ct, [FromQuery] int page = 1, [FromQuery] int pageSize = LeagueService.DefaultPageSize) =>
         Ok(await leagues.StandingsAsync(await ContextAsync(ct), id, gameweek, ct, page, pageSize));
 
@@ -200,8 +211,9 @@ public sealed class FantasyLeaguesController(
         await contexts.LoadAsync(await MeAsync(ct), trackTeam: false, ct);
 }
 
-/// <summary>Admin routes. Require app.users.is_admin (docs/migrations/003).</summary>
+/// <summary>Admin routes. Require app.users.is_admin (docs/migrations/003). Every call is audited (migration 012).</summary>
 [Route("api/v1/admin")]
+[ServiceFilter(typeof(AdminAuditFilter))]
 public sealed class AdminController(
     CurrentUser currentUser,
     UserService users,
@@ -261,6 +273,7 @@ public sealed class AdminController(
     public async Task<IActionResult> Score(int id, CancellationToken ct)
     {
         var me = await RequireAdminAsync(ct);
+        RequireScoringNotPaused();
         var settlement = Settlement();
         return Ok(await settlement.ReadyAsync(ct)
             ? await settlement.FinaliseAsync(id, me.Id, time.GetUtcNow(), ct)
@@ -280,6 +293,7 @@ public sealed class AdminController(
     public async Task<IActionResult> RecordSettlement(int id, CancellationToken ct)
     {
         var me = await RequireAdminAsync(ct);
+        RequireScoringNotPaused();
         return Ok(await Settlement().RecordStateAsync(id, me.Id, time.GetUtcNow(), ct));
     }
 
@@ -304,6 +318,7 @@ public sealed class AdminController(
     public async Task<IActionResult> PublishCorrection(int id, CorrectionRequest request, CancellationToken ct)
     {
         var me = await RequireAdminAsync(ct);
+        RequireScoringNotPaused();
         return Ok(await Settlement().PublishCorrectionAsync(id, request, me.Id, time.GetUtcNow(), ct));
     }
 
@@ -313,6 +328,16 @@ public sealed class AdminController(
     {
         await RequireAdminAsync(ct);
         return Ok(new { gameweekId = id, revisions = await Settlement().HistoryAsync(id, ct) });
+    }
+
+    /// <summary>Operations:ScoringPaused stops finalising, corrections and recorded transitions during an incident.</summary>
+    private void RequireScoringNotPaused()
+    {
+        if (HttpContext.RequestServices.GetRequiredService<Microsoft.Extensions.Options.IOptionsSnapshot<OperationsOptions>>().Value.ScoringPaused)
+        {
+            throw new CodedException(StatusCodes.Status503ServiceUnavailable, "scoring_paused", "Scoring paused",
+                "Scoring is paused by operations (Operations:ScoringPaused). Reads and live points continue.");
+        }
     }
 
     private SettlementService Settlement() => HttpContext.RequestServices.GetRequiredService<SettlementService>();
