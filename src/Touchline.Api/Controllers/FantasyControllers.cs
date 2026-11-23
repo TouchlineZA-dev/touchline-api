@@ -143,6 +143,14 @@ public sealed class AdminController(
         return StatusCode(StatusCodes.Status201Created, await gameweeks.CreateAsync(request, time.GetUtcNow(), me.Id, ct));
     }
 
+    /// <summary>Change a future gameweek's deadline. A passed deadline never changes.</summary>
+    [HttpPut("gameweeks/{id:int}/deadline")]
+    public async Task<IActionResult> UpdateDeadline(int id, UpdateDeadlineRequest request, CancellationToken ct)
+    {
+        await RequireAdminAsync(ct);
+        return Ok(await gameweeks.UpdateDeadlineAsync(id, request, time.GetUtcNow(), ct));
+    }
+
     /// <summary>Move a fixture to another gameweek (or unassign it). Recorded with reason and admin. Needs migration 007.</summary>
     [HttpPut("fixtures/{id:int}/gameweek")]
     public async Task<IActionResult> AssignFixture(int id, AssignFixtureRequest request, CancellationToken ct)

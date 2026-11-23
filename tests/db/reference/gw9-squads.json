@@ -1,0 +1,27 @@
+{
+  "note": "Reference squads for GW9 (docs/rules/reference-week.md). Player ids are Sportmonks ids; the tests map them to football.players.id through the snapshot in gw9.json.",
+  "squads": [
+    {
+      "name": "Squad A: captain doesn't play",
+      "formation": "4-4-2",
+      "chip": null,
+      "transferCost": 4,
+      "starters": [37423260, 37583966, 37773005, 193219, 37625553, 37723175, 22229131, 1503717, 38205263, 37771323, 37907680],
+      "bench": [37529803, 38230591, 1494612, 38200924],
+      "captain": 37771323,
+      "vice": 37907680,
+      "expectedTotal": 65
+    },
+    {
+      "name": "Squad B: Triple Captain",
+      "formation": "3-4-3",
+      "chip": "triple_captain",
+      "transferCost": 0,
+      "starters": [37371114, 37653303, 289096, 37762072, 288954, 38230282, 22860319, 22860322, 37551389, 37639894, 22860191],
+      "bench": [289230, 37604529, 3877065, 37566486],
+      "captain": 37551389,
+      "vice": 37639894,
+      "expectedTotal": 61
+    }
+  ]
+}

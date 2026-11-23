@@ -28,6 +28,7 @@ public sealed class PointsService(
     SquadStore squads,
     GameweekService gameweeks,
     IMemoryCache cache,
+    SchemaFeatures schema,
     IOptions<FantasyRules> options)
 {
     private readonly FantasyRules _rules = options.Value;
@@ -102,7 +103,8 @@ public sealed class PointsService(
                     s.BasePoints,
                     s.Contribution,
                     breakdowns[pick.PlayerId]);
-            }).OrderBy(p => p.IsStarter ? 0 : 1).ThenBy(p => p.Position).ToList());
+            }).OrderBy(p => p.IsStarter ? 0 : 1).ThenBy(p => p.Position).ToList(),
+            await RulesVersionAsync(team.Id, gameweek.Id, final, ct));
     }
 
     /// <summary>
@@ -191,11 +193,16 @@ public sealed class PointsService(
 
         var live = await PlayerPointsAsync(info, now, useCache: false, ct);
         var teamIds = await db.FantasyTeams.Where(t => t.SeasonId == seasonId).Select(t => t.Id).ToListAsync(ct);
+        var versioned = await schema.HasColumnAsync("app", "fantasy_gameweek_entries", "rules_version", ct)
+                        && await schema.HasColumnAsync("app", "points_results", "rules_version", ct);
+        var keptVersions = versioned ? await ScoredUnderOtherRulesAsync(gameweekId, ct) : [];
 
         await using var transaction = await db.Database.BeginTransactionAsync(ct);
         var scoredTeams = 0;
         foreach (var teamId in teamIds)
         {
+            // A new rules version never rescores the past: an entry already scored under other rules is kept.
+            if (keptVersions.Contains(teamId)) continue;
             var squad = await squads.EnsureAsync(teamId, info, calendar, now, ct);
             if (squad is null) continue; // never picked a squad
 
@@ -220,12 +227,44 @@ public sealed class PointsService(
             squad.Entry.BenchPoints = score.BenchPoints;
             squad.Entry.ScoredAt = now;
             await db.SaveChangesAsync(ct);
+            if (versioned)
+            {
+                await db.Database.ExecuteSqlAsync($"""
+                    UPDATE app.fantasy_gameweek_entries SET rules_version = {Rulebook.Version}, points_table_version = {Rulebook.PointsTableVersion}
+                    WHERE fantasy_team_id = {teamId} AND gameweek_id = {gameweekId}
+                    """, ct);
+                await db.Database.ExecuteSqlAsync($"""
+                    UPDATE app.points_results SET rules_version = {Rulebook.Version}, points_table_version = {Rulebook.PointsTableVersion}
+                    WHERE fantasy_team_id = {teamId} AND gameweek_id = {gameweekId}
+                    """, ct);
+            }
             scoredTeams++;
         }
         await transaction.CommitAsync(ct);
         cache.Remove($"fantasy:gw-points:{gameweekId}");
 
-        return new { gameweekId, gameweek = info.Number, teamsScored = scoredTeams, markedComplete, finalisedAtUtc = now };
+        return new
+        {
+            gameweekId, gameweek = info.Number, teamsScored = scoredTeams, markedComplete, finalisedAtUtc = now,
+            rulesVersion = Rulebook.Version, teamsKeptUnderEarlierRules = keptVersions.Count,
+        };
+    }
+
+    /// <summary>Teams whose entry for the gameweek was already scored under a different rules version.</summary>
+    private async Task<HashSet<int>> ScoredUnderOtherRulesAsync(int gameweekId, CancellationToken ct) =>
+        (await db.Database.SqlQuery<int>($"""
+            SELECT fantasy_team_id AS "Value" FROM app.fantasy_gameweek_entries
+            WHERE gameweek_id = {gameweekId} AND scored_at IS NOT NULL AND rules_version IS NOT NULL AND rules_version <> {Rulebook.Version}
+            """).ToListAsync(ct)).ToHashSet();
+
+    /// <summary>The rules version an entry was scored under, or the current one while it's provisional.</summary>
+    private async Task<string> RulesVersionAsync(int teamId, int gameweekId, bool final, CancellationToken ct)
+    {
+        if (!final || !await schema.HasColumnAsync("app", "fantasy_gameweek_entries", "rules_version", ct)) return Rulebook.Version;
+        var stored = await db.Database.SqlQuery<string?>($"""
+            SELECT rules_version AS "Value" FROM app.fantasy_gameweek_entries WHERE fantasy_team_id = {teamId} AND gameweek_id = {gameweekId}
+            """).FirstOrDefaultAsync(ct);
+        return stored ?? Rulebook.Version;
     }
 
     public async Task<IReadOnlyList<FixtureStatusView>> FixtureStatusesAsync(GameweekInfo gameweek, CancellationToken ct)

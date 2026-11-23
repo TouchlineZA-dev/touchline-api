@@ -1,0 +1,223 @@
+{
+  "_meta": {
+    "observed_at": "2026-11-01T23:00:43Z",
+    "source": "synthetic",
+    "note": "Alternative to 4a: provider deletes event 158473513 and reissues the goal under a NEW id."
+  },
+  "data": {
+    "id": 19781326,
+    "league_id": 806,
+    "season_id": 28123,
+    "stage_id": 77483147,
+    "venue_id": 6539,
+    "state_id": 5,
+    "starting_at": "2026-10-31 13:30:00",
+    "result_info": "Orlando Pirates won after full-time.",
+    "length": 90,
+    "placeholder": false,
+    "participants": [
+      {
+        "id": 9960,
+        "meta": {
+          "location": "home"
+        }
+      },
+      {
+        "id": 2541,
+        "meta": {
+          "location": "away"
+        }
+      }
+    ],
+    "scores": [
+      {
+        "description": "CURRENT",
+        "score": {
+          "goals": 2,
+          "participant": "home"
+        }
+      },
+      {
+        "description": "CURRENT",
+        "score": {
+          "goals": 1,
+          "participant": "away"
+        }
+      }
+    ],
+    "events": [
+      {
+        "id": 9000000001,
+        "type_id": 14,
+        "minute": 24,
+        "extra_minute": null,
+        "participant_id": 9960,
+        "player_id": 37723175,
+        "player_name": "Thapelo Mokobodi",
+        "related_player_id": null,
+        "related_player_name": null,
+        "result": "1-0",
+        "addition": null,
+        "sort_order": null,
+        "rescinded": null
+      },
+      {
+        "id": 158473722,
+        "type_id": 14,
+        "minute": 30,
+        "extra_minute": null,
+        "participant_id": 2541,
+        "player_id": 22860191,
+        "player_name": "Pule Mmodi",
+        "related_player_id": null,
+        "related_player_name": null,
+        "result": "1-1",
+        "addition": null,
+        "sort_order": null,
+        "rescinded": null
+      },
+      {
+        "id": 158475774,
+        "type_id": 18,
+        "minute": 46,
+        "extra_minute": null,
+        "participant_id": 9960,
+        "player_id": 21395025,
+        "player_name": "Ghampani Lungu",
+        "related_player_id": 37708606,
+        "related_player_name": "Nkosikhona Ndaba",
+        "result": null,
+        "addition": null,
+        "sort_order": null,
+        "rescinded": null
+      },
+      {
+        "id": 158476429,
+        "type_id": 14,
+        "minute": 55,
+        "extra_minute": null,
+        "participant_id": 9960,
+        "player_id": 37551389,
+        "player_name": "Tshepang Moremi",
+        "related_player_id": 37723175,
+        "related_player_name": "Thapelo Mokobodi",
+        "result": "2-1",
+        "addition": null,
+        "sort_order": null,
+        "rescinded": null
+      }
+    ],
+    "statistics": [
+      {
+        "id": 9100000001,
+        "type_id": 57,
+        "participant_id": 9960,
+        "location": "home",
+        "data": {
+          "value": 1
+        }
+      },
+      {
+        "id": 9100000002,
+        "type_id": 57,
+        "participant_id": 2541,
+        "location": "away",
+        "data": {
+          "value": 1
+        }
+      },
+      {
+        "id": 9100000003,
+        "type_id": 78,
+        "participant_id": 9960,
+        "location": "home",
+        "data": {
+          "value": 13
+        }
+      },
+      {
+        "id": 9100000004,
+        "type_id": 78,
+        "participant_id": 2541,
+        "location": "away",
+        "data": {
+          "value": 20
+        }
+      },
+      {
+        "id": 9100000005,
+        "type_id": 100,
+        "participant_id": 9960,
+        "location": "home",
+        "data": {
+          "value": 17
+        }
+      },
+      {
+        "id": 9100000006,
+        "type_id": 100,
+        "participant_id": 2541,
+        "location": "away",
+        "data": {
+          "value": 16
+        }
+      }
+    ],
+    "lineups": [
+      {
+        "id": 14675212789,
+        "player_id": 37639894,
+        "player_name": "Yanela Mbuthuma",
+        "type_id": 11,
+        "jersey_number": 9,
+        "position_id": 27,
+        "team_id": 9960
+      },
+      {
+        "id": 14675212787,
+        "player_id": 37723175,
+        "player_name": "Thapelo Mokobodi",
+        "type_id": 11,
+        "jersey_number": 33,
+        "position_id": 26,
+        "team_id": 9960
+      },
+      {
+        "id": 14675212788,
+        "player_id": 37551389,
+        "player_name": "Tshepang Moremi",
+        "type_id": 11,
+        "jersey_number": 11,
+        "position_id": 26,
+        "team_id": 9960
+      },
+      {
+        "id": 14675212782,
+        "player_id": 37708606,
+        "player_name": "Nkosikhona Ndaba",
+        "type_id": 11,
+        "jersey_number": 3,
+        "position_id": 25,
+        "team_id": 9960
+      },
+      {
+        "id": 14675212804,
+        "player_id": 21395025,
+        "player_name": "Ghampani Lungu",
+        "type_id": 12,
+        "jersey_number": 23,
+        "position_id": 27,
+        "team_id": 9960
+      },
+      {
+        "id": 14675212799,
+        "player_id": 22860191,
+        "player_name": "Pule Mmodi",
+        "type_id": 11,
+        "jersey_number": 13,
+        "position_id": 26,
+        "team_id": 2541
+      }
+    ]
+  }
+}
