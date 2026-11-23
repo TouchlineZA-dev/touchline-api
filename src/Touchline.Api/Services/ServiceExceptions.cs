@@ -43,3 +43,19 @@ public sealed class ConflictException(string message, string title = "Conflict",
 public sealed class SportmonksCodesNotConfirmedException() : Exception(
     "Minutes can't be worked out yet: the lineup type and substitution codes in Business/SportmonksCodes.cs " +
     "haven't been confirmed against the database. Scoring, live points and pricing are unavailable until they are.");
+
+/// <summary>
+/// An error with a stable machine-readable "code" in the problem details, so the app doesn't parse
+/// English text (e.g. username_taken, account_suspended, account_deleted, reauthentication_required).
+/// </summary>
+public sealed class CodedException(int status, string code, string title, string detail) : Exception(detail)
+{
+    public const string UsernameTaken = "username_taken";
+    public const string AccountSuspended = "account_suspended";
+    public const string AccountDeleted = "account_deleted";
+    public const string ReauthenticationRequired = "reauthentication_required";
+
+    public int Status { get; } = status;
+    public string Code { get; } = code;
+    public string Title { get; } = title;
+}

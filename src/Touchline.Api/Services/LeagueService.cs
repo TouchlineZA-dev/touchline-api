@@ -10,7 +10,7 @@ namespace Touchline.Api.Services;
 /// Private leagues (join by code only, no public list) and the Overall league of every team in the
 /// season, which has no table row and is worked out on request.
 /// </summary>
-public sealed class LeagueService(TouchlineDbContext db, PointsService points, IOptions<FantasyRules> options)
+public sealed class LeagueService(TouchlineDbContext db, PointsService points, Users.AccountService accounts, IOptions<FantasyRules> options)
 {
     public const string OverallId = "overall";
 
@@ -24,6 +24,9 @@ public sealed class LeagueService(TouchlineDbContext db, PointsService points, I
 
         var seasonTeams = await SeasonTeamsAsync(ctx.Season.Id, ct);
         var totals = await points.TeamTotalsAsync(seasonTeams.Keys, ctx.Calendar, null, ctx.Now, ct);
+        // Suspended managers are hidden from the public Overall league (they stay in private leagues).
+        var suspended = await accounts.SuspendedTeamIdsAsync(ctx.Season.Id, ct);
+        var overallTeams = seasonTeams.Keys.Where(id => !suspended.Contains(id) || id == team.Id).ToList();
 
         var leagueIds = await db.LeagueMembers
             .Where(m => m.FantasyTeamId == team.Id && m.LeftAt == null)
@@ -43,7 +46,7 @@ public sealed class LeagueService(TouchlineDbContext db, PointsService points, I
 
         var result = new List<LeagueSummaryView>
         {
-            new(OverallId, "Overall", IsOverall: true, IsOwner: false, JoinCode: null, seasonTeams.Count, RankIn(seasonTeams.Keys),
+            new(OverallId, "Overall", IsOverall: true, IsOwner: false, JoinCode: null, overallTeams.Count, RankIn(overallTeams),
                 totals.Values.Any(t => t.Provisional)),
         };
         foreach (var league in myLeagues)
@@ -168,7 +171,9 @@ public sealed class LeagueService(TouchlineDbContext db, PointsService points, I
         if (string.Equals(leagueId, OverallId, StringComparison.OrdinalIgnoreCase))
         {
             name = "Overall";
-            teamIds = seasonTeams.Keys.ToList();
+            // Suspended managers are hidden from the public Overall league (docs/accounts/policies.md).
+            var suspended = await accounts.SuspendedTeamIdsAsync(ctx.Season.Id, ct);
+            teamIds = seasonTeams.Keys.Where(id => !suspended.Contains(id)).ToList();
         }
         else
         {

@@ -3,7 +3,7 @@
 **Run setup**
 - **Mode:** A (stacked PRs, keep going).
 - **Runbook:** v2 (23 Nov 2026), applied. Part 1b was folded into Sprint 1 before its first push.
-- **Current sprint:** 3 (next to start).
+- **Current sprint:** 4 (next to start).
 
 **How to resume:** read `docs/sprints/RUNBOOK.md`, then this file. Then continue from the first sprint that isn't "pushed" or "merged".
 
@@ -11,7 +11,7 @@
 |---|---|---|---|---|---|
 | 1 Football facts | pushed | `sprint/1-football-facts` | `sprint/1-migrations` | 007 / V039 | [api](https://github.com/TouchlineZA-dev/touchline-api/compare/main...sprint/1-football-facts?expand=1) · [sync](https://github.com/TouchlineZA-dev/touchline-sync/compare/main...sprint/1-migrations?expand=1) |
 | 2 Season rules | pushed | `sprint/2-season-rules` (base: sprint 1) | `sprint/2-migrations` (base: sprint 1) | 008 / V040 | [api](https://github.com/TouchlineZA-dev/touchline-api/compare/sprint/1-football-facts...sprint/2-season-rules?expand=1) · [sync](https://github.com/TouchlineZA-dev/touchline-sync/compare/sprint/1-migrations...sprint/2-migrations?expand=1) |
-| 3 Accounts | not started | `sprint/3-accounts` | | | |
+| 3 Accounts | pushed | `sprint/3-accounts` (base: sprint 2) | `sprint/3-migrations` (base: sprint 2) | 009 / V041 | [api](https://github.com/TouchlineZA-dev/touchline-api/compare/sprint/2-season-rules...sprint/3-accounts?expand=1) · [sync](https://github.com/TouchlineZA-dev/touchline-sync/compare/sprint/2-migrations...sprint/3-migrations?expand=1) |
 | 4 Safe writes | not started | `sprint/4-safe-writes` | | | |
 | 5 Settlement | not started | `sprint/5-settlement` | | | |
 | 6 Frontend contract | not started | `sprint/6-frontend-contract` | | | |
@@ -23,6 +23,7 @@
 |---|---|---|---|
 | 007_gameweek_calendar.sql | V039__gameweek_calendar.sql | 1 | no |
 | 008_rules_versions.sql | V040__rules_versions.sql | 2 | no |
+| 009_accounts.sql | V041__accounts.sql | 3 | no |
 
 ## Blockers
 

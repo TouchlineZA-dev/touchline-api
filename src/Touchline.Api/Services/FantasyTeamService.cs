@@ -14,6 +14,7 @@ public sealed class FantasyTeamService(
     FantasyDataService data,
     PointsService points,
     LeagueService leagues,
+    SchemaFeatures schema,
     IOptions<FantasyRules> options)
 {
     private readonly FantasyRules _rules = options.Value;
@@ -34,8 +35,7 @@ public sealed class FantasyTeamService(
             throw new ConflictException("You already have a team for this season. Each user has one team per season.", "Team exists");
         }
 
-        var name = request.Name?.Trim() ?? "";
-        if (name.Length is < 1 or > 50) throw new RuleViolationException("Give your team a name of 1 to 50 characters.");
+        var name = ValidTeamName(request.Name);
 
         var team = new FantasyTeam { UserId = user.Id, SeasonId = ctx.Season.Id, Name = name, BudgetRemaining = _rules.Budget };
         db.FantasyTeams.Add(team);
@@ -47,6 +47,36 @@ public sealed class FantasyTeamService(
         {
             throw new ConflictException("You already have a team for this season. Each user has one team per season.", "Team exists");
         }
+        return await TeamViewAsync(ctx, team, ct);
+    }
+
+    /// <summary>Team names: 3–30 characters after trimming; names may repeat (usernames tell managers apart).</summary>
+    public static string ValidTeamName(string? input)
+    {
+        var name = (input ?? "").Trim();
+        if (name.Length is < 3 or > 30) throw new RuleViolationException("Give your team a name of 3 to 30 characters.");
+        return name;
+    }
+
+    /// <summary>PATCH /fantasy/team: the owner renames the team. Id, picks, memberships and ranks are untouched; history is recorded.</summary>
+    public async Task<TeamView> RenameTeamAsync(AppUser user, RenameTeamRequest request, CancellationToken ct)
+    {
+        var ctx = await contexts.LoadAsync(user, trackTeam: true, ct);
+        var team = ctx.RequireTeam();
+        var name = ValidTeamName(request.Name);
+        if (name == team.Name) return await TeamViewAsync(ctx, team, ct);
+
+        await using var transaction = await db.Database.BeginTransactionAsync(ct);
+        if (await schema.HasTableAsync("app", "fantasy_team_name_history", ct))
+        {
+            await db.Database.ExecuteSqlAsync($"""
+                INSERT INTO app.fantasy_team_name_history (fantasy_team_id, old_name, new_name, changed_by_user_id)
+                VALUES ({team.Id}, {team.Name}, {name}, {user.Id})
+                """, ct);
+        }
+        team.Name = name;
+        await db.SaveChangesAsync(ct);
+        await transaction.CommitAsync(ct);
         return await TeamViewAsync(ctx, team, ct);
     }
 

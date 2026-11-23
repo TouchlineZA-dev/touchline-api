@@ -8,7 +8,8 @@ namespace Touchline.Api.Models;
 public class AppUser
 {
     public int Id { get; set; }
-    public string Email { get; set; } = "";
+    /// <summary>Optional since docs/migrations/009 (Apple relay, phone, Facebook without email). The Supabase subject is the key.</summary>
+    public string? Email { get; set; }
     public string Username { get; set; } = "";
     /// <summary>Required by V014. docs/migrations/002 makes it nullable (Supabase Auth holds credentials).</summary>
     public string? PasswordHash { get; set; }

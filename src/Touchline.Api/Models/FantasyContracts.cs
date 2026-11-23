@@ -9,6 +9,8 @@ namespace Touchline.Api.Models;
 
 public sealed record CreateTeamRequest(string Name);
 
+public sealed record RenameTeamRequest(string Name);
+
 /// <param name="Gameweek">Optional: the gameweek number the app thinks it's editing. If that gameweek has locked, the change is rejected.</param>
 public sealed record SquadRequest(
     string Formation, IReadOnlyList<int> Starters, IReadOnlyList<int> Bench, int? CaptainId, int? ViceCaptainId, int? Gameweek = null)

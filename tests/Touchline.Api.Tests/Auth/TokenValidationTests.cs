@@ -120,7 +120,7 @@ public sealed class TokenValidationTests : IClassFixture<TokenValidationTests.Ap
             .ToList();
 
         bool NeedsToken(string? route) =>
-            route == "api/v1/me"
+            route == "api/v1/me" || route?.StartsWith("api/v1/me/", StringComparison.Ordinal) == true
             || route?.StartsWith("api/v1/fantasy/", StringComparison.Ordinal) == true || route == "api/v1/fantasy"
             || route?.StartsWith("api/v1/admin/", StringComparison.Ordinal) == true;
 
