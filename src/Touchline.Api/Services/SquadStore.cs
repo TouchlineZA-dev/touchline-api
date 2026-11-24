@@ -7,7 +7,7 @@ using Touchline.Api.Models;
 namespace Touchline.Api.Services;
 
 /// <summary>Loads players as the fantasy rules see them: position, current club and current price.</summary>
-public sealed class FantasyDataService(TouchlineDbContext db, FootballService football)
+public sealed class FantasyDataService(TouchlineDbContext db, FootballService football, AvailabilityService availability)
 {
     public async Task<Dictionary<int, FantasyPlayer>> LoadPlayersAsync(int seasonId, IEnumerable<int> playerIds, CancellationToken ct = default)
     {
@@ -22,6 +22,7 @@ public sealed class FantasyDataService(TouchlineDbContext db, FootballService fo
         var clubIds = players.Select(p => clubs.TryGetValue(p.SportmonksPlayerId, out var c) ? c : (int?)null)
             .Where(c => c is not null).Select(c => c!.Value).Distinct().ToList();
         var clubNames = await db.Teams.Where(t => clubIds.Contains(t.Id)).ToDictionaryAsync(t => t.Id, t => t.Name, ct);
+        var available = await availability.GetAsync(seasonId, ct);
 
         return players.ToDictionary(p => p.Id, p =>
         {
@@ -33,7 +34,8 @@ public sealed class FantasyDataService(TouchlineDbContext db, FootballService fo
                 position,
                 clubId,
                 clubId is not null && clubNames.TryGetValue(clubId.Value, out var name) ? name : null,
-                prices.TryGetValue(p.Id, out var price) ? price : football.DefaultPrice(position));
+                prices.TryGetValue(p.Id, out var price) ? price : football.DefaultPrice(position),
+                available.IsAvailable(p.Id, p.SportmonksPlayerId));
         });
     }
 }

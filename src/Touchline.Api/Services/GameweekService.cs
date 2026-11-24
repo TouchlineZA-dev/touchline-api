@@ -43,7 +43,7 @@ public sealed class GameweekService(TouchlineDbContext db, IOptions<FantasyRules
             query = query.Where(g => g.SeasonId == seasonId);
         }
 
-        // Select only the columns that exist before V034 (deadline_at is new), so this endpoint
+        // Select only the columns that exist before docs/migrations/003 (deadline_at is new), so this endpoint
         // keeps working until the migration is applied.
         var gameweeks = await query
             .OrderBy(g => g.StartDate)
@@ -63,7 +63,7 @@ public sealed class GameweekService(TouchlineDbContext db, IOptions<FantasyRules
             .ToList();
     }
 
-    /// <summary>The season's gameweeks with numbers, deadlines and fixtures. Needs V034 (deadline_at).</summary>
+    /// <summary>The season's gameweeks with numbers, deadlines and fixtures. Needs docs/migrations/003 (deadline_at).</summary>
     public async Task<SeasonCalendar> GetCalendarAsync(int seasonId, CancellationToken ct = default)
     {
         var gameweeks = await db.Gameweeks

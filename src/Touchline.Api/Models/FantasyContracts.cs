@@ -30,6 +30,9 @@ public sealed record CreateTransferWindowRequest(int SeasonId, string Name, Date
 
 public sealed record PriceOverrideRequest(int SeasonId, int? ExpectedMinutes, decimal? Price, string Reason);
 
+/// <param name="SeasonId">Defaults to the current PSL season.</param>
+public sealed record AvailabilityOverrideRequest(bool Available, string Reason, int? SeasonId = null);
+
 // ---- Responses --------------------------------------------------------------------------------
 
 public sealed record TeamView(

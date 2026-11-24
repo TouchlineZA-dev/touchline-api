@@ -10,12 +10,15 @@ public sealed record PriceOverride(int? ExpectedMinutes, decimal? Price);
 
 /// <param name="Seasons">Most recent first: [S1, S2, S3]. Null (or 0 minutes) means no data for that season.</param>
 /// <param name="ExpectedMinutes">M, expected minutes next season, before any override.</param>
+/// <param name="Priced">False for players who aren't available to pick: their history still counts
+/// towards the position averages (12c), but they aren't ranked or priced.</param>
 public sealed record ValuationInput(
     int PlayerId,
     Position Position,
     IReadOnlyList<SeasonRecord?> Seasons,
     decimal ExpectedMinutes,
-    PriceOverride? Override = null);
+    PriceOverride? Override = null,
+    bool Priced = true);
 
 /// <param name="SeasonsUsed">1 = S1 (last season, or this season on a mid-season run), 2 = S2, 3 = S3.</param>
 public sealed record ValuationResult(
@@ -122,7 +125,10 @@ public sealed class PlayerValuation(PricingRules pricing)
     public static decimal RoundToStep(decimal value, decimal step) =>
         step * Math.Round(value / step, MidpointRounding.AwayFromZero);
 
-    /// <summary>Runs 12b–12g for every player. Players are only ranked against their own position.</summary>
+    /// <summary>
+    /// Runs 12b–12g. Position averages use every input's history; only inputs with Priced = true are
+    /// ranked (against their own position) and returned.
+    /// </summary>
     public IReadOnlyList<ValuationResult> PriceAll(IReadOnlyList<ValuationInput> inputs)
     {
         var seasonCount = pricing.SeasonWeights().Count;
@@ -140,7 +146,7 @@ public sealed class PlayerValuation(PricingRules pricing)
             }
         }
 
-        var drafts = inputs.Where(i => i.Position != Position.Unknown).Select(input =>
+        var drafts = inputs.Where(i => i.Position != Position.Unknown && i.Priced).Select(input =>
         {
             var adjusted = new decimal?[seasonCount];
             for (var s = 0; s < seasonCount; s++)
@@ -197,19 +203,26 @@ public sealed class PlayerValuation(PricingRules pricing)
     /// Which seasons feed S1, S2, S3. Pre-season run for season N: N-1, N-2, N-3.
     /// Mid-season run: N so far, N-1, N-2. Missing seasons are left out (the weights rescale).
     /// </summary>
-    public IReadOnlyList<int> HistorySeasons(IReadOnlyList<int> seasonIdsOldestFirst, int targetSeasonId, bool midSeason)
+    public IReadOnlyList<int> HistorySeasons(IReadOnlyList<int> seasonIdsOldestFirst, int targetSeasonId, bool midSeason) =>
+        CandidateSeasons(seasonIdsOldestFirst, targetSeasonId, midSeason).Take(pricing.SeasonWeights().Count).ToList();
+
+    /// <summary>Every season that could feed a run, newest first: before N (pre-season), or N and before (mid-season).</summary>
+    public static IReadOnlyList<int> CandidateSeasons(IReadOnlyList<int> seasonIdsOldestFirst, int targetSeasonId, bool midSeason)
     {
         var index = seasonIdsOldestFirst.ToList().IndexOf(targetSeasonId);
         if (index < 0) return [];
 
         var newest = midSeason ? index : index - 1;
-        var count = pricing.SeasonWeights().Count;
-        return Enumerable.Range(0, count)
-            .Select(k => newest - k)
-            .Where(i => i >= 0)
-            .Select(i => seasonIdsOldestFirst[i])
-            .ToList();
+        return Enumerable.Range(0, newest + 1).Select(k => seasonIdsOldestFirst[newest - k]).ToList();
     }
+
+    /// <summary>
+    /// The newest seasons that actually have lineup and event data, up to the number of season weights.
+    /// A season whose matches are in the database without lineups or events is missing data, not a
+    /// season nobody played; counting it would give every player 0 minutes, so it's skipped.
+    /// </summary>
+    public IReadOnlyList<int> SeasonsWithData(IEnumerable<int> candidatesNewestFirst, Func<int, bool> hasData) =>
+        candidatesNewestFirst.Where(hasData).Take(pricing.SeasonWeights().Count).ToList();
 
     /// <summary>12a: once per window unless forced; a pre-season run must happen before the Gameweek 1 deadline.</summary>
     public static RuleCheck CanRecalculate(

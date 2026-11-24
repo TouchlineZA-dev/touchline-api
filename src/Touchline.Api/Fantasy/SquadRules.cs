@@ -13,9 +13,11 @@ public sealed class SquadRules(FantasyRules rules)
     /// <summary>
     /// Validates a full squad. <paramref name="maxCost"/> is the budget for a first squad
     /// pick; pass null when the budget is tracked through budget_remaining instead (transfers, lineup changes).
+    /// <paramref name="requireAvailable"/> checks every player is pickable (first squad pick); players
+    /// already in a squad are never blocked later.
     /// </summary>
     public RuleCheck ValidateSquad(
-        SquadSelection selection, IReadOnlyDictionary<int, FantasyPlayer> players, decimal? maxCost)
+        SquadSelection selection, IReadOnlyDictionary<int, FantasyPlayer> players, decimal? maxCost, bool requireAvailable = false)
     {
         var check = new RuleCheck();
         var all = selection.AllPlayers.ToList();
@@ -42,6 +44,10 @@ public sealed class SquadRules(FantasyRules rules)
             {
                 check.Fail($"{player.Name} has no known position yet, so he can't be picked.");
                 continue;
+            }
+            if (requireAvailable && !player.Available)
+            {
+                check.Fail(PlayerAvailability.NotAvailableMessage(player.Name));
             }
             known.Add(player);
         }
@@ -160,6 +166,10 @@ public sealed class SquadRules(FantasyRules rules)
             else if (p.Position == Position.Unknown)
             {
                 check.Fail($"{p.Name} has no known position yet, so he can't be picked.");
+            }
+            else if (!p.Available)
+            {
+                check.Fail(PlayerAvailability.NotAvailableMessage(p.Name));
             }
         }
 

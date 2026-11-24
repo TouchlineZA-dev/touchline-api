@@ -1,12 +1,20 @@
 using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
+using Npgsql;
 using Scalar.AspNetCore;
+using Touchline.Api;
 using Touchline.Api.Data;
 using Touchline.Api.Fantasy;
 using Touchline.Api.Services;
 using Touchline.Api.Users;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Local development: settings such as ConnectionStrings__Touchline from .env (gitignored).
+if (builder.Environment.IsDevelopment())
+{
+    builder.Configuration.AddDotEnv();
+}
 
 builder.Services
     .AddControllers()
@@ -20,18 +28,24 @@ var connectionString = builder.Configuration.GetConnectionString("Touchline");
 if (string.IsNullOrWhiteSpace(connectionString))
 {
     throw new InvalidOperationException(
-        "ConnectionStrings:Touchline is not set. Locally use `dotnet user-secrets set " +
-        "\"ConnectionStrings:Touchline\" \"...\"` in src/Touchline.Api; in hosting set the " +
-        "ConnectionStrings__Touchline environment variable. Never commit it.");
+        "ConnectionStrings:Touchline is not set. Locally copy .env.example to .env at the repo " +
+        "root and fill in ConnectionStrings__Touchline (or use `dotnet user-secrets`); in " +
+        "hosting set the ConnectionStrings__Touchline environment variable. Never commit it.");
 }
 
+// Supabase's transaction pooler (port 6543) hangs on the DISCARD ALL that Npgsql sends when it
+// reuses a pooled connection, so every second query timed out. With transaction pooling there is no
+// session state to reset anyway, so turn the reset off.
+var npgsql = new NpgsqlConnectionStringBuilder(connectionString) { NoResetOnClose = true };
+
 builder.Services.AddDbContext<TouchlineDbContext>(options => options
-    .UseNpgsql(connectionString)
+    .UseNpgsql(npgsql.ConnectionString)
     // Most requests only read. Call AsTracking() or Add/Update explicitly when writing.
     .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking));
 
 // Services
 builder.Services.Configure<FootballOptions>(builder.Configuration.GetSection(FootballOptions.SectionName));
+builder.Services.AddScoped<AvailabilityService>();
 builder.Services.AddScoped<FootballService>();
 builder.Services.AddScoped<GameweekService>();
 builder.Services.AddScoped<HealthService>();
