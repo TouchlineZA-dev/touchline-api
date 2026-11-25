@@ -4,6 +4,7 @@ using System.Net.Http.Json;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.Extensions.DependencyInjection;
 using Npgsql;
 using Touchline.Api.Data;
 using Touchline.Api.Services;
@@ -35,11 +36,9 @@ public sealed class MeEndpointTests(PostgresFixture db) : IClassFixture<Postgres
     private Task<long> ProfileCount(Guid sub) =>
         db.ScalarAsync<long>("SELECT count(*) FROM app.users WHERE auth_user_id = $1", sub);
 
-    private Task<int> CreateFantasyTeam(int userId) => db.ScalarAsync<int>("""
-        WITH season AS (INSERT INTO football.seasons DEFAULT VALUES RETURNING id)
-        INSERT INTO app.fantasy_teams (user_id, season_id, name)
-        SELECT $1, id, 'Test XI' FROM season RETURNING id
-        """, userId);
+    private async Task<int> CreateFantasyTeam(int userId) => await db.ScalarAsync<int>("""
+        INSERT INTO app.fantasy_teams (user_id, season_id, name) VALUES ($1, $2, 'Test XI') RETURNING id
+        """, userId, await db.NewSeasonAsync());
 
     private Task<int> TeamOwner(int teamId) =>
         db.ScalarAsync<int>("SELECT user_id FROM app.fantasy_teams WHERE id = $1", teamId);
@@ -68,8 +67,11 @@ public sealed class MeEndpointTests(PostgresFixture db) : IClassFixture<Postgres
         var response = await GetMe(db.Tokens.Create(Guid.NewGuid(), NewEmail()));
 
         using var json = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
-        Assert.Equal(["id", "username", "email", "authUserId"],
+        // Sprint 3 added fields after the original four; the original four keep their names and order.
+        Assert.Equal(["id", "username", "email", "authUserId", "onboarding", "favouriteClubId", "suspended", "policies"],
             json.RootElement.EnumerateObject().Select(p => p.Name).ToArray());
+        Assert.Equal(["needsUsername", "needsTeam", "needsSquad"],
+            json.RootElement.GetProperty("onboarding").EnumerateObject().Select(p => p.Name).ToArray());
     }
 
     [SkippableFact]
@@ -119,7 +121,7 @@ public sealed class MeEndpointTests(PostgresFixture db) : IClassFixture<Postgres
             .AddInterceptors(competitor)
             .Options);
 
-        var user = await new UserService(context).GetOrCreateAsync(sub, email);
+        var user = await new UserService(context, db.ReadyApi.Services.GetRequiredService<Touchline.Api.Data.SchemaFeatures>()).GetOrCreateAsync(sub, email);
 
         Assert.NotNull(competitor.WinnerId);
         Assert.Equal(competitor.WinnerId, user.Id);
@@ -225,13 +227,21 @@ public sealed class MeEndpointTests(PostgresFixture db) : IClassFixture<Postgres
     }
 
     [SkippableFact]
-    public async Task Token_without_email_is_400()
+    public async Task Token_without_email_creates_one_profile_and_a_later_email_fills_it_in()
     {
+        // Apple relay hidden, phone sign-in, or Facebook without the email permission (Sprint 3).
         Skip.If(db.SkipReason is not null, db.SkipReason);
         var sub = Guid.NewGuid();
-        var response = await GetMe(db.Tokens.Create(sub, email: null));
-        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
-        Assert.Equal(0, await ProfileCount(sub));
+        var first = await GetMeOk(db.Tokens.Create(sub, email: null, provider: "facebook"));
+        Assert.Null(first.Email);
+        var again = await GetMeOk(db.Tokens.Create(sub, email: null, provider: "facebook"));
+        Assert.Equal(first.Id, again.Id);
+        Assert.Equal(1, await ProfileCount(sub));
+
+        var email = NewEmail();
+        var withEmail = await GetMeOk(db.Tokens.Create(sub, email, provider: "facebook"));
+        Assert.Equal(first.Id, withEmail.Id);
+        Assert.Equal(email, withEmail.Email);
     }
 
     [SkippableFact]

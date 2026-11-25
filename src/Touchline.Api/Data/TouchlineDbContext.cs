@@ -9,8 +9,9 @@ namespace Touchline.Api.Data;
 /// One context over the shared Supabase Postgres database.
 /// - football, sync: read-only (owned by the sync worker; the DB role cannot write them).
 /// - app: read/write (owned by this API).
-/// The schema is created by Flyway in the touchline-sync repo. This context does NOT
-/// create or migrate tables — do not run EF migrations against the shared database.
+/// The football and sync tables come from touchline-sync's Flyway migrations; the API's app-schema
+/// SQL is in docs/migrations, applied by hand in the Supabase SQL Editor. This context does NOT
+/// create or migrate tables: never run EF migrations against the shared database.
 /// </summary>
 public class TouchlineDbContext(DbContextOptions<TouchlineDbContext> options) : DbContext(options)
 {
@@ -39,7 +40,7 @@ public class TouchlineDbContext(DbContextOptions<TouchlineDbContext> options) : 
     public DbSet<PlayerPrice> PlayerPrices => Set<PlayerPrice>();
     public DbSet<PlayerPriceChange> PlayerPriceChanges => Set<PlayerPriceChange>();
 
-    // app, added by proposed V034 (read/write)
+    // app, added by docs/migrations/003 (read/write)
     public DbSet<FantasyGameweekEntry> GameweekEntries => Set<FantasyGameweekEntry>();
     public DbSet<FantasyTransfer> Transfers => Set<FantasyTransfer>();
     public DbSet<FantasyChipUsage> ChipUsage => Set<FantasyChipUsage>();
@@ -47,6 +48,7 @@ public class TouchlineDbContext(DbContextOptions<TouchlineDbContext> options) : 
     public DbSet<LeagueMember> LeagueMembers => Set<LeagueMember>();
     public DbSet<TransferWindow> TransferWindows => Set<TransferWindow>();
     public DbSet<PlayerPriceOverride> PriceOverrides => Set<PlayerPriceOverride>();
+    public DbSet<PlayerAvailabilityOverride> AvailabilityOverrides => Set<PlayerAvailabilityOverride>();
 
     protected override void OnModelCreating(ModelBuilder b)
     {
@@ -81,6 +83,7 @@ public class TouchlineDbContext(DbContextOptions<TouchlineDbContext> options) : 
         b.Entity<LeagueMember>().ToTable("league_members", "app");
         b.Entity<TransferWindow>().ToTable("transfer_windows", "app");
         b.Entity<PlayerPriceOverride>().ToTable("player_price_overrides", "app");
+        b.Entity<PlayerAvailabilityOverride>().ToTable("player_availability_overrides", "app");
 
         // NUMERIC(5,1) money columns
         b.Entity<FantasyTeam>().Property(x => x.BudgetRemaining).HasPrecision(5, 1);
@@ -96,6 +99,11 @@ public class TouchlineDbContext(DbContextOptions<TouchlineDbContext> options) : 
         b.Entity<LeagueMember>().Property(x => x.JoinedAt).HasDefaultValueSql("now()").ValueGeneratedOnAdd();
 
         b.Entity<PointsResult>().Property(x => x.Breakdown).HasColumnType("jsonb");
+
+        // Atomic version check (Sprint 4): every UPDATE of an entry carries WHERE version = <the version read>,
+        // in the same transaction as the write. If another request changed it first, 0 rows match and the
+        // write fails with DbUpdateConcurrencyException (409 stale_squad).
+        b.Entity<FantasyGameweekEntry>().Property(x => x.Version).IsConcurrencyToken();
 
         foreach (var entity in b.Model.GetEntityTypes())
         {

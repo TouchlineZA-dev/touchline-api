@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
 using Touchline.Api.Data;
 using Touchline.Api.Fantasy;
@@ -10,7 +11,9 @@ namespace Touchline.Api.Services;
 /// Private leagues (join by code only, no public list) and the Overall league of every team in the
 /// season, which has no table row and is worked out on request.
 /// </summary>
-public sealed class LeagueService(TouchlineDbContext db, PointsService points, IOptions<FantasyRules> options)
+public sealed class LeagueService(
+    TouchlineDbContext db, PointsService points, Users.AccountService accounts, SchemaFeatures schema,
+    Microsoft.Extensions.Caching.Memory.IMemoryCache cache, IOptions<FantasyRules> options)
 {
     public const string OverallId = "overall";
 
@@ -24,6 +27,9 @@ public sealed class LeagueService(TouchlineDbContext db, PointsService points, I
 
         var seasonTeams = await SeasonTeamsAsync(ctx.Season.Id, ct);
         var totals = await points.TeamTotalsAsync(seasonTeams.Keys, ctx.Calendar, null, ctx.Now, ct);
+        // Suspended managers are hidden from the public Overall league (they stay in private leagues).
+        var suspended = await accounts.SuspendedTeamIdsAsync(ctx.Season.Id, ct);
+        var overallTeams = seasonTeams.Keys.Where(id => !suspended.Contains(id) || id == team.Id).ToList();
 
         var leagueIds = await db.LeagueMembers
             .Where(m => m.FantasyTeamId == team.Id && m.LeftAt == null)
@@ -43,7 +49,7 @@ public sealed class LeagueService(TouchlineDbContext db, PointsService points, I
 
         var result = new List<LeagueSummaryView>
         {
-            new(OverallId, "Overall", IsOverall: true, IsOwner: false, JoinCode: null, seasonTeams.Count, RankIn(seasonTeams.Keys),
+            new(OverallId, "Overall", IsOverall: true, IsOwner: false, JoinCode: null, overallTeams.Count, RankIn(overallTeams),
                 totals.Values.Any(t => t.Provisional)),
         };
         foreach (var league in myLeagues)
@@ -135,6 +141,72 @@ public sealed class LeagueService(TouchlineDbContext db, PointsService points, I
         return new LeagueSummaryView(league.Id.ToString(), league.Name, false, league.OwnerUserId == ctx.User.Id, null, active + 1, null, false);
     }
 
+    /// <summary>
+    /// The owner hands the league to another active member (the owner can't leave, so this is how an owner
+    /// departs). Nothing is deleted.
+    /// </summary>
+    public async Task<LeagueSummaryView> TransferOwnershipAsync(FantasyContext ctx, int leagueId, int toFantasyTeamId, CancellationToken ct)
+    {
+        await using var transaction = await db.Database.BeginTransactionAsync(ct);
+        var league = await db.Leagues.FromSql($"SELECT * FROM app.leagues WHERE id = {leagueId} FOR UPDATE").AsTracking().FirstOrDefaultAsync(ct);
+        if (league is null || !league.IsActive) throw new NotFoundException("That league doesn't exist.");
+        if (league.OwnerUserId != ctx.User.Id) throw new ForbiddenException("Only the league owner can hand it over.");
+        var target = await (from m in db.LeagueMembers
+                            join t in db.FantasyTeams on m.FantasyTeamId equals t.Id
+                            where m.LeagueId == leagueId && m.FantasyTeamId == toFantasyTeamId && m.LeftAt == null
+                            select new { t.UserId }).FirstOrDefaultAsync(ct)
+            ?? throw new RuleViolationException("The new owner must be a current member of the league.");
+        if (target.UserId == ctx.User.Id) throw new RuleViolationException("You already own this league.");
+        league.OwnerUserId = target.UserId;
+        await db.SaveChangesAsync(ct);
+        await transaction.CommitAsync(ct);
+        var members = await db.LeagueMembers.CountAsync(m => m.LeagueId == leagueId && m.LeftAt == null, ct);
+        return new LeagueSummaryView(league.Id.ToString(), league.Name, false, false, null, members, null, false);
+    }
+
+    /// <summary>The owner archives the league: it disappears from members' lists and can't be joined; history is kept (no DELETE).</summary>
+    public async Task ArchiveAsync(FantasyContext ctx, int leagueId, CancellationToken ct)
+    {
+        var league = await db.Leagues.AsTracking().FirstOrDefaultAsync(l => l.Id == leagueId && l.IsActive, ct)
+            ?? throw new NotFoundException("That league doesn't exist.");
+        if (league.OwnerUserId != ctx.User.Id) throw new ForbiddenException("Only the league owner can archive it.");
+        league.IsActive = false;
+        await db.SaveChangesAsync(ct);
+    }
+
+    /// <summary>My rank in a league after each finalised gameweek (members only; "overall" works too).</summary>
+    public async Task<object> RankHistoryAsync(FantasyContext ctx, string leagueId, CancellationToken ct)
+    {
+        var team = ctx.RequireTeam();
+        List<int> teamIds;
+        if (string.Equals(leagueId, OverallId, StringComparison.OrdinalIgnoreCase))
+        {
+            teamIds = await db.FantasyTeams.Where(t => t.SeasonId == ctx.Season.Id).Select(t => t.Id).ToListAsync(ct);
+        }
+        else
+        {
+            if (!int.TryParse(leagueId, out var id)) throw new NotFoundException("That league doesn't exist.");
+            teamIds = await db.LeagueMembers.Where(m => m.LeagueId == id && m.LeftAt == null).Select(m => m.FantasyTeamId).ToListAsync(ct);
+            if (!teamIds.Contains(team.Id)) throw new ForbiddenException("Only members can see this league's history.");
+        }
+        var users = await (from t in db.FantasyTeams join u in db.Users on t.UserId equals u.Id where teamIds.Contains(t.Id)
+                           select new { t.Id, t.Name, u.Username }).ToDictionaryAsync(x => x.Id, ct);
+        var entries = await db.GameweekEntries.Where(e => teamIds.Contains(e.FantasyTeamId) && e.ScoredAt != null && e.Points != null)
+            .Select(e => new { e.FantasyTeamId, e.GameweekId, Points = e.Points!.Value }).ToListAsync(ct);
+        var running = teamIds.ToDictionary(t => t, _ => 0);
+        var rows = new List<object>();
+        foreach (var gw in ctx.Calendar.Gameweeks)
+        {
+            var week = entries.Where(e => e.GameweekId == gw.Id).ToList();
+            if (week.Count == 0) continue;
+            foreach (var e in week) running[e.FantasyTeamId] += e.Points;
+            var ranked = LeagueRules.Rank(running.Select(kv => new StandingInput(kv.Key, users[kv.Key].Name, users[kv.Key].Username,
+                kv.Value, kv.Value, false)));
+            rows.Add(new { gameweekId = gw.Id, gameweek = gw.Number, rank = ranked.First(r => r.Entry.FantasyTeamId == team.Id).Rank, points = running[team.Id] });
+        }
+        return new { leagueId = leagueId.ToLowerInvariant(), teamId = team.Id, history = rows };
+    }
+
     /// <summary>Leaving sets left_at (no DELETE). The owner can't leave their own league.</summary>
     public async Task LeaveAsync(FantasyContext ctx, int leagueId, CancellationToken ct)
     {
@@ -153,7 +225,53 @@ public sealed class LeagueService(TouchlineDbContext db, PointsService points, I
     }
 
     /// <summary>Standings by season total, or a single gameweek with ?gameweek=N. Includes live provisional points.</summary>
-    public async Task<StandingsView> StandingsAsync(FantasyContext ctx, string leagueId, int? gameweekNumber, CancellationToken ct)
+    public const int DefaultPageSize = 50;
+    public const int MaxPageSize = 200;
+
+    public async Task<StandingsView> StandingsAsync(FantasyContext ctx, string leagueId, int? gameweekNumber, CancellationToken ct, int page = 1, int pageSize = DefaultPageSize)
+    {
+        page = Math.Max(1, page);
+        pageSize = Math.Clamp(pageSize <= 0 ? DefaultPageSize : pageSize, 1, MaxPageSize);
+        var revision = await RevisionLabelAsync(ctx, ct);
+        var key = $"standings:{ctx.Season.Id}:{leagueId.ToLowerInvariant()}:{gameweekNumber}:{revision}";
+        if (cache.TryGetValue(key, out StandingsView? cached) && cached is not null)
+        {
+            if (!string.Equals(leagueId, OverallId, StringComparison.OrdinalIgnoreCase)
+                && (ctx.Team is null || !cached.Rows.Any(r => r.FantasyTeamId == ctx.Team.Id)))
+            {
+                throw new ForbiddenException("Only members can see this league's standings.");
+            }
+            return Page(cached, page, pageSize, ctx.Team?.Id);
+        }
+        var full = await FullStandingsAsync(ctx, leagueId, gameweekNumber, ct);
+        full = full with { Revision = revision + (full.Provisional ? "+live" : "") };
+        // Shared standings are cached by revision (final points only change with a new published revision);
+        // while provisional points are included, only for the live-points cache period.
+        cache.Set(key, full, TimeSpan.FromSeconds(full.Provisional ? options.Value.LivePointsCacheSeconds : 300));
+        return Page(full, page, pageSize, ctx.Team?.Id);
+    }
+
+    private static StandingsView Page(StandingsView full, int page, int pageSize, int? myTeamId) => full with
+    {
+        Rows = full.Rows.Skip((page - 1) * pageSize).Take(pageSize).ToList(),
+        Page = page,
+        PageSize = pageSize,
+        TotalRows = full.Rows.Count,
+        Me = myTeamId is { } id ? full.Rows.FirstOrDefault(r => r.FantasyTeamId == id) : null,
+    };
+
+    /// <summary>"r{newest published revision id of the season}", or "legacy" before migration 011.</summary>
+    private async Task<string> RevisionLabelAsync(FantasyContext ctx, CancellationToken ct)
+    {
+        if (!await schema.HasTableAsync("app", "score_revisions", ct)) return "legacy";
+        var ids = ctx.Calendar.Gameweeks.Select(g => g.Id).ToArray();
+        var max = await db.Database.SqlQuery<int?>($"""
+            SELECT MAX(id) AS "Value" FROM app.score_revisions WHERE status = 'published' AND gameweek_id = ANY({ids})
+            """).FirstOrDefaultAsync(ct);
+        return $"r{max ?? 0}";
+    }
+
+    private async Task<StandingsView> FullStandingsAsync(FantasyContext ctx, string leagueId, int? gameweekNumber, CancellationToken ct)
     {
         GameweekInfo? gameweek = null;
         if (gameweekNumber is not null)
@@ -168,7 +286,9 @@ public sealed class LeagueService(TouchlineDbContext db, PointsService points, I
         if (string.Equals(leagueId, OverallId, StringComparison.OrdinalIgnoreCase))
         {
             name = "Overall";
-            teamIds = seasonTeams.Keys.ToList();
+            // Suspended managers are hidden from the public Overall league (docs/accounts/policies.md).
+            var suspended = await accounts.SuspendedTeamIdsAsync(ctx.Season.Id, ct);
+            teamIds = seasonTeams.Keys.Where(id => !suspended.Contains(id)).ToList();
         }
         else
         {
@@ -185,15 +305,30 @@ public sealed class LeagueService(TouchlineDbContext db, PointsService points, I
         }
 
         var totals = await points.TeamTotalsAsync(teamIds, ctx.Calendar, gameweek, ctx.Now, ct);
-        var ranked = LeagueRules.Rank(teamIds.Where(seasonTeams.ContainsKey).Select(t => Standing(t, seasonTeams, totals, useGameweek: gameweek is not null)));
+        var members = teamIds.Where(seasonTeams.ContainsKey).ToList();
+        var ranked = LeagueRules.Rank(members.Select(t => Standing(t, seasonTeams, totals, useGameweek: gameweek is not null)));
+
+        // Rank movement: the ranking before this gameweek's points (same tie rules).
+        var previous = gameweek is null
+            ? LeagueRules.Rank(members.Select(t =>
+              {
+                  var s = Standing(t, seasonTeams, totals, useGameweek: false);
+                  var week = totals.GetValueOrDefault(t, new TeamTotals(0, 0, false)).GameweekPoints;
+                  return s with { Points = s.Points - week, OverallPoints = s.OverallPoints - week };
+              })).ToDictionary(r => r.Entry.FantasyTeamId, r => r.Rank)
+            : null;
 
         return new StandingsView(
             leagueId.ToLowerInvariant(),
             name,
             gameweek?.Number,
             ranked.Any(r => r.Entry.Provisional),
-            ranked.Select(r => new StandingRowView(
-                r.Rank, r.Entry.FantasyTeamId, r.Entry.TeamName, r.Entry.Username, r.Entry.Points, r.Entry.OverallPoints, r.Entry.Provisional)).ToList());
+            ranked.Select(r =>
+            {
+                int? before = previous is not null && previous.TryGetValue(r.Entry.FantasyTeamId, out var p) ? p : null;
+                return new StandingRowView(r.Rank, r.Entry.FantasyTeamId, r.Entry.TeamName, r.Entry.Username, r.Entry.Points, r.Entry.OverallPoints,
+                    r.Entry.Provisional, before, before - r.Rank);
+            }).ToList());
     }
 
     private static StandingInput Standing(

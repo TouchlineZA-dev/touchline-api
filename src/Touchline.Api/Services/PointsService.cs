@@ -1,5 +1,3 @@
-using System.Text.Json;
-using System.Text.Json.Nodes;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
@@ -30,10 +28,10 @@ public sealed class PointsService(
     SquadStore squads,
     GameweekService gameweeks,
     IMemoryCache cache,
+    SchemaFeatures schema,
+    SettlementService settlement,
     IOptions<FantasyRules> options)
 {
-    private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web);
-
     private readonly FantasyRules _rules = options.Value;
     private readonly PlayerScoring _playerScoring = new(options.Value);
     private readonly TeamScoring _teamScoring = new(options.Value);
@@ -62,12 +60,13 @@ public sealed class PointsService(
         var squad = await squads.LoadAsync(team.Id, gameweek, calendar, ct)
             ?? throw new NotFoundException("Your team has no squad for that gameweek yet.");
 
+        if (!squad.Saved || squad.Entry.ScoredAt is null) squad = WithCaptains(squad, team.Id, gameweek, now);
         var final = squad.Saved && squad.Entry.ScoredAt is not null;
         Dictionary<int, PointsBreakdown> breakdowns;
         if (final)
         {
             var rows = await db.PointsResults.Where(r => r.FantasyTeamId == team.Id && r.GameweekId == gameweek.Id).ToListAsync(ct);
-            var saved = rows.GroupBy(r => r.PlayerId).ToDictionary(g => g.Key, g => ReadBreakdown(g.First().Breakdown, g.First().Points));
+            var saved = rows.GroupBy(r => r.PlayerId).ToDictionary(g => g.Key, g => PointsBreakdownJson.Read(g.First().Breakdown, g.First().Points));
             breakdowns = squad.Picks.ToDictionary(p => p.PlayerId, p => saved.GetValueOrDefault(p.PlayerId, PointsBreakdown.None));
         }
         else
@@ -105,7 +104,9 @@ public sealed class PointsService(
                     s.BasePoints,
                     s.Contribution,
                     breakdowns[pick.PlayerId]);
-            }).OrderBy(p => p.IsStarter ? 0 : 1).ThenBy(p => p.Position).ToList());
+            }).OrderBy(p => p.IsStarter ? 0 : 1).ThenBy(p => p.Position).ToList(),
+            await RulesVersionAsync(team.Id, gameweek.Id, final, ct),
+            final ? await settlement.PublishedRevisionAsync(gameweek.Id, ct) : null);
     }
 
     /// <summary>
@@ -143,8 +144,9 @@ public sealed class PointsService(
             {
                 break; // Standings still work with finalised points only until the codes are confirmed.
             }
-            foreach (var (teamId, squad) in await LoadSquadsAsync(unscored, week!, calendar, ct))
+            foreach (var (teamId, loaded) in await LoadSquadsAsync(unscored, week!, calendar, ct))
             {
+                var squad = WithCaptains(loaded, teamId, week!, now);
                 var breakdowns = squad.Picks.ToDictionary(p => p.PlayerId, p => live.For(p.PlayerId));
                 provisional[(teamId, week!.Id)] = ScoreTeam(squad, breakdowns).Total;
             }
@@ -187,18 +189,24 @@ public sealed class PointsService(
         if (!GameweekRules.CanFinalise(markedComplete, info.Fixtures.Select(f => f.StateId).ToList()))
         {
             throw new ConflictException(
-                "Not every fixture in this gameweek is final (state 5, 7 or 8), and the sync worker hasn't marked it complete.",
-                "Gameweek not finished");
+                "The sync worker hasn't marked this gameweek complete, or a fixture isn't settled. Finalising never relies on fixture states alone; " +
+                "apply docs/migrations/011 to record admin resolutions.",
+                "Gameweek not finished", code: "settlement_blocked");
         }
 
         var live = await PlayerPointsAsync(info, now, useCache: false, ct);
         var teamIds = await db.FantasyTeams.Where(t => t.SeasonId == seasonId).Select(t => t.Id).ToListAsync(ct);
+        var versioned = await schema.HasColumnAsync("app", "fantasy_gameweek_entries", "rules_version", ct)
+                        && await schema.HasColumnAsync("app", "points_results", "rules_version", ct);
+        var keptVersions = versioned ? await ScoredUnderOtherRulesAsync(gameweekId, ct) : [];
 
         await using var transaction = await db.Database.BeginTransactionAsync(ct);
         var scoredTeams = 0;
         foreach (var teamId in teamIds)
         {
-            var squad = await squads.EnsureAsync(teamId, info, calendar, now, ct);
+            // A new rules version never rescores the past: an entry already scored under other rules is kept.
+            if (keptVersions.Contains(teamId)) continue;
+            var squad = await squads.LockAsync(teamId, info, calendar, now, ct);
             if (squad is null) continue; // never picked a squad
 
             var breakdowns = squad.Picks.ToDictionary(p => p.PlayerId, p => live.For(p.PlayerId));
@@ -215,19 +223,51 @@ public sealed class PointsService(
                     db.PointsResults.Add(row);
                 }
                 row.Points = pick.BasePoints;
-                row.Breakdown = WriteBreakdown(breakdowns[pick.PlayerId], pick);
+                row.Breakdown = PointsBreakdownJson.Write(breakdowns[pick.PlayerId], pick);
             }
 
             squad.Entry.Points = score.Total;
             squad.Entry.BenchPoints = score.BenchPoints;
             squad.Entry.ScoredAt = now;
             await db.SaveChangesAsync(ct);
+            if (versioned)
+            {
+                await db.Database.ExecuteSqlAsync($"""
+                    UPDATE app.fantasy_gameweek_entries SET rules_version = {Rulebook.Version}, points_table_version = {Rulebook.PointsTableVersion}
+                    WHERE fantasy_team_id = {teamId} AND gameweek_id = {gameweekId}
+                    """, ct);
+                await db.Database.ExecuteSqlAsync($"""
+                    UPDATE app.points_results SET rules_version = {Rulebook.Version}, points_table_version = {Rulebook.PointsTableVersion}
+                    WHERE fantasy_team_id = {teamId} AND gameweek_id = {gameweekId}
+                    """, ct);
+            }
             scoredTeams++;
         }
         await transaction.CommitAsync(ct);
         cache.Remove($"fantasy:gw-points:{gameweekId}");
 
-        return new { gameweekId, gameweek = info.Number, teamsScored = scoredTeams, markedComplete, finalisedAtUtc = now };
+        return new
+        {
+            gameweekId, gameweek = info.Number, teamsScored = scoredTeams, markedComplete, finalisedAtUtc = now,
+            rulesVersion = Rulebook.Version, teamsKeptUnderEarlierRules = keptVersions.Count,
+        };
+    }
+
+    /// <summary>Teams whose entry for the gameweek was already scored under a different rules version.</summary>
+    private async Task<HashSet<int>> ScoredUnderOtherRulesAsync(int gameweekId, CancellationToken ct) =>
+        (await db.Database.SqlQuery<int>($"""
+            SELECT fantasy_team_id AS "Value" FROM app.fantasy_gameweek_entries
+            WHERE gameweek_id = {gameweekId} AND scored_at IS NOT NULL AND rules_version IS NOT NULL AND rules_version <> {Rulebook.Version}
+            """).ToListAsync(ct)).ToHashSet();
+
+    /// <summary>The rules version an entry was scored under, or the current one while it's provisional.</summary>
+    private async Task<string> RulesVersionAsync(int teamId, int gameweekId, bool final, CancellationToken ct)
+    {
+        if (!final || !await schema.HasColumnAsync("app", "fantasy_gameweek_entries", "rules_version", ct)) return Rulebook.Version;
+        var stored = await db.Database.SqlQuery<string?>($"""
+            SELECT rules_version AS "Value" FROM app.fantasy_gameweek_entries WHERE fantasy_team_id = {teamId} AND gameweek_id = {gameweekId}
+            """).FirstOrDefaultAsync(ct);
+        return stored ?? Rulebook.Version;
     }
 
     public async Task<IReadOnlyList<FixtureStatusView>> FixtureStatusesAsync(GameweekInfo gameweek, CancellationToken ct)
@@ -238,6 +278,26 @@ public sealed class PointsService(
 
         return gameweek.Fixtures.Select(f => new FixtureStatusView(
             f.Id, NameOf(f.HomeTeamId), NameOf(f.AwayTeamId), f.StartingAt, MatchStatusExtensions.FromStateId(f.StateId), f.HomeScore, f.AwayScore)).ToList();
+    }
+
+    /// <summary>
+    /// Once a gameweek has locked, a missing captain or vice-captain is filled the same way finalising
+    /// fills (and saves) it, so provisional and final points agree. Read-only: nothing is saved here.
+    /// </summary>
+    private static LoadedSquad WithCaptains(LoadedSquad squad, int teamId, GameweekInfo gameweek, DateTimeOffset now)
+    {
+        if (!gameweek.IsLocked(now)) return squad;
+        var selection = squad.ToSelection();
+        var filled = CaptaincyRules.EnsureCaptains(selection, teamId, gameweek.Id);
+        if (ReferenceEquals(filled, selection)) return squad;
+
+        var picks = squad.Picks.Select(p => new FantasySquadPick
+        {
+            Id = p.Id, FantasyTeamId = p.FantasyTeamId, PlayerId = p.PlayerId, GameweekId = p.GameweekId,
+            IsOnBench = p.IsOnBench, BenchOrder = p.BenchOrder, PurchasePrice = p.PurchasePrice,
+            IsCaptain = p.PlayerId == filled.CaptainId, IsViceCaptain = p.PlayerId == filled.ViceCaptainId,
+        }).ToList();
+        return squad with { Picks = picks };
     }
 
     private TeamGameweekScore ScoreTeam(LoadedSquad squad, IReadOnlyDictionary<int, PointsBreakdown> breakdowns) =>
@@ -272,17 +332,5 @@ public sealed class PointsService(
         return result;
     }
 
-    private static string WriteBreakdown(PointsBreakdown breakdown, PickScore pick)
-    {
-        var node = JsonSerializer.SerializeToNode(breakdown, Json)!.AsObject();
-        node["multiplier"] = pick.Multiplier;
-        node["counted"] = pick.Counted;
-        node["contribution"] = pick.Contribution;
-        return node.ToJsonString();
-    }
 
-    private static PointsBreakdown ReadBreakdown(string? json, int points) =>
-        string.IsNullOrWhiteSpace(json)
-            ? new PointsBreakdown { Total = points }
-            : JsonSerializer.Deserialize<PointsBreakdown>(json, Json) ?? new PointsBreakdown { Total = points };
 }

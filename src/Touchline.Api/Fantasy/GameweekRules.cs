@@ -52,11 +52,16 @@ public sealed class GameweekRules(FantasyRules rules)
     };
 
     /// <summary>
-    /// A gameweek can be finalised when the sync worker marked it complete, or when every fixture
-    /// in it has a final result (state 5, 7 or 8).
+    /// The legacy finalise gate, used only before migration 011 (settlement) is applied. Never finalises
+    /// on "all fixtures final" alone (runbook Part 1b): the sync worker must have marked the gameweek
+    /// complete, every fixture must be settled in the provider-state matrix (final, awarded, or won't
+    /// be played this gameweek) and at least one must have a final result. With 011, SettlementService
+    /// decides per fixture, and an admin's recorded resolution can stand in for the worker's evidence.
     /// </summary>
     public static bool CanFinalise(bool markedComplete, IReadOnlyCollection<short?> fixtureStates) =>
-        markedComplete || (fixtureStates.Count > 0 && fixtureStates.All(MatchStatusExtensions.IsFinal));
+        markedComplete
+        && fixtureStates.Any(MatchStatusExtensions.IsFinal)
+        && fixtureStates.All(s => MatchStateMatrix.For(s).Settled);
 }
 
 /// <summary>Private league rules (section 10).</summary>

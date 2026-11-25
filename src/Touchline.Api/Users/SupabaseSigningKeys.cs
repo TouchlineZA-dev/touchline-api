@@ -26,11 +26,15 @@ public sealed class SupabaseSigningKeys
     private DateTimeOffset _fetchedAt = DateTimeOffset.MinValue;
     private DateTimeOffset _lastAttempt = DateTimeOffset.MinValue;
 
+    private readonly TimeProvider _time;
+
     public SupabaseSigningKeys(
         IHttpClientFactory httpClientFactory,
         IOptions<SupabaseAuthOptions> options,
-        ILogger<SupabaseSigningKeys> logger)
+        ILogger<SupabaseSigningKeys> logger,
+        TimeProvider time)
     {
+        _time = time;
         _httpClientFactory = httpClientFactory;
         _logger = logger;
         _jwksUrl = options.Value.JwksUrl;
@@ -44,7 +48,7 @@ public sealed class SupabaseSigningKeys
     /// <summary>Used as TokenValidationParameters.IssuerSigningKeyResolver (synchronous by design).</summary>
     public IEnumerable<SecurityKey> GetKeys(string? kid)
     {
-        var now = DateTimeOffset.UtcNow;
+        var now = _time.GetUtcNow();
         var stale = now - _fetchedAt > CacheFor;
         var unknownKid = kid is not null && _keys.All(k => k.KeyId != kid);
 
@@ -63,11 +67,11 @@ public sealed class SupabaseSigningKeys
         await _refreshLock.WaitAsync();
         try
         {
-            if (DateTimeOffset.UtcNow - _lastAttempt <= MinGapBetweenFetches)
+            if (_time.GetUtcNow() - _lastAttempt <= MinGapBetweenFetches)
             {
                 return; // another request refreshed while we waited
             }
-            _lastAttempt = DateTimeOffset.UtcNow;
+            _lastAttempt = _time.GetUtcNow();
 
             var client = _httpClientFactory.CreateClient(HttpClientName);
             var json = await client.GetStringAsync(_jwksUrl);
@@ -77,7 +81,7 @@ public sealed class SupabaseSigningKeys
                 .Where(k => string.IsNullOrEmpty(k.Use) || k.Use == "sig")
                 .Cast<SecurityKey>()
                 .ToList();
-            _fetchedAt = DateTimeOffset.UtcNow;
+            _fetchedAt = _time.GetUtcNow();
 
             if (_keys.Count == 0)
             {

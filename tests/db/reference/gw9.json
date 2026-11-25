@@ -1,0 +1,7346 @@
+{
+ "fixtures": [
+  {
+   "id": 1395,
+   "sportmonks_fixture_id": 19781329,
+   "state_id": 5,
+   "home_team_id": 77,
+   "away_team_id": 146,
+   "home_score": 3,
+   "away_score": 2,
+   "starting_at": "2026-10-30T17:30:00+00:00",
+   "length": 90
+  },
+  {
+   "id": 1388,
+   "sportmonks_fixture_id": 19781318,
+   "state_id": 5,
+   "home_team_id": 123,
+   "away_team_id": 66,
+   "home_score": 1,
+   "away_score": 0,
+   "starting_at": "2026-10-31T13:30:00+00:00",
+   "length": 90
+  },
+  {
+   "id": 1393,
+   "sportmonks_fixture_id": 19781326,
+   "state_id": 5,
+   "home_team_id": 50,
+   "away_team_id": 76,
+   "home_score": 2,
+   "away_score": 1,
+   "starting_at": "2026-10-31T13:30:00+00:00",
+   "length": 90
+  },
+  {
+   "id": 1391,
+   "sportmonks_fixture_id": 19781323,
+   "state_id": 5,
+   "home_team_id": 69,
+   "away_team_id": 81,
+   "home_score": 1,
+   "away_score": 0,
+   "starting_at": "2026-10-31T16:00:00+00:00",
+   "length": 90
+  },
+  {
+   "id": 1392,
+   "sportmonks_fixture_id": 19781324,
+   "state_id": 5,
+   "home_team_id": 62,
+   "away_team_id": 65,
+   "home_score": 0,
+   "away_score": 0,
+   "starting_at": "2026-10-31T16:00:00+00:00",
+   "length": 90
+  },
+  {
+   "id": 1394,
+   "sportmonks_fixture_id": 19781327,
+   "state_id": 5,
+   "home_team_id": 60,
+   "away_team_id": 83,
+   "home_score": 0,
+   "away_score": 2,
+   "starting_at": "2026-10-31T16:00:00+00:00",
+   "length": 90
+  },
+  {
+   "id": 1389,
+   "sportmonks_fixture_id": 19781319,
+   "state_id": 5,
+   "home_team_id": 28,
+   "away_team_id": 96,
+   "home_score": 4,
+   "away_score": 1,
+   "starting_at": "2026-10-31T18:15:00+00:00",
+   "length": 90
+  },
+  {
+   "id": 1390,
+   "sportmonks_fixture_id": 19781321,
+   "state_id": 5,
+   "home_team_id": 90,
+   "away_team_id": 72,
+   "home_score": 3,
+   "away_score": 1,
+   "starting_at": "2026-10-31T18:15:00+00:00",
+   "length": 90
+  }
+ ],
+ "teams": [
+  {
+   "id": 28,
+   "sportmonks_team_id": 6755,
+   "name": "Mamelodi Sundowns",
+   "short_code": "MSU"
+  },
+  {
+   "id": 50,
+   "sportmonks_team_id": 9960,
+   "name": "Orlando Pirates",
+   "short_code": "ORL"
+  },
+  {
+   "id": 60,
+   "sportmonks_team_id": 3103,
+   "name": "Stellenbosch",
+   "short_code": "STE"
+  },
+  {
+   "id": 62,
+   "sportmonks_team_id": 12946,
+   "name": "Polokwane City",
+   "short_code": null
+  },
+  {
+   "id": 65,
+   "sportmonks_team_id": 228707,
+   "name": "TS Galaxy",
+   "short_code": "TSG"
+  },
+  {
+   "id": 66,
+   "sportmonks_team_id": 251707,
+   "name": "Sekhukhune United",
+   "short_code": "SEU"
+  },
+  {
+   "id": 69,
+   "sportmonks_team_id": 6973,
+   "name": "AmaZulu",
+   "short_code": "AMA"
+  },
+  {
+   "id": 72,
+   "sportmonks_team_id": 133378,
+   "name": "Richards Bay",
+   "short_code": "RIC"
+  },
+  {
+   "id": 76,
+   "sportmonks_team_id": 2541,
+   "name": "Kaizer Chiefs",
+   "short_code": "KAI"
+  },
+  {
+   "id": 77,
+   "sportmonks_team_id": 143574,
+   "name": "Marumo Gallants FC",
+   "short_code": "GAL"
+  },
+  {
+   "id": 81,
+   "sportmonks_team_id": 1555,
+   "name": "Golden Arrows",
+   "short_code": "GOL"
+  },
+  {
+   "id": 83,
+   "sportmonks_team_id": 13547,
+   "name": "Chippa United",
+   "short_code": "CHI"
+  },
+  {
+   "id": 90,
+   "sportmonks_team_id": 274104,
+   "name": "Kruger United",
+   "short_code": null
+  },
+  {
+   "id": 96,
+   "sportmonks_team_id": 274102,
+   "name": "Durban City",
+   "short_code": null
+  },
+  {
+   "id": 123,
+   "sportmonks_team_id": 270332,
+   "name": "Milford",
+   "short_code": null
+  },
+  {
+   "id": 146,
+   "sportmonks_team_id": 277354,
+   "name": "Siwelele",
+   "short_code": null
+  }
+ ],
+ "lineups": [
+  {
+   "sportmonks_lineup_id": 14675213727,
+   "fixture_id": 1388,
+   "team_id": 66,
+   "sportmonks_player_id": 289308,
+   "player_name": "N. Mobbie",
+   "jersey_number": 2,
+   "position_id": 25,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675213734,
+   "fixture_id": 1388,
+   "team_id": 66,
+   "sportmonks_player_id": 37618577,
+   "player_name": "Ngoanamello Rammala",
+   "jersey_number": 11,
+   "position_id": 26,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675213735,
+   "fixture_id": 1388,
+   "team_id": 66,
+   "sportmonks_player_id": 37618987,
+   "player_name": "Mcedi Vandala",
+   "jersey_number": 13,
+   "position_id": 26,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675213729,
+   "fixture_id": 1388,
+   "team_id": 66,
+   "sportmonks_player_id": 38206599,
+   "player_name": "Samba O'Neil",
+   "jersey_number": 14,
+   "position_id": 25,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675213732,
+   "fixture_id": 1388,
+   "team_id": 66,
+   "sportmonks_player_id": 30082138,
+   "player_name": "Siphesihle Mkhize",
+   "jersey_number": 15,
+   "position_id": 26,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675213730,
+   "fixture_id": 1388,
+   "team_id": 66,
+   "sportmonks_player_id": 37608827,
+   "player_name": "Athenkosi Mcaba",
+   "jersey_number": 26,
+   "position_id": 25,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675213728,
+   "fixture_id": 1388,
+   "team_id": 66,
+   "sportmonks_player_id": 37544414,
+   "player_name": "Tsepo Matsimbi",
+   "jersey_number": 28,
+   "position_id": 25,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675213726,
+   "fixture_id": 1388,
+   "team_id": 66,
+   "sportmonks_player_id": 23223427,
+   "player_name": "Melusi Buthelezi",
+   "jersey_number": 30,
+   "position_id": 24,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675213733,
+   "fixture_id": 1388,
+   "team_id": 66,
+   "sportmonks_player_id": 37779826,
+   "player_name": "Tshepo Mokoane",
+   "jersey_number": 31,
+   "position_id": 26,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675213731,
+   "fixture_id": 1388,
+   "team_id": 66,
+   "sportmonks_player_id": 22860319,
+   "player_name": "Givemore Khupe",
+   "jersey_number": 33,
+   "position_id": 26,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675213736,
+   "fixture_id": 1388,
+   "team_id": 66,
+   "sportmonks_player_id": 23223429,
+   "player_name": "Chibuike Ohizu",
+   "jersey_number": 34,
+   "position_id": 27,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675213749,
+   "fixture_id": 1388,
+   "team_id": 66,
+   "sportmonks_player_id": 37447070,
+   "player_name": "Bright Ndlovu",
+   "jersey_number": 3,
+   "position_id": 26,
+   "type_id": 12
+  },
+  {
+   "sportmonks_lineup_id": 14675213752,
+   "fixture_id": 1388,
+   "team_id": 66,
+   "sportmonks_player_id": 37590176,
+   "player_name": "Mokibelo Simon Ramabu",
+   "jersey_number": 7,
+   "position_id": 27,
+   "type_id": 12
+  },
+  {
+   "sportmonks_lineup_id": 14675213750,
+   "fixture_id": 1388,
+   "team_id": 66,
+   "sportmonks_player_id": 37771323,
+   "player_name": "Oageng Phiri",
+   "jersey_number": 8,
+   "position_id": 27,
+   "type_id": 12
+  },
+  {
+   "sportmonks_lineup_id": 14675213747,
+   "fixture_id": 1388,
+   "team_id": 66,
+   "sportmonks_player_id": 22860189,
+   "player_name": "Thato Khiba",
+   "jersey_number": 12,
+   "position_id": 25,
+   "type_id": 12
+  },
+  {
+   "sportmonks_lineup_id": 14675213746,
+   "fixture_id": 1388,
+   "team_id": 66,
+   "sportmonks_player_id": 406076,
+   "player_name": "Manuel Sapunga",
+   "jersey_number": 23,
+   "position_id": 24,
+   "type_id": 12
+  },
+  {
+   "sportmonks_lineup_id": 14675213753,
+   "fixture_id": 1388,
+   "team_id": 66,
+   "sportmonks_player_id": 37731574,
+   "player_name": "Thabang Makubo",
+   "jersey_number": 27,
+   "position_id": 27,
+   "type_id": 12
+  },
+  {
+   "sportmonks_lineup_id": 14675213748,
+   "fixture_id": 1388,
+   "team_id": 66,
+   "sportmonks_player_id": 37583885,
+   "player_name": "D'Angelo Shaheed Kazeem",
+   "jersey_number": 29,
+   "position_id": 25,
+   "type_id": 12
+  },
+  {
+   "sportmonks_lineup_id": 14675213751,
+   "fixture_id": 1388,
+   "team_id": 66,
+   "sportmonks_player_id": 37715082,
+   "player_name": "Siyabonga Ndlozi",
+   "jersey_number": 36,
+   "position_id": 27,
+   "type_id": 12
+  },
+  {
+   "sportmonks_lineup_id": 14675213754,
+   "fixture_id": 1388,
+   "team_id": 66,
+   "sportmonks_player_id": 37635528,
+   "player_name": "Bethuel Muzeu",
+   "jersey_number": 41,
+   "position_id": 27,
+   "type_id": 12
+  },
+  {
+   "sportmonks_lineup_id": 14675213717,
+   "fixture_id": 1388,
+   "team_id": 123,
+   "sportmonks_player_id": 38230591,
+   "player_name": "Mnqobi Mbhele",
+   "jersey_number": 3,
+   "position_id": 25,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675213722,
+   "fixture_id": 1388,
+   "team_id": 123,
+   "sportmonks_player_id": 1494612,
+   "player_name": "Menzi Chili",
+   "jersey_number": 10,
+   "position_id": 26,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675213724,
+   "fixture_id": 1388,
+   "team_id": 123,
+   "sportmonks_player_id": 37723047,
+   "player_name": "Mvelo Zikakayo",
+   "jersey_number": 11,
+   "position_id": 26,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675213719,
+   "fixture_id": 1388,
+   "team_id": 123,
+   "sportmonks_player_id": 3877065,
+   "player_name": "Sifiso Mdluli",
+   "jersey_number": 14,
+   "position_id": 25,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675213721,
+   "fixture_id": 1388,
+   "team_id": 123,
+   "sportmonks_player_id": 37715195,
+   "player_name": "Siphosethu Ndlabi",
+   "jersey_number": 21,
+   "position_id": 26,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675213718,
+   "fixture_id": 1388,
+   "team_id": 123,
+   "sportmonks_player_id": 37672364,
+   "player_name": "Olwethu Cele",
+   "jersey_number": 22,
+   "position_id": 25,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675213716,
+   "fixture_id": 1388,
+   "team_id": 123,
+   "sportmonks_player_id": 38216190,
+   "player_name": "Thobani Bhengu",
+   "jersey_number": 23,
+   "position_id": 25,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675213715,
+   "fixture_id": 1388,
+   "team_id": 123,
+   "sportmonks_player_id": 37423260,
+   "player_name": "Siphamandla Hleza",
+   "jersey_number": 32,
+   "position_id": 24,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675213723,
+   "fixture_id": 1388,
+   "team_id": 123,
+   "sportmonks_player_id": 37914852,
+   "player_name": "Yanelisa Nomandela",
+   "jersey_number": 38,
+   "position_id": 26,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675213720,
+   "fixture_id": 1388,
+   "team_id": 123,
+   "sportmonks_player_id": 37739882,
+   "player_name": "Mthethwa",
+   "jersey_number": 55,
+   "position_id": 26,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675213725,
+   "fixture_id": 1388,
+   "team_id": 123,
+   "sportmonks_player_id": 37771339,
+   "player_name": "Sicelo Masilela",
+   "jersey_number": 90,
+   "position_id": 27,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675213742,
+   "fixture_id": 1388,
+   "team_id": 123,
+   "sportmonks_player_id": 37418681,
+   "player_name": "Vusumuzi Mthabela",
+   "jersey_number": 5,
+   "position_id": 26,
+   "type_id": 12
+  },
+  {
+   "sportmonks_lineup_id": 14675213744,
+   "fixture_id": 1388,
+   "team_id": 123,
+   "sportmonks_player_id": 37715198,
+   "player_name": "Mjabulise Mkhize",
+   "jersey_number": 8,
+   "position_id": 27,
+   "type_id": 12
+  },
+  {
+   "sportmonks_lineup_id": 14675213741,
+   "fixture_id": 1388,
+   "team_id": 123,
+   "sportmonks_player_id": 38225490,
+   "player_name": "Phakamani Jwara",
+   "jersey_number": 12,
+   "position_id": 26,
+   "type_id": 12
+  },
+  {
+   "sportmonks_lineup_id": 14675213743,
+   "fixture_id": 1388,
+   "team_id": 123,
+   "sportmonks_player_id": 37715193,
+   "player_name": "Jabulile Gxakoshe",
+   "jersey_number": 17,
+   "position_id": 26,
+   "type_id": 12
+  },
+  {
+   "sportmonks_lineup_id": 14675213738,
+   "fixture_id": 1388,
+   "team_id": 123,
+   "sportmonks_player_id": 38216189,
+   "player_name": "Konke Khwanya",
+   "jersey_number": 18,
+   "position_id": 25,
+   "type_id": 12
+  },
+  {
+   "sportmonks_lineup_id": 14675213740,
+   "fixture_id": 1388,
+   "team_id": 123,
+   "sportmonks_player_id": 38230590,
+   "player_name": "Lilitha Dyonasi",
+   "jersey_number": 19,
+   "position_id": 26,
+   "type_id": 12
+  },
+  {
+   "sportmonks_lineup_id": 14675213745,
+   "fixture_id": 1388,
+   "team_id": 123,
+   "sportmonks_player_id": 38231765,
+   "player_name": "Ndumiso Siphosakhe",
+   "jersey_number": 24,
+   "position_id": 26,
+   "type_id": 12
+  },
+  {
+   "sportmonks_lineup_id": 14675213737,
+   "fixture_id": 1388,
+   "team_id": 123,
+   "sportmonks_player_id": 37715189,
+   "player_name": "Mfanufukile Madondo",
+   "jersey_number": 30,
+   "position_id": 24,
+   "type_id": 12
+  },
+  {
+   "sportmonks_lineup_id": 14675213739,
+   "fixture_id": 1388,
+   "team_id": 123,
+   "sportmonks_player_id": 37681884,
+   "player_name": "Thabana Mabena",
+   "jersey_number": 35,
+   "position_id": 26,
+   "type_id": 12
+  },
+  {
+   "sportmonks_lineup_id": 14675221620,
+   "fixture_id": 1389,
+   "team_id": 28,
+   "sportmonks_player_id": 37760511,
+   "player_name": "Khulumani Ndamane",
+   "jersey_number": 3,
+   "position_id": 25,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675221621,
+   "fixture_id": 1389,
+   "team_id": 28,
+   "sportmonks_player_id": 289096,
+   "player_name": "Aubrey Modiba",
+   "jersey_number": 6,
+   "position_id": 25,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675221623,
+   "fixture_id": 1389,
+   "team_id": 28,
+   "sportmonks_player_id": 2846627,
+   "player_name": "Nuno Santos",
+   "jersey_number": 10,
+   "position_id": 26,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675221622,
+   "fixture_id": 1389,
+   "team_id": 28,
+   "sportmonks_player_id": 1503717,
+   "player_name": "Marcelo Allende",
+   "jersey_number": 11,
+   "position_id": 26,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675221627,
+   "fixture_id": 1389,
+   "team_id": 28,
+   "sportmonks_player_id": 37555431,
+   "player_name": "Brayan León",
+   "jersey_number": 12,
+   "position_id": 27,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675221624,
+   "fixture_id": 1389,
+   "team_id": 28,
+   "sportmonks_player_id": 9939953,
+   "player_name": "Bathusi Aubaas",
+   "jersey_number": 15,
+   "position_id": 26,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675221625,
+   "fixture_id": 1389,
+   "team_id": 28,
+   "sportmonks_player_id": 21781500,
+   "player_name": "Tashreeq Matthews",
+   "jersey_number": 17,
+   "position_id": 26,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675221619,
+   "fixture_id": 1389,
+   "team_id": 28,
+   "sportmonks_player_id": 37583966,
+   "player_name": "Thabang Matuludi",
+   "jersey_number": 22,
+   "position_id": 25,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675221626,
+   "fixture_id": 1389,
+   "team_id": 28,
+   "sportmonks_player_id": 289380,
+   "player_name": "Ricardo Goss",
+   "jersey_number": 31,
+   "position_id": 24,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675221618,
+   "fixture_id": 1389,
+   "team_id": 28,
+   "sportmonks_player_id": 37653293,
+   "player_name": "Cassius Mailula",
+   "jersey_number": 33,
+   "position_id": 26,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675221617,
+   "fixture_id": 1389,
+   "team_id": 28,
+   "sportmonks_player_id": 37779184,
+   "player_name": "Malibongwe Khoza",
+   "jersey_number": 42,
+   "position_id": 25,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675221639,
+   "fixture_id": 1389,
+   "team_id": 28,
+   "sportmonks_player_id": 287237,
+   "player_name": "Denis Onyango",
+   "jersey_number": 1,
+   "position_id": 24,
+   "type_id": 12
+  },
+  {
+   "sportmonks_lineup_id": 14675221645,
+   "fixture_id": 1389,
+   "team_id": 28,
+   "sportmonks_player_id": 37562128,
+   "player_name": "Arthur Sales",
+   "jersey_number": 9,
+   "position_id": 27,
+   "type_id": 12
+  },
+  {
+   "sportmonks_lineup_id": 14675221646,
+   "fixture_id": 1389,
+   "team_id": 28,
+   "sportmonks_player_id": 1504475,
+   "player_name": "Iqraam Rayners",
+   "jersey_number": 13,
+   "position_id": 27,
+   "type_id": 12
+  },
+  {
+   "sportmonks_lineup_id": 14675221644,
+   "fixture_id": 1389,
+   "team_id": 28,
+   "sportmonks_player_id": 288275,
+   "player_name": "Themba Zwane",
+   "jersey_number": 18,
+   "position_id": 26,
+   "type_id": 12
+  },
+  {
+   "sportmonks_lineup_id": 14675221641,
+   "fixture_id": 1389,
+   "team_id": 28,
+   "sportmonks_player_id": 1486387,
+   "player_name": "Fawaaz Basadien",
+   "jersey_number": 23,
+   "position_id": 25,
+   "type_id": 12
+  },
+  {
+   "sportmonks_lineup_id": 14675221643,
+   "fixture_id": 1389,
+   "team_id": 28,
+   "sportmonks_player_id": 37571731,
+   "player_name": "Antonio Van Wyk",
+   "jersey_number": 29,
+   "position_id": 27,
+   "type_id": 12
+  },
+  {
+   "sportmonks_lineup_id": 14675221851,
+   "fixture_id": 1389,
+   "team_id": 28,
+   "sportmonks_player_id": 37614793,
+   "player_name": "Tsiki Ntsabeleng",
+   "jersey_number": 34,
+   "position_id": 26,
+   "type_id": 12
+  },
+  {
+   "sportmonks_lineup_id": 14675221642,
+   "fixture_id": 1389,
+   "team_id": 28,
+   "sportmonks_player_id": 38210468,
+   "player_name": "Siyanda Ndlovu",
+   "jersey_number": 38,
+   "position_id": 26,
+   "type_id": 12
+  },
+  {
+   "sportmonks_lineup_id": 14675221640,
+   "fixture_id": 1389,
+   "team_id": 28,
+   "sportmonks_player_id": 289369,
+   "player_name": "Mothobi Mvala",
+   "jersey_number": 40,
+   "position_id": 25,
+   "type_id": 12
+  },
+  {
+   "sportmonks_lineup_id": 14675221635,
+   "fixture_id": 1389,
+   "team_id": 96,
+   "sportmonks_player_id": 288883,
+   "player_name": "Bandile Shandu",
+   "jersey_number": 2,
+   "position_id": 25,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675221637,
+   "fixture_id": 1389,
+   "team_id": 96,
+   "sportmonks_player_id": 37551387,
+   "player_name": "Siphamandla Ncanana",
+   "jersey_number": 5,
+   "position_id": 25,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675221634,
+   "fixture_id": 1389,
+   "team_id": 96,
+   "sportmonks_player_id": 288070,
+   "player_name": "Letsie  Koapeng",
+   "jersey_number": 14,
+   "position_id": 27,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675221629,
+   "fixture_id": 1389,
+   "team_id": 96,
+   "sportmonks_player_id": 37648573,
+   "player_name": "Kyle Jurgens",
+   "jersey_number": 17,
+   "position_id": 26,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675221628,
+   "fixture_id": 1389,
+   "team_id": 96,
+   "sportmonks_player_id": 22860322,
+   "player_name": "Brooklyn Poggenpoel",
+   "jersey_number": 18,
+   "position_id": 26,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675221633,
+   "fixture_id": 1389,
+   "team_id": 96,
+   "sportmonks_player_id": 38200924,
+   "player_name": "Jean Lwamba",
+   "jersey_number": 20,
+   "position_id": 26,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675221631,
+   "fixture_id": 1389,
+   "team_id": 96,
+   "sportmonks_player_id": 37656403,
+   "player_name": "John Managa Mokone",
+   "jersey_number": 24,
+   "position_id": 25,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675221636,
+   "fixture_id": 1389,
+   "team_id": 96,
+   "sportmonks_player_id": 37434592,
+   "player_name": "Ethan Brooks",
+   "jersey_number": 28,
+   "position_id": 26,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675221632,
+   "fixture_id": 1389,
+   "team_id": 96,
+   "sportmonks_player_id": 37316384,
+   "player_name": "Mfanafuthi Mkhize",
+   "jersey_number": 30,
+   "position_id": 25,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675221630,
+   "fixture_id": 1389,
+   "team_id": 96,
+   "sportmonks_player_id": 30446965,
+   "player_name": "Fredrick Asare",
+   "jersey_number": 33,
+   "position_id": 24,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675221638,
+   "fixture_id": 1389,
+   "team_id": 96,
+   "sportmonks_player_id": 37619173,
+   "player_name": "Luphumlo Sifumba",
+   "jersey_number": 35,
+   "position_id": 26,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675221647,
+   "fixture_id": 1389,
+   "team_id": 96,
+   "sportmonks_player_id": 430554,
+   "player_name": "Salim Magoola",
+   "jersey_number": 1,
+   "position_id": 24,
+   "type_id": 12
+  },
+  {
+   "sportmonks_lineup_id": 14675221650,
+   "fixture_id": 1389,
+   "team_id": 96,
+   "sportmonks_player_id": 37773053,
+   "player_name": "Samkelo Maseko",
+   "jersey_number": 10,
+   "position_id": 26,
+   "type_id": 12
+  },
+  {
+   "sportmonks_lineup_id": 14675221652,
+   "fixture_id": 1389,
+   "team_id": 96,
+   "sportmonks_player_id": 37712864,
+   "player_name": "Seth Green",
+   "jersey_number": 13,
+   "position_id": 26,
+   "type_id": 12
+  },
+  {
+   "sportmonks_lineup_id": 14675221648,
+   "fixture_id": 1389,
+   "team_id": 96,
+   "sportmonks_player_id": 37618286,
+   "player_name": "Bokang Mokwena",
+   "jersey_number": 15,
+   "position_id": 26,
+   "type_id": 12
+  },
+  {
+   "sportmonks_lineup_id": 14675221649,
+   "fixture_id": 1389,
+   "team_id": 96,
+   "sportmonks_player_id": 37715295,
+   "player_name": "Lifa Sylvester Makua",
+   "jersey_number": 16,
+   "position_id": 26,
+   "type_id": 12
+  },
+  {
+   "sportmonks_lineup_id": 14675221651,
+   "fixture_id": 1389,
+   "team_id": 96,
+   "sportmonks_player_id": 37907872,
+   "player_name": "Tylo Jordan Sanger",
+   "jersey_number": 23,
+   "position_id": 25,
+   "type_id": 12
+  },
+  {
+   "sportmonks_lineup_id": 14675221655,
+   "fixture_id": 1389,
+   "team_id": 96,
+   "sportmonks_player_id": 289303,
+   "player_name": "T. Nodada",
+   "jersey_number": 26,
+   "position_id": 26,
+   "type_id": 12
+  },
+  {
+   "sportmonks_lineup_id": 14675221653,
+   "fixture_id": 1389,
+   "team_id": 96,
+   "sportmonks_player_id": 38221307,
+   "player_name": "Siyabonga Vukile Msomi",
+   "jersey_number": 27,
+   "position_id": 27,
+   "type_id": 12
+  },
+  {
+   "sportmonks_lineup_id": 14675221654,
+   "fixture_id": 1389,
+   "team_id": 96,
+   "sportmonks_player_id": 37666126,
+   "player_name": "Alou Doumbia",
+   "jersey_number": 29,
+   "position_id": 26,
+   "type_id": 12
+  },
+  {
+   "sportmonks_lineup_id": 14675222099,
+   "fixture_id": 1390,
+   "team_id": 72,
+   "sportmonks_player_id": 37760510,
+   "player_name": "Sbani Khumalo",
+   "jersey_number": 3,
+   "position_id": 25,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675222100,
+   "fixture_id": 1390,
+   "team_id": 72,
+   "sportmonks_player_id": 288680,
+   "player_name": "Thembela Sikhakhane",
+   "jersey_number": 5,
+   "position_id": 25,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675222104,
+   "fixture_id": 1390,
+   "team_id": 72,
+   "sportmonks_player_id": 37583416,
+   "player_name": "Sazi Gumbi",
+   "jersey_number": 12,
+   "position_id": 26,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675222097,
+   "fixture_id": 1390,
+   "team_id": 72,
+   "sportmonks_player_id": 37732755,
+   "player_name": "Nhlakanipho Ngcobo",
+   "jersey_number": 16,
+   "position_id": 24,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675222102,
+   "fixture_id": 1390,
+   "team_id": 72,
+   "sportmonks_player_id": 37379118,
+   "player_name": "Moses Mthembu",
+   "jersey_number": 20,
+   "position_id": 26,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675222101,
+   "fixture_id": 1390,
+   "team_id": 72,
+   "sportmonks_player_id": 37549864,
+   "player_name": "L. Mabuya",
+   "jersey_number": 22,
+   "position_id": 25,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675222103,
+   "fixture_id": 1390,
+   "team_id": 72,
+   "sportmonks_player_id": 37702399,
+   "player_name": "Siyabonga Gumede",
+   "jersey_number": 24,
+   "position_id": 25,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675222107,
+   "fixture_id": 1390,
+   "team_id": 72,
+   "sportmonks_player_id": 37762200,
+   "player_name": "Nqaba Xulu",
+   "jersey_number": 27,
+   "position_id": 27,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675222105,
+   "fixture_id": 1390,
+   "team_id": 72,
+   "sportmonks_player_id": 22860311,
+   "player_name": "Sanele Barns",
+   "jersey_number": 30,
+   "position_id": 26,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675222098,
+   "fixture_id": 1390,
+   "team_id": 72,
+   "sportmonks_player_id": 37740910,
+   "player_name": "Sphamandla Gwele",
+   "jersey_number": 37,
+   "position_id": 26,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675222106,
+   "fixture_id": 1390,
+   "team_id": 72,
+   "sportmonks_player_id": 38205263,
+   "player_name": "Luyanda Khumalo",
+   "jersey_number": 77,
+   "position_id": 26,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675222124,
+   "fixture_id": 1390,
+   "team_id": 72,
+   "sportmonks_player_id": 37354706,
+   "player_name": "Ian Otieno",
+   "jersey_number": 1,
+   "position_id": 24,
+   "type_id": 12
+  },
+  {
+   "sportmonks_lineup_id": 14675222128,
+   "fixture_id": 1390,
+   "team_id": 72,
+   "sportmonks_player_id": 37789939,
+   "player_name": "Lindokuhle Zikhali",
+   "jersey_number": 8,
+   "position_id": 26,
+   "type_id": 12
+  },
+  {
+   "sportmonks_lineup_id": 14675222132,
+   "fixture_id": 1390,
+   "team_id": 72,
+   "sportmonks_player_id": 38201512,
+   "player_name": "Lundi Mahala",
+   "jersey_number": 14,
+   "position_id": 27,
+   "type_id": 12
+  },
+  {
+   "sportmonks_lineup_id": 14675222125,
+   "fixture_id": 1390,
+   "team_id": 72,
+   "sportmonks_player_id": 38201514,
+   "player_name": "Ntokozo Nzama",
+   "jersey_number": 15,
+   "position_id": 26,
+   "type_id": 12
+  },
+  {
+   "sportmonks_lineup_id": 14675222126,
+   "fixture_id": 1390,
+   "team_id": 72,
+   "sportmonks_player_id": 38210414,
+   "player_name": "Siyabonga Nzama",
+   "jersey_number": 19,
+   "position_id": 26,
+   "type_id": 12
+  },
+  {
+   "sportmonks_lineup_id": 14675222131,
+   "fixture_id": 1390,
+   "team_id": 72,
+   "sportmonks_player_id": 37786238,
+   "player_name": "Philani Sithebe",
+   "jersey_number": 21,
+   "position_id": 26,
+   "type_id": 12
+  },
+  {
+   "sportmonks_lineup_id": 14675222129,
+   "fixture_id": 1390,
+   "team_id": 72,
+   "sportmonks_player_id": 37914624,
+   "player_name": "W. Ngema",
+   "jersey_number": 33,
+   "position_id": 26,
+   "type_id": 12
+  },
+  {
+   "sportmonks_lineup_id": 14675222127,
+   "fixture_id": 1390,
+   "team_id": 72,
+   "sportmonks_player_id": 37752139,
+   "player_name": "Thabisa Ndelu",
+   "jersey_number": 35,
+   "position_id": 25,
+   "type_id": 12
+  },
+  {
+   "sportmonks_lineup_id": 14675222130,
+   "fixture_id": 1390,
+   "team_id": 72,
+   "sportmonks_player_id": 37947704,
+   "player_name": "Nkosiyethu Mkhabela",
+   "jersey_number": 49,
+   "position_id": 26,
+   "type_id": 12
+  },
+  {
+   "sportmonks_lineup_id": 14675222088,
+   "fixture_id": 1390,
+   "team_id": 90,
+   "sportmonks_player_id": 22426140,
+   "player_name": "Sipho Sibiya",
+   "jersey_number": 4,
+   "position_id": 25,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675222096,
+   "fixture_id": 1390,
+   "team_id": 90,
+   "sportmonks_player_id": 1504508,
+   "player_name": "Wonderboy Makhubu",
+   "jersey_number": 9,
+   "position_id": 27,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675222095,
+   "fixture_id": 1390,
+   "team_id": 90,
+   "sportmonks_player_id": 5337031,
+   "player_name": "Ntsako Makhubela",
+   "jersey_number": 10,
+   "position_id": 27,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675222090,
+   "fixture_id": 1390,
+   "team_id": 90,
+   "sportmonks_player_id": 37773268,
+   "player_name": "Boitumelo Malatjie",
+   "jersey_number": 12,
+   "position_id": 26,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675222091,
+   "fixture_id": 1390,
+   "team_id": 90,
+   "sportmonks_player_id": 193219,
+   "player_name": "Ebrahim Seedat",
+   "jersey_number": 13,
+   "position_id": 26,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675222086,
+   "fixture_id": 1390,
+   "team_id": 90,
+   "sportmonks_player_id": 766625,
+   "player_name": "Marcel Dandjinou",
+   "jersey_number": 16,
+   "position_id": 24,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675222094,
+   "fixture_id": 1390,
+   "team_id": 90,
+   "sportmonks_player_id": 3861267,
+   "player_name": "Celimpilo Ngema",
+   "jersey_number": 20,
+   "position_id": 27,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675222087,
+   "fixture_id": 1390,
+   "team_id": 90,
+   "sportmonks_player_id": 37648182,
+   "player_name": "Asekho Tiwani",
+   "jersey_number": 27,
+   "position_id": 25,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675222092,
+   "fixture_id": 1390,
+   "team_id": 90,
+   "sportmonks_player_id": 37771337,
+   "player_name": "Nkosinathi Thwala",
+   "jersey_number": 28,
+   "position_id": 26,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675222093,
+   "fixture_id": 1390,
+   "team_id": 90,
+   "sportmonks_player_id": 1490667,
+   "player_name": "Motsie Matima",
+   "jersey_number": 35,
+   "position_id": 26,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675222089,
+   "fixture_id": 1390,
+   "team_id": 90,
+   "sportmonks_player_id": 289683,
+   "player_name": "A. Konqobe",
+   "jersey_number": 55,
+   "position_id": 25,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675222122,
+   "fixture_id": 1390,
+   "team_id": 90,
+   "sportmonks_player_id": 37744865,
+   "player_name": "Mlungisi Zwane",
+   "jersey_number": 7,
+   "position_id": 26,
+   "type_id": 12
+  },
+  {
+   "sportmonks_lineup_id": 14675222358,
+   "fixture_id": 1390,
+   "team_id": 90,
+   "sportmonks_player_id": null,
+   "player_name": "Tumelo Mmakgolane",
+   "jersey_number": 19,
+   "position_id": 27,
+   "type_id": 12
+  },
+  {
+   "sportmonks_lineup_id": 14675222123,
+   "fixture_id": 1390,
+   "team_id": 90,
+   "sportmonks_player_id": 37549622,
+   "player_name": "Khetukuthula Ndlovu",
+   "jersey_number": 22,
+   "position_id": 26,
+   "type_id": 12
+  },
+  {
+   "sportmonks_lineup_id": 14675222118,
+   "fixture_id": 1390,
+   "team_id": 90,
+   "sportmonks_player_id": 2823377,
+   "player_name": "Katlego Mohamme",
+   "jersey_number": 26,
+   "position_id": 25,
+   "type_id": 12
+  },
+  {
+   "sportmonks_lineup_id": 14675222121,
+   "fixture_id": 1390,
+   "team_id": 90,
+   "sportmonks_player_id": 38230282,
+   "player_name": "Mancoba Zwane",
+   "jersey_number": 30,
+   "position_id": 26,
+   "type_id": 12
+  },
+  {
+   "sportmonks_lineup_id": 14675222120,
+   "fixture_id": 1390,
+   "team_id": 90,
+   "sportmonks_player_id": 4925873,
+   "player_name": "S. Mahlangu",
+   "jersey_number": 38,
+   "position_id": 26,
+   "type_id": 12
+  },
+  {
+   "sportmonks_lineup_id": 14675222119,
+   "fixture_id": 1390,
+   "team_id": 90,
+   "sportmonks_player_id": 37553500,
+   "player_name": "Tatenda Tavengwa",
+   "jersey_number": 44,
+   "position_id": 26,
+   "type_id": 12
+  },
+  {
+   "sportmonks_lineup_id": 14675222117,
+   "fixture_id": 1390,
+   "team_id": 90,
+   "sportmonks_player_id": 288891,
+   "player_name": "K. Mngonyama",
+   "jersey_number": 45,
+   "position_id": 25,
+   "type_id": 12
+  },
+  {
+   "sportmonks_lineup_id": 14675222357,
+   "fixture_id": 1390,
+   "team_id": 90,
+   "sportmonks_player_id": 37688169,
+   "player_name": "P. Manqele",
+   "jersey_number": 48,
+   "position_id": 24,
+   "type_id": 12
+  },
+  {
+   "sportmonks_lineup_id": 14675222116,
+   "fixture_id": 1390,
+   "team_id": 90,
+   "sportmonks_player_id": null,
+   "player_name": "Tumelo Mmakgolane",
+   "jersey_number": 98,
+   "position_id": 27,
+   "type_id": 12
+  },
+  {
+   "sportmonks_lineup_id": 14675222115,
+   "fixture_id": 1390,
+   "team_id": 90,
+   "sportmonks_player_id": 37688169,
+   "player_name": "P. Manqele",
+   "jersey_number": 99,
+   "position_id": 24,
+   "type_id": 12
+  },
+  {
+   "sportmonks_lineup_id": 14675218923,
+   "fixture_id": 1391,
+   "team_id": 69,
+   "sportmonks_player_id": 37529803,
+   "player_name": "Olwethu Mzimela",
+   "jersey_number": 1,
+   "position_id": 24,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675218933,
+   "fixture_id": 1391,
+   "team_id": 69,
+   "sportmonks_player_id": 37719994,
+   "player_name": "Athini Maqokola",
+   "jersey_number": 2,
+   "position_id": 27,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675218931,
+   "fixture_id": 1391,
+   "team_id": 69,
+   "sportmonks_player_id": 37762072,
+   "player_name": "Omega Mdaka",
+   "jersey_number": 3,
+   "position_id": 25,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675218927,
+   "fixture_id": 1391,
+   "team_id": 69,
+   "sportmonks_player_id": 1507189,
+   "player_name": "Riaan Hanamub",
+   "jersey_number": 4,
+   "position_id": 25,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675218930,
+   "fixture_id": 1391,
+   "team_id": 69,
+   "sportmonks_player_id": 37707846,
+   "player_name": "Siyanda Hlangabeza",
+   "jersey_number": 6,
+   "position_id": 26,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675218929,
+   "fixture_id": 1391,
+   "team_id": 69,
+   "sportmonks_player_id": 12016891,
+   "player_name": "S. Maduna",
+   "jersey_number": 10,
+   "position_id": 26,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675218926,
+   "fixture_id": 1391,
+   "team_id": 69,
+   "sportmonks_player_id": 288846,
+   "player_name": "Taariq Fielies",
+   "jersey_number": 12,
+   "position_id": 25,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675218924,
+   "fixture_id": 1391,
+   "team_id": 69,
+   "sportmonks_player_id": 37625553,
+   "player_name": "Nkosikhona Radebe",
+   "jersey_number": 14,
+   "position_id": 26,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675218928,
+   "fixture_id": 1391,
+   "team_id": 69,
+   "sportmonks_player_id": 37291269,
+   "player_name": "Mondli Mbanjwa",
+   "jersey_number": 15,
+   "position_id": 26,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675218932,
+   "fixture_id": 1391,
+   "team_id": 69,
+   "sportmonks_player_id": 37592411,
+   "player_name": "Thandolwenkosi Methuseli Ngwenya",
+   "jersey_number": 23,
+   "position_id": 27,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675218925,
+   "fixture_id": 1391,
+   "team_id": 69,
+   "sportmonks_player_id": 1507160,
+   "player_name": "Sandile Mthethwa",
+   "jersey_number": 42,
+   "position_id": 25,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675218946,
+   "fixture_id": 1391,
+   "team_id": 69,
+   "sportmonks_player_id": 37579203,
+   "player_name": "K. Allan",
+   "jersey_number": 5,
+   "position_id": 25,
+   "type_id": 12
+  },
+  {
+   "sportmonks_lineup_id": 14675218951,
+   "fixture_id": 1391,
+   "team_id": 69,
+   "sportmonks_player_id": 37549624,
+   "player_name": "Khomotjo Lekoloane",
+   "jersey_number": 8,
+   "position_id": 26,
+   "type_id": 12
+  },
+  {
+   "sportmonks_lineup_id": 14675218949,
+   "fixture_id": 1391,
+   "team_id": 69,
+   "sportmonks_player_id": 37602220,
+   "player_name": "Liam Bern",
+   "jersey_number": 17,
+   "position_id": 25,
+   "type_id": 12
+  },
+  {
+   "sportmonks_lineup_id": 14675218950,
+   "fixture_id": 1391,
+   "team_id": 69,
+   "sportmonks_player_id": 37735392,
+   "player_name": "Sphamandla Zikhali",
+   "jersey_number": 19,
+   "position_id": 26,
+   "type_id": 12
+  },
+  {
+   "sportmonks_lineup_id": 14675218952,
+   "fixture_id": 1391,
+   "team_id": 69,
+   "sportmonks_player_id": 37773273,
+   "player_name": "Thapelo Matlhoko",
+   "jersey_number": 21,
+   "position_id": 26,
+   "type_id": 12
+  },
+  {
+   "sportmonks_lineup_id": 14675218945,
+   "fixture_id": 1391,
+   "team_id": 69,
+   "sportmonks_player_id": 37907023,
+   "player_name": "Faveur Wilfried Kouassi",
+   "jersey_number": 24,
+   "position_id": 24,
+   "type_id": 12
+  },
+  {
+   "sportmonks_lineup_id": 14675218953,
+   "fixture_id": 1391,
+   "team_id": 69,
+   "sportmonks_player_id": 288995,
+   "player_name": "Hendrick Ekstein",
+   "jersey_number": 27,
+   "position_id": 26,
+   "type_id": 12
+  },
+  {
+   "sportmonks_lineup_id": 14675218947,
+   "fixture_id": 1391,
+   "team_id": 69,
+   "sportmonks_player_id": 30082137,
+   "player_name": "Keenan Phillips",
+   "jersey_number": 33,
+   "position_id": 25,
+   "type_id": 12
+  },
+  {
+   "sportmonks_lineup_id": 14675218948,
+   "fixture_id": 1391,
+   "team_id": 69,
+   "sportmonks_player_id": 37584107,
+   "player_name": "L. Mhlongo",
+   "jersey_number": 50,
+   "position_id": 26,
+   "type_id": 12
+  },
+  {
+   "sportmonks_lineup_id": 14675218935,
+   "fixture_id": 1391,
+   "team_id": 81,
+   "sportmonks_player_id": 37551386,
+   "player_name": "Khulekani Shezi",
+   "jersey_number": 3,
+   "position_id": 25,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675218936,
+   "fixture_id": 1391,
+   "team_id": 81,
+   "sportmonks_player_id": 37714261,
+   "player_name": "Ayanda Jiyane",
+   "jersey_number": 4,
+   "position_id": 25,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675218943,
+   "fixture_id": 1391,
+   "team_id": 81,
+   "sportmonks_player_id": 37551650,
+   "player_name": "Junior Dion",
+   "jersey_number": 18,
+   "position_id": 27,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675218934,
+   "fixture_id": 1391,
+   "team_id": 81,
+   "sportmonks_player_id": 289214,
+   "player_name": "Dumsani Msibi",
+   "jersey_number": 19,
+   "position_id": 24,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675218940,
+   "fixture_id": 1391,
+   "team_id": 81,
+   "sportmonks_player_id": 37291256,
+   "player_name": "Nqobeko Dlamini",
+   "jersey_number": 24,
+   "position_id": 26,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675218939,
+   "fixture_id": 1391,
+   "team_id": 81,
+   "sportmonks_player_id": 37566486,
+   "player_name": "Ayabulela Maxwele",
+   "jersey_number": 25,
+   "position_id": 26,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675218937,
+   "fixture_id": 1391,
+   "team_id": 81,
+   "sportmonks_player_id": 37699787,
+   "player_name": "Eroine Agnikoi",
+   "jersey_number": 26,
+   "position_id": 25,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675218944,
+   "fixture_id": 1391,
+   "team_id": 81,
+   "sportmonks_player_id": 37707847,
+   "player_name": "Sabelo Sithole",
+   "jersey_number": 29,
+   "position_id": 27,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675218942,
+   "fixture_id": 1391,
+   "team_id": 81,
+   "sportmonks_player_id": 37551385,
+   "player_name": "Philani Kumalo",
+   "jersey_number": 36,
+   "position_id": 27,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675218938,
+   "fixture_id": 1391,
+   "team_id": 81,
+   "sportmonks_player_id": 38200926,
+   "player_name": "Ntandoyenkosi Mabaso",
+   "jersey_number": 38,
+   "position_id": 25,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675218941,
+   "fixture_id": 1391,
+   "team_id": 81,
+   "sportmonks_player_id": 37604204,
+   "player_name": "Nhlanhla Zwane",
+   "jersey_number": 41,
+   "position_id": 26,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675218955,
+   "fixture_id": 1391,
+   "team_id": 81,
+   "sportmonks_player_id": 37711435,
+   "player_name": "Osborn Maluleke",
+   "jersey_number": 20,
+   "position_id": 26,
+   "type_id": 12
+  },
+  {
+   "sportmonks_lineup_id": 14675218960,
+   "fixture_id": 1391,
+   "team_id": 81,
+   "sportmonks_player_id": 38200961,
+   "player_name": "Jerome Karelse",
+   "jersey_number": 22,
+   "position_id": 27,
+   "type_id": 12
+  },
+  {
+   "sportmonks_lineup_id": 14675218957,
+   "fixture_id": 1391,
+   "team_id": 81,
+   "sportmonks_player_id": 38223049,
+   "player_name": "Ousman Barry",
+   "jersey_number": 23,
+   "position_id": 26,
+   "type_id": 12
+  },
+  {
+   "sportmonks_lineup_id": 14675218954,
+   "fixture_id": 1391,
+   "team_id": 81,
+   "sportmonks_player_id": 289657,
+   "player_name": "Thakasani Mbanjwa",
+   "jersey_number": 27,
+   "position_id": 24,
+   "type_id": 12
+  },
+  {
+   "sportmonks_lineup_id": 14675218961,
+   "fixture_id": 1391,
+   "team_id": 81,
+   "sportmonks_player_id": 37716955,
+   "player_name": "Ronaldo van Neel",
+   "jersey_number": 28,
+   "position_id": 26,
+   "type_id": 12
+  },
+  {
+   "sportmonks_lineup_id": 14675218959,
+   "fixture_id": 1391,
+   "team_id": 81,
+   "sportmonks_player_id": 37527954,
+   "player_name": "Lungelo Nguse",
+   "jersey_number": 40,
+   "position_id": 27,
+   "type_id": 12
+  },
+  {
+   "sportmonks_lineup_id": 14675218956,
+   "fixture_id": 1391,
+   "team_id": 81,
+   "sportmonks_player_id": 38221811,
+   "player_name": "Phabonke Mbatha",
+   "jersey_number": 44,
+   "position_id": 25,
+   "type_id": 12
+  },
+  {
+   "sportmonks_lineup_id": 14675218958,
+   "fixture_id": 1391,
+   "team_id": 81,
+   "sportmonks_player_id": 3876830,
+   "player_name": "Siphesile Msomi",
+   "jersey_number": 46,
+   "position_id": 26,
+   "type_id": 12
+  },
+  {
+   "sportmonks_lineup_id": 14675218962,
+   "fixture_id": 1391,
+   "team_id": 81,
+   "sportmonks_player_id": 38210469,
+   "player_name": "Nhlanhla Gasa",
+   "jersey_number": 49,
+   "position_id": 27,
+   "type_id": 12
+  },
+  {
+   "sportmonks_lineup_id": 14675219488,
+   "fixture_id": 1392,
+   "team_id": 62,
+   "sportmonks_player_id": 37604529,
+   "player_name": "Tlou Nkwe",
+   "jersey_number": 3,
+   "position_id": 25,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675219493,
+   "fixture_id": 1392,
+   "team_id": 62,
+   "sportmonks_player_id": 37661388,
+   "player_name": "Bonginkosi Dlamini",
+   "jersey_number": 17,
+   "position_id": 26,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675219490,
+   "fixture_id": 1392,
+   "team_id": 62,
+   "sportmonks_player_id": 37550321,
+   "player_name": "G. Philander",
+   "jersey_number": 18,
+   "position_id": 26,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675219489,
+   "fixture_id": 1392,
+   "team_id": 62,
+   "sportmonks_player_id": 475006,
+   "player_name": "Manuel Kambala",
+   "jersey_number": 21,
+   "position_id": 26,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675219486,
+   "fixture_id": 1392,
+   "team_id": 62,
+   "sportmonks_player_id": 37661391,
+   "player_name": "Edwin Ramaja",
+   "jersey_number": 22,
+   "position_id": 25,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675219492,
+   "fixture_id": 1392,
+   "team_id": 62,
+   "sportmonks_player_id": 37915423,
+   "player_name": "Lucky Mahlatse Malatsi",
+   "jersey_number": 28,
+   "position_id": 26,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675219494,
+   "fixture_id": 1392,
+   "team_id": 62,
+   "sportmonks_player_id": 37681870,
+   "player_name": "Msindisi Khosa",
+   "jersey_number": 29,
+   "position_id": 27,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675219487,
+   "fixture_id": 1392,
+   "team_id": 62,
+   "sportmonks_player_id": 37667491,
+   "player_name": "Lebohang Petrus Nkaki",
+   "jersey_number": 34,
+   "position_id": 25,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675219485,
+   "fixture_id": 1392,
+   "team_id": 62,
+   "sportmonks_player_id": 37916515,
+   "player_name": "Surprise Semangele Manthosi",
+   "jersey_number": 42,
+   "position_id": 25,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675219491,
+   "fixture_id": 1392,
+   "team_id": 62,
+   "sportmonks_player_id": 37790056,
+   "player_name": "Monty Batlhabane",
+   "jersey_number": 47,
+   "position_id": 26,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675219484,
+   "fixture_id": 1392,
+   "team_id": 62,
+   "sportmonks_player_id": 289230,
+   "player_name": "Oscarine Masuluke",
+   "jersey_number": 50,
+   "position_id": 24,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675219508,
+   "fixture_id": 1392,
+   "team_id": 62,
+   "sportmonks_player_id": 37583968,
+   "player_name": "Bulelani Nikani",
+   "jersey_number": 4,
+   "position_id": 25,
+   "type_id": 12
+  },
+  {
+   "sportmonks_lineup_id": 14675219511,
+   "fixture_id": 1392,
+   "team_id": 62,
+   "sportmonks_player_id": 37420457,
+   "player_name": "Sapholwethu Kelepu",
+   "jersey_number": 6,
+   "position_id": 25,
+   "type_id": 12
+  },
+  {
+   "sportmonks_lineup_id": 14675219512,
+   "fixture_id": 1392,
+   "team_id": 62,
+   "sportmonks_player_id": 37414417,
+   "player_name": "Ndamulelo Rodney Maphangule",
+   "jersey_number": 14,
+   "position_id": 26,
+   "type_id": 12
+  },
+  {
+   "sportmonks_lineup_id": 14675219514,
+   "fixture_id": 1392,
+   "team_id": 62,
+   "sportmonks_player_id": 38201324,
+   "player_name": "Siyabonga Mashini",
+   "jersey_number": 16,
+   "position_id": 26,
+   "type_id": 12
+  },
+  {
+   "sportmonks_lineup_id": 14675219507,
+   "fixture_id": 1392,
+   "team_id": 62,
+   "sportmonks_player_id": 30082134,
+   "player_name": "M. Modise",
+   "jersey_number": 27,
+   "position_id": 25,
+   "type_id": 12
+  },
+  {
+   "sportmonks_lineup_id": 14675219510,
+   "fixture_id": 1392,
+   "team_id": 62,
+   "sportmonks_player_id": 37760120,
+   "player_name": "Juan Adrian Mutudza",
+   "jersey_number": 36,
+   "position_id": 26,
+   "type_id": 12
+  },
+  {
+   "sportmonks_lineup_id": 14675219506,
+   "fixture_id": 1392,
+   "team_id": 62,
+   "sportmonks_player_id": 3861273,
+   "player_name": "Lindokuhle Mathebula",
+   "jersey_number": 40,
+   "position_id": 24,
+   "type_id": 12
+  },
+  {
+   "sportmonks_lineup_id": 14675219513,
+   "fixture_id": 1392,
+   "team_id": 62,
+   "sportmonks_player_id": 38225873,
+   "player_name": "Tidimalo Molokwane",
+   "jersey_number": 44,
+   "position_id": 26,
+   "type_id": 12
+  },
+  {
+   "sportmonks_lineup_id": 14675219509,
+   "fixture_id": 1392,
+   "team_id": 62,
+   "sportmonks_player_id": 37757357,
+   "player_name": "A. Mashele",
+   "jersey_number": 48,
+   "position_id": 25,
+   "type_id": 12
+  },
+  {
+   "sportmonks_lineup_id": 14675219500,
+   "fixture_id": 1392,
+   "team_id": 65,
+   "sportmonks_player_id": 22860305,
+   "player_name": "M. Mahlangu",
+   "jersey_number": 4,
+   "position_id": 25,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675219499,
+   "fixture_id": 1392,
+   "team_id": 65,
+   "sportmonks_player_id": 37944920,
+   "player_name": "Seluleko Mahlambi",
+   "jersey_number": 7,
+   "position_id": 26,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675219501,
+   "fixture_id": 1392,
+   "team_id": 65,
+   "sportmonks_player_id": 1501202,
+   "player_name": "M. Mbunjana",
+   "jersey_number": 8,
+   "position_id": 26,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675219505,
+   "fixture_id": 1392,
+   "team_id": 65,
+   "sportmonks_player_id": 37594001,
+   "player_name": "Anslin Williams",
+   "jersey_number": 11,
+   "position_id": 27,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675219502,
+   "fixture_id": 1392,
+   "team_id": 65,
+   "sportmonks_player_id": 37583924,
+   "player_name": "Tshepo Kakora",
+   "jersey_number": 14,
+   "position_id": 26,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675219504,
+   "fixture_id": 1392,
+   "team_id": 65,
+   "sportmonks_player_id": 289469,
+   "player_name": "Victor Letsoalo",
+   "jersey_number": 17,
+   "position_id": 27,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675219503,
+   "fixture_id": 1392,
+   "team_id": 65,
+   "sportmonks_player_id": 21054882,
+   "player_name": "Junior Zindoga",
+   "jersey_number": 21,
+   "position_id": 26,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675219496,
+   "fixture_id": 1392,
+   "team_id": 65,
+   "sportmonks_player_id": 38225484,
+   "player_name": "Lennol Mathebula",
+   "jersey_number": 24,
+   "position_id": 25,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675219497,
+   "fixture_id": 1392,
+   "team_id": 65,
+   "sportmonks_player_id": 37740008,
+   "player_name": "Katekani Mhlongo",
+   "jersey_number": 25,
+   "position_id": 25,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675219495,
+   "fixture_id": 1392,
+   "team_id": 65,
+   "sportmonks_player_id": 38210417,
+   "player_name": "Melusi Mathebula",
+   "jersey_number": 32,
+   "position_id": 24,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675219498,
+   "fixture_id": 1392,
+   "team_id": 65,
+   "sportmonks_player_id": 37296194,
+   "player_name": "Sifiso Ngobeni",
+   "jersey_number": 33,
+   "position_id": 25,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675219519,
+   "fixture_id": 1392,
+   "team_id": 65,
+   "sportmonks_player_id": 288936,
+   "player_name": "M. Mvelase",
+   "jersey_number": 2,
+   "position_id": 25,
+   "type_id": 12
+  },
+  {
+   "sportmonks_lineup_id": 14675219517,
+   "fixture_id": 1392,
+   "team_id": 65,
+   "sportmonks_player_id": 37561561,
+   "player_name": "Igor Salatiel Silva",
+   "jersey_number": 5,
+   "position_id": 25,
+   "type_id": 12
+  },
+  {
+   "sportmonks_lineup_id": 14675219520,
+   "fixture_id": 1392,
+   "team_id": 65,
+   "sportmonks_player_id": 37673124,
+   "player_name": "Ntandoyenkosi Nkosi",
+   "jersey_number": 6,
+   "position_id": 26,
+   "type_id": 12
+  },
+  {
+   "sportmonks_lineup_id": 14675219521,
+   "fixture_id": 1392,
+   "team_id": 65,
+   "sportmonks_player_id": 38225489,
+   "player_name": "Siphesihle Tati",
+   "jersey_number": 10,
+   "position_id": 26,
+   "type_id": 12
+  },
+  {
+   "sportmonks_lineup_id": 14675219516,
+   "fixture_id": 1392,
+   "team_id": 65,
+   "sportmonks_player_id": 169816,
+   "player_name": "Siyanda Xulu",
+   "jersey_number": 13,
+   "position_id": 26,
+   "type_id": 12
+  },
+  {
+   "sportmonks_lineup_id": 14675219515,
+   "fixture_id": 1392,
+   "team_id": 65,
+   "sportmonks_player_id": 36872985,
+   "player_name": "I. Tapé",
+   "jersey_number": 16,
+   "position_id": 24,
+   "type_id": 12
+  },
+  {
+   "sportmonks_lineup_id": 14675219522,
+   "fixture_id": 1392,
+   "team_id": 65,
+   "sportmonks_player_id": 38225487,
+   "player_name": "Mpho Maoke",
+   "jersey_number": 18,
+   "position_id": 26,
+   "type_id": 12
+  },
+  {
+   "sportmonks_lineup_id": 14675219523,
+   "fixture_id": 1392,
+   "team_id": 65,
+   "sportmonks_player_id": 1494614,
+   "player_name": "Sedwyn George",
+   "jersey_number": 19,
+   "position_id": 27,
+   "type_id": 12
+  },
+  {
+   "sportmonks_lineup_id": 14675219518,
+   "fixture_id": 1392,
+   "team_id": 65,
+   "sportmonks_player_id": 37289378,
+   "player_name": "Edson Khumalo",
+   "jersey_number": 28,
+   "position_id": 26,
+   "type_id": 12
+  },
+  {
+   "sportmonks_lineup_id": 14675212782,
+   "fixture_id": 1393,
+   "team_id": 50,
+   "sportmonks_player_id": 37708606,
+   "player_name": "Nkosikhona Ndaba",
+   "jersey_number": 3,
+   "position_id": 25,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675212780,
+   "fixture_id": 1393,
+   "team_id": 50,
+   "sportmonks_player_id": 289686,
+   "player_name": "Nkosinathi Sibisi",
+   "jersey_number": 5,
+   "position_id": 25,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675212781,
+   "fixture_id": 1393,
+   "team_id": 50,
+   "sportmonks_player_id": 37648269,
+   "player_name": "Lebone Seema",
+   "jersey_number": 6,
+   "position_id": 25,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675212783,
+   "fixture_id": 1393,
+   "team_id": 50,
+   "sportmonks_player_id": 289313,
+   "player_name": "Deon Hotto",
+   "jersey_number": 7,
+   "position_id": 25,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675212789,
+   "fixture_id": 1393,
+   "team_id": 50,
+   "sportmonks_player_id": 37639894,
+   "player_name": "Yanela Mbuthuma",
+   "jersey_number": 9,
+   "position_id": 27,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675212788,
+   "fixture_id": 1393,
+   "team_id": 50,
+   "sportmonks_player_id": 37551389,
+   "player_name": "Tshepang Moremi",
+   "jersey_number": 11,
+   "position_id": 26,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675212785,
+   "fixture_id": 1393,
+   "team_id": 50,
+   "sportmonks_player_id": 37392896,
+   "player_name": "Thalente Mbatha",
+   "jersey_number": 16,
+   "position_id": 26,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675212784,
+   "fixture_id": 1393,
+   "team_id": 50,
+   "sportmonks_player_id": 37910692,
+   "player_name": "Simphiwe Selepe",
+   "jersey_number": 20,
+   "position_id": 26,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675212779,
+   "fixture_id": 1393,
+   "team_id": 50,
+   "sportmonks_player_id": 289600,
+   "player_name": "Sipho Chaine",
+   "jersey_number": 24,
+   "position_id": 24,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675212787,
+   "fixture_id": 1393,
+   "team_id": 50,
+   "sportmonks_player_id": 37723175,
+   "player_name": "Thapelo Mokobodi",
+   "jersey_number": 33,
+   "position_id": 26,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675212786,
+   "fixture_id": 1393,
+   "team_id": 50,
+   "sportmonks_player_id": 38219447,
+   "player_name": "Simphiwe Masilela",
+   "jersey_number": 48,
+   "position_id": 26,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675212803,
+   "fixture_id": 1393,
+   "team_id": 50,
+   "sportmonks_player_id": 36084791,
+   "player_name": "Oswin Appollis",
+   "jersey_number": 12,
+   "position_id": 27,
+   "type_id": 12
+  },
+  {
+   "sportmonks_lineup_id": 14675212807,
+   "fixture_id": 1393,
+   "team_id": 50,
+   "sportmonks_player_id": 37438632,
+   "player_name": "Evidence Makgopa",
+   "jersey_number": 17,
+   "position_id": 27,
+   "type_id": 12
+  },
+  {
+   "sportmonks_lineup_id": 14675212805,
+   "fixture_id": 1393,
+   "team_id": 50,
+   "sportmonks_player_id": 37769580,
+   "player_name": "Mohau Nkota",
+   "jersey_number": 21,
+   "position_id": 27,
+   "type_id": 12
+  },
+  {
+   "sportmonks_lineup_id": 14675212804,
+   "fixture_id": 1393,
+   "team_id": 50,
+   "sportmonks_player_id": 21395025,
+   "player_name": "Ghampani Lungu",
+   "jersey_number": 23,
+   "position_id": 27,
+   "type_id": 12
+  },
+  {
+   "sportmonks_lineup_id": 14675212806,
+   "fixture_id": 1393,
+   "team_id": 50,
+   "sportmonks_player_id": 37716963,
+   "player_name": "Mthetheleli Mthiyane",
+   "jersey_number": 29,
+   "position_id": 26,
+   "type_id": 12
+  },
+  {
+   "sportmonks_lineup_id": 14675212801,
+   "fixture_id": 1393,
+   "team_id": 50,
+   "sportmonks_player_id": 37769579,
+   "player_name": "Siyabonga Dladla",
+   "jersey_number": 32,
+   "position_id": 24,
+   "type_id": 12
+  },
+  {
+   "sportmonks_lineup_id": 14675212802,
+   "fixture_id": 1393,
+   "team_id": 50,
+   "sportmonks_player_id": 37780311,
+   "player_name": "Sbangani Zulu",
+   "jersey_number": 37,
+   "position_id": 25,
+   "type_id": 12
+  },
+  {
+   "sportmonks_lineup_id": 14675212809,
+   "fixture_id": 1393,
+   "team_id": 50,
+   "sportmonks_player_id": 38223378,
+   "player_name": "Mpho Padime",
+   "jersey_number": 38,
+   "position_id": 27,
+   "type_id": 12
+  },
+  {
+   "sportmonks_lineup_id": 14675212808,
+   "fixture_id": 1393,
+   "team_id": 50,
+   "sportmonks_player_id": 37610347,
+   "player_name": "Kabelo Kgositsile",
+   "jersey_number": 49,
+   "position_id": 26,
+   "type_id": 12
+  },
+  {
+   "sportmonks_lineup_id": 14675212790,
+   "fixture_id": 1393,
+   "team_id": 76,
+   "sportmonks_player_id": 288671,
+   "player_name": "Brandon Petersen",
+   "jersey_number": 1,
+   "position_id": 24,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675212796,
+   "fixture_id": 1393,
+   "team_id": 76,
+   "sportmonks_player_id": 37529749,
+   "player_name": "Sibongiseni Mthethwa",
+   "jersey_number": 5,
+   "position_id": 26,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675212795,
+   "fixture_id": 1393,
+   "team_id": 76,
+   "sportmonks_player_id": 289327,
+   "player_name": "Lebohang Maboe",
+   "jersey_number": 6,
+   "position_id": 26,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675212798,
+   "fixture_id": 1393,
+   "team_id": 76,
+   "sportmonks_player_id": 37609474,
+   "player_name": "Mduduzi Shabalala",
+   "jersey_number": 7,
+   "position_id": 26,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675212799,
+   "fixture_id": 1393,
+   "team_id": 76,
+   "sportmonks_player_id": 22860191,
+   "player_name": "Pule Mmodi",
+   "jersey_number": 13,
+   "position_id": 26,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675212797,
+   "fixture_id": 1393,
+   "team_id": 76,
+   "sportmonks_player_id": 37735374,
+   "player_name": "Mfundo Vilakazi",
+   "jersey_number": 28,
+   "position_id": 26,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675212794,
+   "fixture_id": 1393,
+   "team_id": 76,
+   "sportmonks_player_id": 289455,
+   "player_name": "Paseka Mako",
+   "jersey_number": 29,
+   "position_id": 25,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675212791,
+   "fixture_id": 1393,
+   "team_id": 76,
+   "sportmonks_player_id": 289681,
+   "player_name": "Reeve Frosler",
+   "jersey_number": 39,
+   "position_id": 25,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675212792,
+   "fixture_id": 1393,
+   "team_id": 76,
+   "sportmonks_player_id": 30082139,
+   "player_name": "Thabo Moloisane",
+   "jersey_number": 42,
+   "position_id": 25,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675212800,
+   "fixture_id": 1393,
+   "team_id": 76,
+   "sportmonks_player_id": 37673205,
+   "player_name": "Wandile Duba",
+   "jersey_number": 47,
+   "position_id": 27,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675212793,
+   "fixture_id": 1393,
+   "team_id": 76,
+   "sportmonks_player_id": 163202,
+   "player_name": "Inácio Miguel",
+   "jersey_number": 84,
+   "position_id": 25,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675212813,
+   "fixture_id": 1393,
+   "team_id": 76,
+   "sportmonks_player_id": 289136,
+   "player_name": "Zitha Kwinika",
+   "jersey_number": 4,
+   "position_id": 25,
+   "type_id": 12
+  },
+  {
+   "sportmonks_lineup_id": 14675212815,
+   "fixture_id": 1393,
+   "team_id": 76,
+   "sportmonks_player_id": 37265915,
+   "player_name": "Asanele Velebayi",
+   "jersey_number": 17,
+   "position_id": 26,
+   "type_id": 12
+  },
+  {
+   "sportmonks_lineup_id": 14675212816,
+   "fixture_id": 1393,
+   "team_id": 76,
+   "sportmonks_player_id": 24436870,
+   "player_name": "Ethan Chislett",
+   "jersey_number": 23,
+   "position_id": 26,
+   "type_id": 12
+  },
+  {
+   "sportmonks_lineup_id": 14675212812,
+   "fixture_id": 1393,
+   "team_id": 76,
+   "sportmonks_player_id": 37551429,
+   "player_name": "Rushwin Dortley",
+   "jersey_number": 24,
+   "position_id": 25,
+   "type_id": 12
+  },
+  {
+   "sportmonks_lineup_id": 14675212814,
+   "fixture_id": 1393,
+   "team_id": 76,
+   "sportmonks_player_id": 37735430,
+   "player_name": "Thulani Mabaso",
+   "jersey_number": 34,
+   "position_id": 26,
+   "type_id": 12
+  },
+  {
+   "sportmonks_lineup_id": 14675212817,
+   "fixture_id": 1393,
+   "team_id": 76,
+   "sportmonks_player_id": 37656407,
+   "player_name": "Faiz Abrahams",
+   "jersey_number": 35,
+   "position_id": 26,
+   "type_id": 12
+  },
+  {
+   "sportmonks_lineup_id": 14675212811,
+   "fixture_id": 1393,
+   "team_id": 76,
+   "sportmonks_player_id": 37934938,
+   "player_name": "Kabelo Nkgwesa",
+   "jersey_number": 38,
+   "position_id": 25,
+   "type_id": 12
+  },
+  {
+   "sportmonks_lineup_id": 14675212810,
+   "fixture_id": 1393,
+   "team_id": 76,
+   "sportmonks_player_id": 289701,
+   "player_name": "Bruce Bvuma",
+   "jersey_number": 44,
+   "position_id": 24,
+   "type_id": 12
+  },
+  {
+   "sportmonks_lineup_id": 14675212818,
+   "fixture_id": 1393,
+   "team_id": 76,
+   "sportmonks_player_id": 163588,
+   "player_name": "Flávio Silva",
+   "jersey_number": 77,
+   "position_id": 27,
+   "type_id": 12
+  },
+  {
+   "sportmonks_lineup_id": 14675219451,
+   "fixture_id": 1394,
+   "team_id": 60,
+   "sportmonks_player_id": 38225975,
+   "player_name": "Luthando Vena",
+   "jersey_number": 4,
+   "position_id": 25,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675219447,
+   "fixture_id": 1394,
+   "team_id": 60,
+   "sportmonks_player_id": 37656406,
+   "player_name": "S. Kwayiba",
+   "jersey_number": 14,
+   "position_id": 27,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675219445,
+   "fixture_id": 1394,
+   "team_id": 60,
+   "sportmonks_player_id": 288277,
+   "player_name": "Sage Stephens",
+   "jersey_number": 17,
+   "position_id": 24,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675219453,
+   "fixture_id": 1394,
+   "team_id": 60,
+   "sportmonks_player_id": 37648572,
+   "player_name": "Q. Sibande",
+   "jersey_number": 22,
+   "position_id": 26,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675219446,
+   "fixture_id": 1394,
+   "team_id": 60,
+   "sportmonks_player_id": 37737418,
+   "player_name": "Siviwe Nkwali",
+   "jersey_number": 26,
+   "position_id": 26,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675219448,
+   "fixture_id": 1394,
+   "team_id": 60,
+   "sportmonks_player_id": 1499980,
+   "player_name": "Terrence Mashego",
+   "jersey_number": 27,
+   "position_id": 25,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675219450,
+   "fixture_id": 1394,
+   "team_id": 60,
+   "sportmonks_player_id": 11675781,
+   "player_name": "Lehlogonolo Matlou",
+   "jersey_number": 28,
+   "position_id": 26,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675219449,
+   "fixture_id": 1394,
+   "team_id": 60,
+   "sportmonks_player_id": 7346488,
+   "player_name": "Sphiwe Msimango",
+   "jersey_number": 30,
+   "position_id": 25,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675219454,
+   "fixture_id": 1394,
+   "team_id": 60,
+   "sportmonks_player_id": 38225982,
+   "player_name": "Raoul Daniels",
+   "jersey_number": 32,
+   "position_id": 26,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675219452,
+   "fixture_id": 1394,
+   "team_id": 60,
+   "sportmonks_player_id": 37529815,
+   "player_name": "Chumani Butsaka",
+   "jersey_number": 33,
+   "position_id": 26,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675219455,
+   "fixture_id": 1394,
+   "team_id": 60,
+   "sportmonks_player_id": 37266698,
+   "player_name": "Thabiso Lebitso",
+   "jersey_number": 37,
+   "position_id": 25,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675219467,
+   "fixture_id": 1394,
+   "team_id": 60,
+   "sportmonks_player_id": 37640547,
+   "player_name": "Nathan Garrow",
+   "jersey_number": 1,
+   "position_id": 24,
+   "type_id": 12
+  },
+  {
+   "sportmonks_lineup_id": 14675219471,
+   "fixture_id": 1394,
+   "team_id": 60,
+   "sportmonks_player_id": 37920762,
+   "player_name": "Kgaogelo Ramushu",
+   "jersey_number": 2,
+   "position_id": 25,
+   "type_id": 12
+  },
+  {
+   "sportmonks_lineup_id": 14675219470,
+   "fixture_id": 1394,
+   "team_id": 60,
+   "sportmonks_player_id": 1481621,
+   "player_name": "T. Mthethwa",
+   "jersey_number": 6,
+   "position_id": 26,
+   "type_id": 12
+  },
+  {
+   "sportmonks_lineup_id": 14675219472,
+   "fixture_id": 1394,
+   "team_id": 60,
+   "sportmonks_player_id": 1483871,
+   "player_name": "Ashley Du Preez",
+   "jersey_number": 10,
+   "position_id": 27,
+   "type_id": 12
+  },
+  {
+   "sportmonks_lineup_id": 14675219473,
+   "fixture_id": 1394,
+   "team_id": 60,
+   "sportmonks_player_id": 37907822,
+   "player_name": "Quwan Christiano Plaatjies",
+   "jersey_number": 11,
+   "position_id": 27,
+   "type_id": 12
+  },
+  {
+   "sportmonks_lineup_id": 14675219474,
+   "fixture_id": 1394,
+   "team_id": 60,
+   "sportmonks_player_id": 38206252,
+   "player_name": "Keanan Johannessen",
+   "jersey_number": 20,
+   "position_id": 26,
+   "type_id": 12
+  },
+  {
+   "sportmonks_lineup_id": 14675219468,
+   "fixture_id": 1394,
+   "team_id": 60,
+   "sportmonks_player_id": 37934940,
+   "player_name": "Gopolang Taunyana",
+   "jersey_number": 21,
+   "position_id": 25,
+   "type_id": 12
+  },
+  {
+   "sportmonks_lineup_id": 14675219469,
+   "fixture_id": 1394,
+   "team_id": 60,
+   "sportmonks_player_id": 37547997,
+   "player_name": "Darrel Matsheke",
+   "jersey_number": 31,
+   "position_id": 25,
+   "type_id": 12
+  },
+  {
+   "sportmonks_lineup_id": 14675219466,
+   "fixture_id": 1394,
+   "team_id": 83,
+   "sportmonks_player_id": 21414310,
+   "player_name": "Justice Figuareido",
+   "jersey_number": 7,
+   "position_id": 27,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675219461,
+   "fixture_id": 1394,
+   "team_id": 83,
+   "sportmonks_player_id": 37583419,
+   "player_name": "Azola Matrose",
+   "jersey_number": 10,
+   "position_id": 26,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675219463,
+   "fixture_id": 1394,
+   "team_id": 83,
+   "sportmonks_player_id": 37548618,
+   "player_name": "Azola Tshobeni",
+   "jersey_number": 15,
+   "position_id": 26,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675219462,
+   "fixture_id": 1394,
+   "team_id": 83,
+   "sportmonks_player_id": 3188054,
+   "player_name": "Goodman Mosele",
+   "jersey_number": 20,
+   "position_id": 26,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675219460,
+   "fixture_id": 1394,
+   "team_id": 83,
+   "sportmonks_player_id": 288803,
+   "player_name": "Abbubaker Mobara",
+   "jersey_number": 22,
+   "position_id": 26,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675219456,
+   "fixture_id": 1394,
+   "team_id": 83,
+   "sportmonks_player_id": 37371114,
+   "player_name": "Stanley Nwabali",
+   "jersey_number": 23,
+   "position_id": 24,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675219459,
+   "fixture_id": 1394,
+   "team_id": 83,
+   "sportmonks_player_id": 289539,
+   "player_name": "Sirgio Kammies",
+   "jersey_number": 25,
+   "position_id": 26,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675219458,
+   "fixture_id": 1394,
+   "team_id": 83,
+   "sportmonks_player_id": 37742824,
+   "player_name": "Boy Madingwane",
+   "jersey_number": 28,
+   "position_id": 25,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675219457,
+   "fixture_id": 1394,
+   "team_id": 83,
+   "sportmonks_player_id": 37773005,
+   "player_name": "Imraan Jones",
+   "jersey_number": 31,
+   "position_id": 25,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675219464,
+   "fixture_id": 1394,
+   "team_id": 83,
+   "sportmonks_player_id": 37653303,
+   "player_name": "Harold Majadibodu",
+   "jersey_number": 35,
+   "position_id": 25,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675219465,
+   "fixture_id": 1394,
+   "team_id": 83,
+   "sportmonks_player_id": 37682719,
+   "player_name": "Tshepang Makara",
+   "jersey_number": 37,
+   "position_id": 25,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675219476,
+   "fixture_id": 1394,
+   "team_id": 83,
+   "sportmonks_player_id": 22860309,
+   "player_name": "Seun Ndlovu",
+   "jersey_number": 5,
+   "position_id": 25,
+   "type_id": 12
+  },
+  {
+   "sportmonks_lineup_id": 14675219480,
+   "fixture_id": 1394,
+   "team_id": 83,
+   "sportmonks_player_id": 37744746,
+   "player_name": "Asanele Bonani",
+   "jersey_number": 9,
+   "position_id": 26,
+   "type_id": 12
+  },
+  {
+   "sportmonks_lineup_id": 14675219475,
+   "fixture_id": 1394,
+   "team_id": 83,
+   "sportmonks_player_id": 37567914,
+   "player_name": "Elson Sithole",
+   "jersey_number": 18,
+   "position_id": 24,
+   "type_id": 12
+  },
+  {
+   "sportmonks_lineup_id": 14675220841,
+   "fixture_id": 1394,
+   "team_id": 83,
+   "sportmonks_player_id": 37770102,
+   "player_name": "Daba Diakité",
+   "jersey_number": 27,
+   "position_id": 26,
+   "type_id": 12
+  },
+  {
+   "sportmonks_lineup_id": 14675219483,
+   "fixture_id": 1394,
+   "team_id": 83,
+   "sportmonks_player_id": 37737911,
+   "player_name": "Ntuthuko Mlotshwa",
+   "jersey_number": 29,
+   "position_id": 26,
+   "type_id": 12
+  },
+  {
+   "sportmonks_lineup_id": 14675219481,
+   "fixture_id": 1394,
+   "team_id": 83,
+   "sportmonks_player_id": 38221884,
+   "player_name": "Lebohang Tshabalala",
+   "jersey_number": 34,
+   "position_id": 26,
+   "type_id": 12
+  },
+  {
+   "sportmonks_lineup_id": 14675219482,
+   "fixture_id": 1394,
+   "team_id": 83,
+   "sportmonks_player_id": 36084792,
+   "player_name": "Muzomuhle Khanyi",
+   "jersey_number": 40,
+   "position_id": 27,
+   "type_id": 12
+  },
+  {
+   "sportmonks_lineup_id": 14675219478,
+   "fixture_id": 1394,
+   "team_id": 83,
+   "sportmonks_player_id": 27422476,
+   "player_name": "Ibrahim Bancé",
+   "jersey_number": 44,
+   "position_id": 26,
+   "type_id": 12
+  },
+  {
+   "sportmonks_lineup_id": 14675219479,
+   "fixture_id": 1394,
+   "team_id": 83,
+   "sportmonks_player_id": 37770102,
+   "player_name": "Daba Diakité",
+   "jersey_number": 47,
+   "position_id": 26,
+   "type_id": 12
+  },
+  {
+   "sportmonks_lineup_id": 14675219477,
+   "fixture_id": 1394,
+   "team_id": 83,
+   "sportmonks_player_id": 9949802,
+   "player_name": "Bongani Sam",
+   "jersey_number": 50,
+   "position_id": 25,
+   "type_id": 12
+  },
+  {
+   "sportmonks_lineup_id": 14675200523,
+   "fixture_id": 1395,
+   "team_id": 77,
+   "sportmonks_player_id": 10310320,
+   "player_name": "Siphosakhe Ntiya-Ntiya",
+   "jersey_number": 3,
+   "position_id": 25,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675200528,
+   "fixture_id": 1395,
+   "team_id": 77,
+   "sportmonks_player_id": 37911643,
+   "player_name": "K. Ncube",
+   "jersey_number": 13,
+   "position_id": 26,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675200529,
+   "fixture_id": 1395,
+   "team_id": 77,
+   "sportmonks_player_id": 22229131,
+   "player_name": "Ndabayithethwa Ndlondlo",
+   "jersey_number": 15,
+   "position_id": 26,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675200530,
+   "fixture_id": 1395,
+   "team_id": 77,
+   "sportmonks_player_id": 288251,
+   "player_name": "Kagiso Mlambo",
+   "jersey_number": 16,
+   "position_id": 24,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675200531,
+   "fixture_id": 1395,
+   "team_id": 77,
+   "sportmonks_player_id": 38230683,
+   "player_name": "Patrick Motsoeneng",
+   "jersey_number": 17,
+   "position_id": 25,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675200532,
+   "fixture_id": 1395,
+   "team_id": 77,
+   "sportmonks_player_id": 37618989,
+   "player_name": "Msindisi Ndlovu",
+   "jersey_number": 18,
+   "position_id": 26,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675200533,
+   "fixture_id": 1395,
+   "team_id": 77,
+   "sportmonks_player_id": 37711437,
+   "player_name": "T. Pheeha",
+   "jersey_number": 19,
+   "position_id": 26,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675200534,
+   "fixture_id": 1395,
+   "team_id": 77,
+   "sportmonks_player_id": 38226124,
+   "player_name": "Prince Manku",
+   "jersey_number": 20,
+   "position_id": 25,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675200535,
+   "fixture_id": 1395,
+   "team_id": 77,
+   "sportmonks_player_id": 289115,
+   "player_name": "M. Rikhotso",
+   "jersey_number": 22,
+   "position_id": 25,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675200537,
+   "fixture_id": 1395,
+   "team_id": 77,
+   "sportmonks_player_id": 37563012,
+   "player_name": "Moremi Seketso",
+   "jersey_number": 27,
+   "position_id": 26,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675200541,
+   "fixture_id": 1395,
+   "team_id": 77,
+   "sportmonks_player_id": 37907680,
+   "player_name": "Samkele Sihlali",
+   "jersey_number": 38,
+   "position_id": 27,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675200524,
+   "fixture_id": 1395,
+   "team_id": 77,
+   "sportmonks_player_id": 287823,
+   "player_name": "D. Manaka",
+   "jersey_number": 5,
+   "position_id": 27,
+   "type_id": 12
+  },
+  {
+   "sportmonks_lineup_id": 14675200525,
+   "fixture_id": 1395,
+   "team_id": 77,
+   "sportmonks_player_id": 1486668,
+   "player_name": "Simo Mbhele",
+   "jersey_number": 8,
+   "position_id": 26,
+   "type_id": 12
+  },
+  {
+   "sportmonks_lineup_id": 14675200526,
+   "fixture_id": 1395,
+   "team_id": 77,
+   "sportmonks_player_id": 10626682,
+   "player_name": "Onke Moletshe",
+   "jersey_number": 9,
+   "position_id": 26,
+   "type_id": 12
+  },
+  {
+   "sportmonks_lineup_id": 14675200527,
+   "fixture_id": 1395,
+   "team_id": 77,
+   "sportmonks_player_id": 3181437,
+   "player_name": "Katlego Otladisa",
+   "jersey_number": 12,
+   "position_id": 26,
+   "type_id": 12
+  },
+  {
+   "sportmonks_lineup_id": 14675200536,
+   "fixture_id": 1395,
+   "team_id": 77,
+   "sportmonks_player_id": 37734002,
+   "player_name": "Yanga Madiba",
+   "jersey_number": 24,
+   "position_id": 26,
+   "type_id": 12
+  },
+  {
+   "sportmonks_lineup_id": 14675200538,
+   "fixture_id": 1395,
+   "team_id": 77,
+   "sportmonks_player_id": null,
+   "player_name": "Lebogang Button",
+   "jersey_number": 29,
+   "position_id": 26,
+   "type_id": 12
+  },
+  {
+   "sportmonks_lineup_id": 14675200539,
+   "fixture_id": 1395,
+   "team_id": 77,
+   "sportmonks_player_id": 37712154,
+   "player_name": "Emile Merlin Lako Wendeu Wendeu Tcheuko",
+   "jersey_number": 30,
+   "position_id": 24,
+   "type_id": 12
+  },
+  {
+   "sportmonks_lineup_id": 14675200540,
+   "fixture_id": 1395,
+   "team_id": 77,
+   "sportmonks_player_id": 38226130,
+   "player_name": "Nelson Ralenkoane",
+   "jersey_number": 37,
+   "position_id": 25,
+   "type_id": 12
+  },
+  {
+   "sportmonks_lineup_id": 14675200542,
+   "fixture_id": 1395,
+   "team_id": 77,
+   "sportmonks_player_id": 37632136,
+   "player_name": "David Lukhele",
+   "jersey_number": 40,
+   "position_id": 26,
+   "type_id": 12
+  },
+  {
+   "sportmonks_lineup_id": 14675200503,
+   "fixture_id": 1395,
+   "team_id": 146,
+   "sportmonks_player_id": 289133,
+   "player_name": "Jody February",
+   "jersey_number": 1,
+   "position_id": 24,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675200504,
+   "fixture_id": 1395,
+   "team_id": 146,
+   "sportmonks_player_id": 37654184,
+   "player_name": "Yandisa Mfolozi",
+   "jersey_number": 2,
+   "position_id": 25,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675200505,
+   "fixture_id": 1395,
+   "team_id": 146,
+   "sportmonks_player_id": null,
+   "player_name": "Manoke Noge",
+   "jersey_number": 3,
+   "position_id": 26,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675200506,
+   "fixture_id": 1395,
+   "team_id": 146,
+   "sportmonks_player_id": 37551103,
+   "player_name": "Thabiso Sesane",
+   "jersey_number": 4,
+   "position_id": 25,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675200508,
+   "fixture_id": 1395,
+   "team_id": 146,
+   "sportmonks_player_id": 29696394,
+   "player_name": "Neo Mokhachane",
+   "jersey_number": 7,
+   "position_id": 26,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675200513,
+   "fixture_id": 1395,
+   "team_id": 146,
+   "sportmonks_player_id": 38211141,
+   "player_name": "Manelisi Mazibuko",
+   "jersey_number": 12,
+   "position_id": 27,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675200515,
+   "fixture_id": 1395,
+   "team_id": 146,
+   "sportmonks_player_id": 38213845,
+   "player_name": "Sphesihle Jeza",
+   "jersey_number": 17,
+   "position_id": 27,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675200516,
+   "fixture_id": 1395,
+   "team_id": 146,
+   "sportmonks_player_id": 38221063,
+   "player_name": "Kwanda Lupalulele",
+   "jersey_number": 22,
+   "position_id": 25,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675200517,
+   "fixture_id": 1395,
+   "team_id": 146,
+   "sportmonks_player_id": 31626758,
+   "player_name": "Shadrack Kobedi",
+   "jersey_number": 26,
+   "position_id": 26,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675200518,
+   "fixture_id": 1395,
+   "team_id": 146,
+   "sportmonks_player_id": 37914848,
+   "player_name": "Siyabonga Ndebele",
+   "jersey_number": 33,
+   "position_id": 25,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675200519,
+   "fixture_id": 1395,
+   "team_id": 146,
+   "sportmonks_player_id": null,
+   "player_name": "Raymond Makhuvele",
+   "jersey_number": 35,
+   "position_id": 26,
+   "type_id": 11
+  },
+  {
+   "sportmonks_lineup_id": 14675200507,
+   "fixture_id": 1395,
+   "team_id": 146,
+   "sportmonks_player_id": 38206090,
+   "player_name": "Keabetswe Khonyane",
+   "jersey_number": 5,
+   "position_id": 25,
+   "type_id": 12
+  },
+  {
+   "sportmonks_lineup_id": 14675200509,
+   "fixture_id": 1395,
+   "team_id": 146,
+   "sportmonks_player_id": 289610,
+   "player_name": "Relebogile Mokhuoane",
+   "jersey_number": 8,
+   "position_id": 26,
+   "type_id": 12
+  },
+  {
+   "sportmonks_lineup_id": 14675200510,
+   "fixture_id": 1395,
+   "team_id": 146,
+   "sportmonks_player_id": 21414016,
+   "player_name": "Zakhele Lepasa",
+   "jersey_number": 9,
+   "position_id": 27,
+   "type_id": 12
+  },
+  {
+   "sportmonks_lineup_id": 14675200511,
+   "fixture_id": 1395,
+   "team_id": 146,
+   "sportmonks_player_id": 288954,
+   "player_name": "Maliele Vincent Pule",
+   "jersey_number": 10,
+   "position_id": 27,
+   "type_id": 12
+  },
+  {
+   "sportmonks_lineup_id": 14675200512,
+   "fixture_id": 1395,
+   "team_id": 146,
+   "sportmonks_player_id": 37679570,
+   "player_name": "Christian Saile",
+   "jersey_number": 11,
+   "position_id": 27,
+   "type_id": 12
+  },
+  {
+   "sportmonks_lineup_id": 14675200514,
+   "fixture_id": 1395,
+   "team_id": 146,
+   "sportmonks_player_id": 37625529,
+   "player_name": "Bilal Baloyi",
+   "jersey_number": 14,
+   "position_id": 25,
+   "type_id": 12
+  },
+  {
+   "sportmonks_lineup_id": 14675200520,
+   "fixture_id": 1395,
+   "team_id": 146,
+   "sportmonks_player_id": 37681850,
+   "player_name": "Thato Letshedi",
+   "jersey_number": 36,
+   "position_id": 26,
+   "type_id": 12
+  },
+  {
+   "sportmonks_lineup_id": 14675200521,
+   "fixture_id": 1395,
+   "team_id": 146,
+   "sportmonks_player_id": 38210986,
+   "player_name": "Matthew Marou",
+   "jersey_number": 47,
+   "position_id": 26,
+   "type_id": 12
+  },
+  {
+   "sportmonks_lineup_id": 14675200522,
+   "fixture_id": 1395,
+   "team_id": 146,
+   "sportmonks_player_id": 37657173,
+   "player_name": "Wandile Mthombeni",
+   "jersey_number": 50,
+   "position_id": 24,
+   "type_id": 12
+  }
+ ],
+ "events": [
+  {
+   "sportmonks_event_id": 158473438,
+   "fixture_id": 1388,
+   "team_id": 123,
+   "sportmonks_player_id": 37723047,
+   "sportmonks_related_player_id": 1494612,
+   "player_name": "Mvelo Zikakayo",
+   "related_player_name": "Menzi Chili",
+   "type_id": 14,
+   "minute": 24,
+   "extra_minute": null,
+   "result": "1-0",
+   "sort_order": 1,
+   "rescinded": null
+  },
+  {
+   "sportmonks_event_id": 158474437,
+   "fixture_id": 1388,
+   "team_id": 66,
+   "sportmonks_player_id": 37779826,
+   "sportmonks_related_player_id": null,
+   "player_name": "Tshepo Mokoane",
+   "related_player_name": null,
+   "type_id": 19,
+   "minute": 44,
+   "extra_minute": null,
+   "result": null,
+   "sort_order": 1,
+   "rescinded": false
+  },
+  {
+   "sportmonks_event_id": 158475598,
+   "fixture_id": 1388,
+   "team_id": 66,
+   "sportmonks_player_id": 37583885,
+   "sportmonks_related_player_id": 37608827,
+   "player_name": "D'Angelo Shaheed Kazeem",
+   "related_player_name": "Athenkosi Mcaba",
+   "type_id": 18,
+   "minute": 46,
+   "extra_minute": null,
+   "result": null,
+   "sort_order": 1,
+   "rescinded": null
+  },
+  {
+   "sportmonks_event_id": 158475609,
+   "fixture_id": 1388,
+   "team_id": 66,
+   "sportmonks_player_id": 37635528,
+   "sportmonks_related_player_id": 23223429,
+   "player_name": "Bethuel Muzeu",
+   "related_player_name": "Chibuike Ohizu",
+   "type_id": 18,
+   "minute": 46,
+   "extra_minute": null,
+   "result": null,
+   "sort_order": 2,
+   "rescinded": null
+  },
+  {
+   "sportmonks_event_id": 158476668,
+   "fixture_id": 1388,
+   "team_id": 123,
+   "sportmonks_player_id": 38225490,
+   "sportmonks_related_player_id": 37771339,
+   "player_name": "Phakamani Jwara",
+   "related_player_name": "Sicelo Masilela",
+   "type_id": 18,
+   "minute": 62,
+   "extra_minute": null,
+   "result": null,
+   "sort_order": 3,
+   "rescinded": null
+  },
+  {
+   "sportmonks_event_id": 158476669,
+   "fixture_id": 1388,
+   "team_id": 123,
+   "sportmonks_player_id": 37681884,
+   "sportmonks_related_player_id": 1494612,
+   "player_name": "Thabana Mabena",
+   "related_player_name": "Menzi Chili",
+   "type_id": 18,
+   "minute": 62,
+   "extra_minute": null,
+   "result": null,
+   "sort_order": 4,
+   "rescinded": null
+  },
+  {
+   "sportmonks_event_id": 158476744,
+   "fixture_id": 1388,
+   "team_id": 66,
+   "sportmonks_player_id": 37731574,
+   "sportmonks_related_player_id": 37618577,
+   "player_name": "Thabang Makubo",
+   "related_player_name": "Ngoanamello Rammala",
+   "type_id": 18,
+   "minute": 65,
+   "extra_minute": null,
+   "result": null,
+   "sort_order": 5,
+   "rescinded": null
+  },
+  {
+   "sportmonks_event_id": 158476749,
+   "fixture_id": 1388,
+   "team_id": 66,
+   "sportmonks_player_id": 37590176,
+   "sportmonks_related_player_id": 37618987,
+   "player_name": "Mokibelo Simon Ramabu",
+   "related_player_name": "Mcedi Vandala",
+   "type_id": 18,
+   "minute": 65,
+   "extra_minute": null,
+   "result": null,
+   "sort_order": 6,
+   "rescinded": null
+  },
+  {
+   "sportmonks_event_id": 158477175,
+   "fixture_id": 1388,
+   "team_id": 123,
+   "sportmonks_player_id": 37418681,
+   "sportmonks_related_player_id": 37723047,
+   "player_name": "Vusumuzi Mthabela",
+   "related_player_name": "Mvelo Zikakayo",
+   "type_id": 18,
+   "minute": 75,
+   "extra_minute": null,
+   "result": null,
+   "sort_order": 7,
+   "rescinded": null
+  },
+  {
+   "sportmonks_event_id": 158477523,
+   "fixture_id": 1388,
+   "team_id": 66,
+   "sportmonks_player_id": 37447070,
+   "sportmonks_related_player_id": 30082138,
+   "player_name": "Bright Ndlovu",
+   "related_player_name": "Siphesihle Mkhize",
+   "type_id": 18,
+   "minute": 81,
+   "extra_minute": null,
+   "result": null,
+   "sort_order": 8,
+   "rescinded": null
+  },
+  {
+   "sportmonks_event_id": 158478368,
+   "fixture_id": 1388,
+   "team_id": 123,
+   "sportmonks_player_id": 37715193,
+   "sportmonks_related_player_id": 37715195,
+   "player_name": "Jabulile Gxakoshe",
+   "related_player_name": "Siphosethu Ndlabi",
+   "type_id": 18,
+   "minute": 90,
+   "extra_minute": 2,
+   "result": null,
+   "sort_order": 9,
+   "rescinded": null
+  },
+  {
+   "sportmonks_event_id": 158488457,
+   "fixture_id": 1389,
+   "team_id": 28,
+   "sportmonks_player_id": 37583966,
+   "sportmonks_related_player_id": 1503717,
+   "player_name": "Thabang Matuludi",
+   "related_player_name": "Marcelo Allende",
+   "type_id": 14,
+   "minute": 34,
+   "extra_minute": null,
+   "result": "1-0",
+   "sort_order": 1,
+   "rescinded": null
+  },
+  {
+   "sportmonks_event_id": 158489216,
+   "fixture_id": 1389,
+   "team_id": 96,
+   "sportmonks_player_id": 37773053,
+   "sportmonks_related_player_id": 37619173,
+   "player_name": "Samkelo Maseko",
+   "related_player_name": "Luphumlo Sifumba",
+   "type_id": 18,
+   "minute": 46,
+   "extra_minute": null,
+   "result": null,
+   "sort_order": 1,
+   "rescinded": null
+  },
+  {
+   "sportmonks_event_id": 158489225,
+   "fixture_id": 1389,
+   "team_id": 96,
+   "sportmonks_player_id": 37618286,
+   "sportmonks_related_player_id": 37434592,
+   "player_name": "Bokang Mokwena",
+   "related_player_name": "Ethan Brooks",
+   "type_id": 18,
+   "minute": 46,
+   "extra_minute": null,
+   "result": null,
+   "sort_order": 2,
+   "rescinded": null
+  },
+  {
+   "sportmonks_event_id": 158489229,
+   "fixture_id": 1389,
+   "team_id": 96,
+   "sportmonks_player_id": 37907872,
+   "sportmonks_related_player_id": 37648573,
+   "player_name": "Tylo Jordan Sanger",
+   "related_player_name": "Kyle Jurgens",
+   "type_id": 18,
+   "minute": 46,
+   "extra_minute": null,
+   "result": null,
+   "sort_order": 3,
+   "rescinded": null
+  },
+  {
+   "sportmonks_event_id": 158489672,
+   "fixture_id": 1389,
+   "team_id": 28,
+   "sportmonks_player_id": 38210468,
+   "sportmonks_related_player_id": 37653293,
+   "player_name": "Siyanda Ndlovu",
+   "related_player_name": "Cassius Mailula",
+   "type_id": 18,
+   "minute": 62,
+   "extra_minute": null,
+   "result": null,
+   "sort_order": 4,
+   "rescinded": null
+  },
+  {
+   "sportmonks_event_id": 158489673,
+   "fixture_id": 1389,
+   "team_id": 28,
+   "sportmonks_player_id": 1504475,
+   "sportmonks_related_player_id": 37555431,
+   "player_name": "Iqraam Rayners",
+   "related_player_name": "Brayan León",
+   "type_id": 18,
+   "minute": 62,
+   "extra_minute": null,
+   "result": null,
+   "sort_order": 5,
+   "rescinded": null
+  },
+  {
+   "sportmonks_event_id": 158489674,
+   "fixture_id": 1389,
+   "team_id": 28,
+   "sportmonks_player_id": 37571731,
+   "sportmonks_related_player_id": 21781500,
+   "player_name": "Antonio Van Wyk",
+   "related_player_name": "Tashreeq Matthews",
+   "type_id": 18,
+   "minute": 62,
+   "extra_minute": null,
+   "result": null,
+   "sort_order": 6,
+   "rescinded": null
+  },
+  {
+   "sportmonks_event_id": 158489766,
+   "fixture_id": 1389,
+   "team_id": 28,
+   "sportmonks_player_id": 37583966,
+   "sportmonks_related_player_id": 289096,
+   "player_name": "Thabang Matuludi",
+   "related_player_name": "Aubrey Modiba",
+   "type_id": 14,
+   "minute": 66,
+   "extra_minute": null,
+   "result": "2-0",
+   "sort_order": 2,
+   "rescinded": null
+  },
+  {
+   "sportmonks_event_id": 158489847,
+   "fixture_id": 1389,
+   "team_id": 96,
+   "sportmonks_player_id": 37712864,
+   "sportmonks_related_player_id": 288070,
+   "player_name": "Seth Green",
+   "related_player_name": "Letsie  Koapeng",
+   "type_id": 18,
+   "minute": 70,
+   "extra_minute": null,
+   "result": null,
+   "sort_order": 7,
+   "rescinded": null
+  },
+  {
+   "sportmonks_event_id": 158490015,
+   "fixture_id": 1389,
+   "team_id": 28,
+   "sportmonks_player_id": 37614793,
+   "sportmonks_related_player_id": 9939953,
+   "player_name": "Tsiki Ntsabeleng",
+   "related_player_name": "Bathusi Aubaas",
+   "type_id": 18,
+   "minute": 78,
+   "extra_minute": null,
+   "result": null,
+   "sort_order": 8,
+   "rescinded": null
+  },
+  {
+   "sportmonks_event_id": 158490043,
+   "fixture_id": 1389,
+   "team_id": 28,
+   "sportmonks_player_id": 1504475,
+   "sportmonks_related_player_id": 38210468,
+   "player_name": "Iqraam Rayners",
+   "related_player_name": "Siyanda Ndlovu",
+   "type_id": 14,
+   "minute": 79,
+   "extra_minute": null,
+   "result": "3-0",
+   "sort_order": 3,
+   "rescinded": null
+  },
+  {
+   "sportmonks_event_id": 158490106,
+   "fixture_id": 1389,
+   "team_id": 28,
+   "sportmonks_player_id": 37562128,
+   "sportmonks_related_player_id": 2846627,
+   "player_name": "Arthur Sales",
+   "related_player_name": "Nuno Santos",
+   "type_id": 18,
+   "minute": 82,
+   "extra_minute": null,
+   "result": null,
+   "sort_order": 9,
+   "rescinded": null
+  },
+  {
+   "sportmonks_event_id": 158490158,
+   "fixture_id": 1389,
+   "team_id": 28,
+   "sportmonks_player_id": 37583966,
+   "sportmonks_related_player_id": null,
+   "player_name": "Thabang Matuludi",
+   "related_player_name": null,
+   "type_id": 19,
+   "minute": 85,
+   "extra_minute": null,
+   "result": null,
+   "sort_order": 1,
+   "rescinded": false
+  },
+  {
+   "sportmonks_event_id": 158490211,
+   "fixture_id": 1389,
+   "team_id": 96,
+   "sportmonks_player_id": 38200924,
+   "sportmonks_related_player_id": 37773053,
+   "player_name": "Jean Lwamba",
+   "related_player_name": "Samkelo Maseko",
+   "type_id": 14,
+   "minute": 86,
+   "extra_minute": null,
+   "result": "3-1",
+   "sort_order": 4,
+   "rescinded": null
+  },
+  {
+   "sportmonks_event_id": 158490417,
+   "fixture_id": 1389,
+   "team_id": 28,
+   "sportmonks_player_id": 37571731,
+   "sportmonks_related_player_id": 37562128,
+   "player_name": "Antonio Van Wyk",
+   "related_player_name": "Arthur Sales",
+   "type_id": 14,
+   "minute": 90,
+   "extra_minute": 4,
+   "result": "4-1",
+   "sort_order": 5,
+   "rescinded": null
+  },
+  {
+   "sportmonks_event_id": 158487027,
+   "fixture_id": 1390,
+   "team_id": 90,
+   "sportmonks_player_id": 1504508,
+   "sportmonks_related_player_id": 193219,
+   "player_name": "Wonderboy Makhubu",
+   "related_player_name": "Ebrahim Seedat",
+   "type_id": 14,
+   "minute": 3,
+   "extra_minute": null,
+   "result": "1-0",
+   "sort_order": 1,
+   "rescinded": null
+  },
+  {
+   "sportmonks_event_id": 158487878,
+   "fixture_id": 1390,
+   "team_id": 90,
+   "sportmonks_player_id": 193219,
+   "sportmonks_related_player_id": null,
+   "player_name": "Ebrahim Seedat",
+   "related_player_name": null,
+   "type_id": 16,
+   "minute": 22,
+   "extra_minute": null,
+   "result": "2-0",
+   "sort_order": 2,
+   "rescinded": null
+  },
+  {
+   "sportmonks_event_id": 158488647,
+   "fixture_id": 1390,
+   "team_id": 72,
+   "sportmonks_player_id": 38205263,
+   "sportmonks_related_player_id": null,
+   "player_name": "Luyanda Khumalo",
+   "related_player_name": null,
+   "type_id": 14,
+   "minute": 39,
+   "extra_minute": null,
+   "result": "2-1",
+   "sort_order": 3,
+   "rescinded": null
+  },
+  {
+   "sportmonks_event_id": 158488803,
+   "fixture_id": 1390,
+   "team_id": 90,
+   "sportmonks_player_id": 289683,
+   "sportmonks_related_player_id": null,
+   "player_name": "A. Konqobe",
+   "related_player_name": null,
+   "type_id": 19,
+   "minute": 45,
+   "extra_minute": 1,
+   "result": null,
+   "sort_order": 1,
+   "rescinded": false
+  },
+  {
+   "sportmonks_event_id": 158489231,
+   "fixture_id": 1390,
+   "team_id": 90,
+   "sportmonks_player_id": 37549622,
+   "sportmonks_related_player_id": 193219,
+   "player_name": "Khetukuthula Ndlovu",
+   "related_player_name": "Ebrahim Seedat",
+   "type_id": 18,
+   "minute": 46,
+   "extra_minute": null,
+   "result": null,
+   "sort_order": 1,
+   "rescinded": null
+  },
+  {
+   "sportmonks_event_id": 158489276,
+   "fixture_id": 1390,
+   "team_id": 90,
+   "sportmonks_player_id": 37744865,
+   "sportmonks_related_player_id": 37771337,
+   "player_name": "Mlungisi Zwane",
+   "related_player_name": "Nkosinathi Thwala",
+   "type_id": 18,
+   "minute": 46,
+   "extra_minute": null,
+   "result": null,
+   "sort_order": 2,
+   "rescinded": null
+  },
+  {
+   "sportmonks_event_id": 158489508,
+   "fixture_id": 1390,
+   "team_id": 72,
+   "sportmonks_player_id": 37914624,
+   "sportmonks_related_player_id": 37760510,
+   "player_name": "W. Ngema",
+   "related_player_name": "Sbani Khumalo",
+   "type_id": 18,
+   "minute": 55,
+   "extra_minute": null,
+   "result": null,
+   "sort_order": 3,
+   "rescinded": null
+  },
+  {
+   "sportmonks_event_id": 158489516,
+   "fixture_id": 1390,
+   "team_id": 72,
+   "sportmonks_player_id": 38210414,
+   "sportmonks_related_player_id": 22860311,
+   "player_name": "Siyabonga Nzama",
+   "related_player_name": "Sanele Barns",
+   "type_id": 18,
+   "minute": 55,
+   "extra_minute": null,
+   "result": null,
+   "sort_order": 4,
+   "rescinded": null
+  },
+  {
+   "sportmonks_event_id": 158489583,
+   "fixture_id": 1390,
+   "team_id": 72,
+   "sportmonks_player_id": 37914624,
+   "sportmonks_related_player_id": null,
+   "player_name": "W. Ngema",
+   "related_player_name": null,
+   "type_id": 19,
+   "minute": 62,
+   "extra_minute": null,
+   "result": null,
+   "sort_order": 2,
+   "rescinded": false
+  },
+  {
+   "sportmonks_event_id": 158489701,
+   "fixture_id": 1390,
+   "team_id": 72,
+   "sportmonks_player_id": null,
+   "sportmonks_related_player_id": null,
+   "player_name": null,
+   "related_player_name": null,
+   "type_id": 19,
+   "minute": 62,
+   "extra_minute": null,
+   "result": null,
+   "sort_order": 3,
+   "rescinded": false
+  },
+  {
+   "sportmonks_event_id": 158489943,
+   "fixture_id": 1390,
+   "team_id": 72,
+   "sportmonks_player_id": 37786238,
+   "sportmonks_related_player_id": 38205263,
+   "player_name": "Philani Sithebe",
+   "related_player_name": "Luyanda Khumalo",
+   "type_id": 18,
+   "minute": 74,
+   "extra_minute": null,
+   "result": null,
+   "sort_order": 5,
+   "rescinded": null
+  },
+  {
+   "sportmonks_event_id": 158489947,
+   "fixture_id": 1390,
+   "team_id": 72,
+   "sportmonks_player_id": 38201512,
+   "sportmonks_related_player_id": 37762200,
+   "player_name": "Lundi Mahala",
+   "related_player_name": "Nqaba Xulu",
+   "type_id": 18,
+   "minute": 75,
+   "extra_minute": null,
+   "result": null,
+   "sort_order": 6,
+   "rescinded": null
+  },
+  {
+   "sportmonks_event_id": 158489957,
+   "fixture_id": 1390,
+   "team_id": 72,
+   "sportmonks_player_id": 37789939,
+   "sportmonks_related_player_id": 37379118,
+   "player_name": "Lindokuhle Zikhali",
+   "related_player_name": "Moses Mthembu",
+   "type_id": 18,
+   "minute": 75,
+   "extra_minute": null,
+   "result": null,
+   "sort_order": 7,
+   "rescinded": null
+  },
+  {
+   "sportmonks_event_id": 158490129,
+   "fixture_id": 1390,
+   "team_id": 90,
+   "sportmonks_player_id": 37553500,
+   "sportmonks_related_player_id": 5337031,
+   "player_name": "Tatenda Tavengwa",
+   "related_player_name": "Ntsako Makhubela",
+   "type_id": 18,
+   "minute": 83,
+   "extra_minute": null,
+   "result": null,
+   "sort_order": 8,
+   "rescinded": null
+  },
+  {
+   "sportmonks_event_id": 158490317,
+   "fixture_id": 1390,
+   "team_id": 90,
+   "sportmonks_player_id": null,
+   "sportmonks_related_player_id": 1504508,
+   "player_name": "Tumelo Mmakgolane",
+   "related_player_name": "Wonderboy Makhubu",
+   "type_id": 18,
+   "minute": 89,
+   "extra_minute": null,
+   "result": null,
+   "sort_order": 9,
+   "rescinded": null
+  },
+  {
+   "sportmonks_event_id": 158490318,
+   "fixture_id": 1390,
+   "team_id": 90,
+   "sportmonks_player_id": 38230282,
+   "sportmonks_related_player_id": 3861267,
+   "player_name": "Mancoba Zwane",
+   "related_player_name": "Celimpilo Ngema",
+   "type_id": 18,
+   "minute": 89,
+   "extra_minute": null,
+   "result": null,
+   "sort_order": 10,
+   "rescinded": null
+  },
+  {
+   "sportmonks_event_id": 158490405,
+   "fixture_id": 1390,
+   "team_id": 90,
+   "sportmonks_player_id": 38230282,
+   "sportmonks_related_player_id": null,
+   "player_name": "Mancoba Zwane",
+   "related_player_name": null,
+   "type_id": 14,
+   "minute": 90,
+   "extra_minute": 3,
+   "result": "3-1",
+   "sort_order": 4,
+   "rescinded": null
+  },
+  {
+   "sportmonks_event_id": 158482920,
+   "fixture_id": 1391,
+   "team_id": 81,
+   "sportmonks_player_id": 37604204,
+   "sportmonks_related_player_id": null,
+   "player_name": "Nhlanhla Zwane",
+   "related_player_name": null,
+   "type_id": 19,
+   "minute": 34,
+   "extra_minute": null,
+   "result": null,
+   "sort_order": 1,
+   "rescinded": false
+  },
+  {
+   "sportmonks_event_id": 158483475,
+   "fixture_id": 1391,
+   "team_id": 69,
+   "sportmonks_player_id": 37707846,
+   "sportmonks_related_player_id": null,
+   "player_name": "Siyanda Hlangabeza",
+   "related_player_name": null,
+   "type_id": 19,
+   "minute": 39,
+   "extra_minute": null,
+   "result": null,
+   "sort_order": 2,
+   "rescinded": false
+  },
+  {
+   "sportmonks_event_id": 158484034,
+   "fixture_id": 1391,
+   "team_id": 69,
+   "sportmonks_player_id": 288846,
+   "sportmonks_related_player_id": null,
+   "player_name": "Taariq Fielies",
+   "related_player_name": null,
+   "type_id": 19,
+   "minute": 45,
+   "extra_minute": 2,
+   "result": null,
+   "sort_order": 3,
+   "rescinded": false
+  },
+  {
+   "sportmonks_event_id": 158484851,
+   "fixture_id": 1391,
+   "team_id": 81,
+   "sportmonks_player_id": 3876830,
+   "sportmonks_related_player_id": 37291256,
+   "player_name": "Siphesile Msomi",
+   "related_player_name": "Nqobeko Dlamini",
+   "type_id": 18,
+   "minute": 46,
+   "extra_minute": null,
+   "result": null,
+   "sort_order": 1,
+   "rescinded": null
+  },
+  {
+   "sportmonks_event_id": 158485362,
+   "fixture_id": 1391,
+   "team_id": 81,
+   "sportmonks_player_id": 38210469,
+   "sportmonks_related_player_id": 37604204,
+   "player_name": "Nhlanhla Gasa",
+   "related_player_name": "Nhlanhla Zwane",
+   "type_id": 18,
+   "minute": 59,
+   "extra_minute": null,
+   "result": null,
+   "sort_order": 2,
+   "rescinded": null
+  },
+  {
+   "sportmonks_event_id": 158485363,
+   "fixture_id": 1391,
+   "team_id": 81,
+   "sportmonks_player_id": 38200961,
+   "sportmonks_related_player_id": 37707847,
+   "player_name": "Jerome Karelse",
+   "related_player_name": "Sabelo Sithole",
+   "type_id": 18,
+   "minute": 59,
+   "extra_minute": null,
+   "result": null,
+   "sort_order": 3,
+   "rescinded": null
+  },
+  {
+   "sportmonks_event_id": 158485364,
+   "fixture_id": 1391,
+   "team_id": 81,
+   "sportmonks_player_id": 37716955,
+   "sportmonks_related_player_id": 37551385,
+   "player_name": "Ronaldo van Neel",
+   "related_player_name": "Philani Kumalo",
+   "type_id": 18,
+   "minute": 59,
+   "extra_minute": null,
+   "result": null,
+   "sort_order": 4,
+   "rescinded": null
+  },
+  {
+   "sportmonks_event_id": 158485519,
+   "fixture_id": 1391,
+   "team_id": 69,
+   "sportmonks_player_id": 37592411,
+   "sportmonks_related_player_id": 37625553,
+   "player_name": "Thandolwenkosi Methuseli Ngwenya",
+   "related_player_name": "Nkosikhona Radebe",
+   "type_id": 14,
+   "minute": 65,
+   "extra_minute": null,
+   "result": "1-0",
+   "sort_order": 1,
+   "rescinded": null
+  },
+  {
+   "sportmonks_event_id": 158485633,
+   "fixture_id": 1391,
+   "team_id": 69,
+   "sportmonks_player_id": 288995,
+   "sportmonks_related_player_id": 37291269,
+   "player_name": "Hendrick Ekstein",
+   "related_player_name": "Mondli Mbanjwa",
+   "type_id": 18,
+   "minute": 68,
+   "extra_minute": null,
+   "result": null,
+   "sort_order": 5,
+   "rescinded": null
+  },
+  {
+   "sportmonks_event_id": 158485634,
+   "fixture_id": 1391,
+   "team_id": 69,
+   "sportmonks_player_id": 37735392,
+   "sportmonks_related_player_id": 37707846,
+   "player_name": "Sphamandla Zikhali",
+   "related_player_name": "Siyanda Hlangabeza",
+   "type_id": 18,
+   "minute": 68,
+   "extra_minute": null,
+   "result": null,
+   "sort_order": 6,
+   "rescinded": null
+  },
+  {
+   "sportmonks_event_id": 158485705,
+   "fixture_id": 1391,
+   "team_id": 69,
+   "sportmonks_player_id": 37719994,
+   "sportmonks_related_player_id": null,
+   "player_name": "Athini Maqokola",
+   "related_player_name": null,
+   "type_id": 19,
+   "minute": 70,
+   "extra_minute": null,
+   "result": null,
+   "sort_order": 4,
+   "rescinded": false
+  },
+  {
+   "sportmonks_event_id": 158485869,
+   "fixture_id": 1391,
+   "team_id": 69,
+   "sportmonks_player_id": 30082137,
+   "sportmonks_related_player_id": 37625553,
+   "player_name": "Keenan Phillips",
+   "related_player_name": "Nkosikhona Radebe",
+   "type_id": 18,
+   "minute": 76,
+   "extra_minute": null,
+   "result": null,
+   "sort_order": 7,
+   "rescinded": null
+  },
+  {
+   "sportmonks_event_id": 158485978,
+   "fixture_id": 1391,
+   "team_id": 81,
+   "sportmonks_player_id": 37527954,
+   "sportmonks_related_player_id": 37551386,
+   "player_name": "Lungelo Nguse",
+   "related_player_name": "Khulekani Shezi",
+   "type_id": 18,
+   "minute": 79,
+   "extra_minute": null,
+   "result": null,
+   "sort_order": 8,
+   "rescinded": null
+  },
+  {
+   "sportmonks_event_id": 158486227,
+   "fixture_id": 1391,
+   "team_id": 69,
+   "sportmonks_player_id": 37602220,
+   "sportmonks_related_player_id": 37592411,
+   "player_name": "Liam Bern",
+   "related_player_name": "Thandolwenkosi Methuseli Ngwenya",
+   "type_id": 18,
+   "minute": 86,
+   "extra_minute": null,
+   "result": null,
+   "sort_order": 9,
+   "rescinded": null
+  },
+  {
+   "sportmonks_event_id": 158486286,
+   "fixture_id": 1391,
+   "team_id": 69,
+   "sportmonks_player_id": 37773273,
+   "sportmonks_related_player_id": 12016891,
+   "player_name": "Thapelo Matlhoko",
+   "related_player_name": "S. Maduna",
+   "type_id": 18,
+   "minute": 86,
+   "extra_minute": null,
+   "result": null,
+   "sort_order": 10,
+   "rescinded": null
+  },
+  {
+   "sportmonks_event_id": 158483034,
+   "fixture_id": 1392,
+   "team_id": 62,
+   "sportmonks_player_id": 38201324,
+   "sportmonks_related_player_id": 37661388,
+   "player_name": "Siyabonga Mashini",
+   "related_player_name": "Bonginkosi Dlamini",
+   "type_id": 18,
+   "minute": 31,
+   "extra_minute": null,
+   "result": null,
+   "sort_order": 1,
+   "rescinded": null
+  },
+  {
+   "sportmonks_event_id": 158484881,
+   "fixture_id": 1392,
+   "team_id": 65,
+   "sportmonks_player_id": 37673124,
+   "sportmonks_related_player_id": 37944920,
+   "player_name": "Ntandoyenkosi Nkosi",
+   "related_player_name": "Seluleko Mahlambi",
+   "type_id": 18,
+   "minute": 46,
+   "extra_minute": null,
+   "result": null,
+   "sort_order": 2,
+   "rescinded": null
+  },
+  {
+   "sportmonks_event_id": 158485380,
+   "fixture_id": 1392,
+   "team_id": 65,
+   "sportmonks_player_id": 169816,
+   "sportmonks_related_player_id": 22860305,
+   "player_name": "Siyanda Xulu",
+   "related_player_name": "M. Mahlangu",
+   "type_id": 18,
+   "minute": 60,
+   "extra_minute": null,
+   "result": null,
+   "sort_order": 3,
+   "rescinded": null
+  },
+  {
+   "sportmonks_event_id": 158485394,
+   "fixture_id": 1392,
+   "team_id": 62,
+   "sportmonks_player_id": 30082134,
+   "sportmonks_related_player_id": 37550321,
+   "player_name": "M. Modise",
+   "related_player_name": "G. Philander",
+   "type_id": 18,
+   "minute": 61,
+   "extra_minute": null,
+   "result": null,
+   "sort_order": 4,
+   "rescinded": null
+  },
+  {
+   "sportmonks_event_id": 158485395,
+   "fixture_id": 1392,
+   "team_id": 62,
+   "sportmonks_player_id": 38225873,
+   "sportmonks_related_player_id": 37915423,
+   "player_name": "Tidimalo Molokwane",
+   "related_player_name": "Lucky Mahlatse Malatsi",
+   "type_id": 18,
+   "minute": 61,
+   "extra_minute": null,
+   "result": null,
+   "sort_order": 5,
+   "rescinded": null
+  },
+  {
+   "sportmonks_event_id": 158485431,
+   "fixture_id": 1392,
+   "team_id": 65,
+   "sportmonks_player_id": 37583924,
+   "sportmonks_related_player_id": null,
+   "player_name": "Tshepo Kakora",
+   "related_player_name": null,
+   "type_id": 19,
+   "minute": 62,
+   "extra_minute": null,
+   "result": null,
+   "sort_order": 1,
+   "rescinded": false
+  },
+  {
+   "sportmonks_event_id": 158485793,
+   "fixture_id": 1392,
+   "team_id": 62,
+   "sportmonks_player_id": 37790056,
+   "sportmonks_related_player_id": null,
+   "player_name": "Monty Batlhabane",
+   "related_player_name": null,
+   "type_id": 19,
+   "minute": 73,
+   "extra_minute": null,
+   "result": null,
+   "sort_order": 2,
+   "rescinded": false
+  },
+  {
+   "sportmonks_event_id": 158485897,
+   "fixture_id": 1392,
+   "team_id": 62,
+   "sportmonks_player_id": 37414417,
+   "sportmonks_related_player_id": 37790056,
+   "player_name": "Ndamulelo Rodney Maphangule",
+   "related_player_name": "Monty Batlhabane",
+   "type_id": 18,
+   "minute": 77,
+   "extra_minute": null,
+   "result": null,
+   "sort_order": 6,
+   "rescinded": null
+  },
+  {
+   "sportmonks_event_id": 158486240,
+   "fixture_id": 1392,
+   "team_id": 65,
+   "sportmonks_player_id": 38225487,
+   "sportmonks_related_player_id": 21054882,
+   "player_name": "Mpho Maoke",
+   "related_player_name": "Junior Zindoga",
+   "type_id": 18,
+   "minute": 87,
+   "extra_minute": null,
+   "result": null,
+   "sort_order": 7,
+   "rescinded": null
+  },
+  {
+   "sportmonks_event_id": 158486288,
+   "fixture_id": 1392,
+   "team_id": 65,
+   "sportmonks_player_id": 288936,
+   "sportmonks_related_player_id": 1501202,
+   "player_name": "M. Mvelase",
+   "related_player_name": "M. Mbunjana",
+   "type_id": 18,
+   "minute": 87,
+   "extra_minute": null,
+   "result": null,
+   "sort_order": 8,
+   "rescinded": null
+  },
+  {
+   "sportmonks_event_id": 158486388,
+   "fixture_id": 1392,
+   "team_id": 65,
+   "sportmonks_player_id": 1494614,
+   "sportmonks_related_player_id": 289469,
+   "player_name": "Sedwyn George",
+   "related_player_name": "Victor Letsoalo",
+   "type_id": 18,
+   "minute": 90,
+   "extra_minute": 2,
+   "result": null,
+   "sort_order": 9,
+   "rescinded": null
+  },
+  {
+   "sportmonks_event_id": 158472672,
+   "fixture_id": 1393,
+   "team_id": 76,
+   "sportmonks_player_id": 289681,
+   "sportmonks_related_player_id": null,
+   "player_name": "Reeve Frosler",
+   "related_player_name": null,
+   "type_id": 19,
+   "minute": 8,
+   "extra_minute": null,
+   "result": null,
+   "sort_order": 1,
+   "rescinded": false
+  },
+  {
+   "sportmonks_event_id": 158473513,
+   "fixture_id": 1393,
+   "team_id": 50,
+   "sportmonks_player_id": 37639894,
+   "sportmonks_related_player_id": 37723175,
+   "player_name": "Yanela Mbuthuma",
+   "related_player_name": "Thapelo Mokobodi",
+   "type_id": 14,
+   "minute": 24,
+   "extra_minute": null,
+   "result": "1-0",
+   "sort_order": 1,
+   "rescinded": null
+  },
+  {
+   "sportmonks_event_id": 158473722,
+   "fixture_id": 1393,
+   "team_id": 76,
+   "sportmonks_player_id": 22860191,
+   "sportmonks_related_player_id": null,
+   "player_name": "Pule Mmodi",
+   "related_player_name": null,
+   "type_id": 14,
+   "minute": 30,
+   "extra_minute": null,
+   "result": "1-1",
+   "sort_order": 2,
+   "rescinded": null
+  },
+  {
+   "sportmonks_event_id": 158474211,
+   "fixture_id": 1393,
+   "team_id": 50,
+   "sportmonks_player_id": 37910692,
+   "sportmonks_related_player_id": null,
+   "player_name": "Simphiwe Selepe",
+   "related_player_name": null,
+   "type_id": 19,
+   "minute": 38,
+   "extra_minute": null,
+   "result": null,
+   "sort_order": 2,
+   "rescinded": false
+  },
+  {
+   "sportmonks_event_id": 158474498,
+   "fixture_id": 1393,
+   "team_id": 50,
+   "sportmonks_player_id": 37648269,
+   "sportmonks_related_player_id": null,
+   "player_name": "Lebone Seema",
+   "related_player_name": null,
+   "type_id": 19,
+   "minute": 43,
+   "extra_minute": null,
+   "result": null,
+   "sort_order": 3,
+   "rescinded": false
+  },
+  {
+   "sportmonks_event_id": 158475774,
+   "fixture_id": 1393,
+   "team_id": 50,
+   "sportmonks_player_id": 21395025,
+   "sportmonks_related_player_id": 37708606,
+   "player_name": "Ghampani Lungu",
+   "related_player_name": "Nkosikhona Ndaba",
+   "type_id": 18,
+   "minute": 46,
+   "extra_minute": null,
+   "result": null,
+   "sort_order": 1,
+   "rescinded": null
+  },
+  {
+   "sportmonks_event_id": 158476429,
+   "fixture_id": 1393,
+   "team_id": 50,
+   "sportmonks_player_id": 37551389,
+   "sportmonks_related_player_id": 37723175,
+   "player_name": "Tshepang Moremi",
+   "related_player_name": "Thapelo Mokobodi",
+   "type_id": 14,
+   "minute": 55,
+   "extra_minute": null,
+   "result": "2-1",
+   "sort_order": 3,
+   "rescinded": null
+  },
+  {
+   "sportmonks_event_id": 158476648,
+   "fixture_id": 1393,
+   "team_id": 50,
+   "sportmonks_player_id": 37716963,
+   "sportmonks_related_player_id": 37910692,
+   "player_name": "Mthetheleli Mthiyane",
+   "related_player_name": "Simphiwe Selepe",
+   "type_id": 18,
+   "minute": 59,
+   "extra_minute": null,
+   "result": null,
+   "sort_order": 2,
+   "rescinded": null
+  },
+  {
+   "sportmonks_event_id": 158476649,
+   "fixture_id": 1393,
+   "team_id": 50,
+   "sportmonks_player_id": 38223378,
+   "sportmonks_related_player_id": 37392896,
+   "player_name": "Mpho Padime",
+   "related_player_name": "Thalente Mbatha",
+   "type_id": 18,
+   "minute": 59,
+   "extra_minute": null,
+   "result": null,
+   "sort_order": 3,
+   "rescinded": null
+  },
+  {
+   "sportmonks_event_id": 158477006,
+   "fixture_id": 1393,
+   "team_id": 76,
+   "sportmonks_player_id": 289136,
+   "sportmonks_related_player_id": 289681,
+   "player_name": "Zitha Kwinika",
+   "related_player_name": "Reeve Frosler",
+   "type_id": 18,
+   "minute": 69,
+   "extra_minute": null,
+   "result": null,
+   "sort_order": 4,
+   "rescinded": null
+  },
+  {
+   "sportmonks_event_id": 158477325,
+   "fixture_id": 1393,
+   "team_id": 50,
+   "sportmonks_player_id": 36084791,
+   "sportmonks_related_player_id": 38219447,
+   "player_name": "Oswin Appollis",
+   "related_player_name": "Simphiwe Masilela",
+   "type_id": 18,
+   "minute": 75,
+   "extra_minute": null,
+   "result": null,
+   "sort_order": 5,
+   "rescinded": null
+  },
+  {
+   "sportmonks_event_id": 158477350,
+   "fixture_id": 1393,
+   "team_id": 50,
+   "sportmonks_player_id": 37438632,
+   "sportmonks_related_player_id": 37639894,
+   "player_name": "Evidence Makgopa",
+   "related_player_name": "Yanela Mbuthuma",
+   "type_id": 18,
+   "minute": 75,
+   "extra_minute": null,
+   "result": null,
+   "sort_order": 6,
+   "rescinded": null
+  },
+  {
+   "sportmonks_event_id": 158477377,
+   "fixture_id": 1393,
+   "team_id": 76,
+   "sportmonks_player_id": 37656407,
+   "sportmonks_related_player_id": 37735374,
+   "player_name": "Faiz Abrahams",
+   "related_player_name": "Mfundo Vilakazi",
+   "type_id": 18,
+   "minute": 76,
+   "extra_minute": null,
+   "result": null,
+   "sort_order": 7,
+   "rescinded": null
+  },
+  {
+   "sportmonks_event_id": 158477788,
+   "fixture_id": 1393,
+   "team_id": 76,
+   "sportmonks_player_id": 163202,
+   "sportmonks_related_player_id": null,
+   "player_name": "Inácio Miguel",
+   "related_player_name": null,
+   "type_id": 19,
+   "minute": 81,
+   "extra_minute": null,
+   "result": null,
+   "sort_order": 4,
+   "rescinded": false
+  },
+  {
+   "sportmonks_event_id": 158477787,
+   "fixture_id": 1393,
+   "team_id": 76,
+   "sportmonks_player_id": 24436870,
+   "sportmonks_related_player_id": 289327,
+   "player_name": "Ethan Chislett",
+   "related_player_name": "Lebohang Maboe",
+   "type_id": 18,
+   "minute": 82,
+   "extra_minute": null,
+   "result": null,
+   "sort_order": 8,
+   "rescinded": null
+  },
+  {
+   "sportmonks_event_id": 158477860,
+   "fixture_id": 1393,
+   "team_id": 76,
+   "sportmonks_player_id": 163588,
+   "sportmonks_related_player_id": 22860191,
+   "player_name": "Flávio Silva",
+   "related_player_name": "Pule Mmodi",
+   "type_id": 18,
+   "minute": 82,
+   "extra_minute": null,
+   "result": null,
+   "sort_order": 9,
+   "rescinded": null
+  },
+  {
+   "sportmonks_event_id": 158478455,
+   "fixture_id": 1393,
+   "team_id": 76,
+   "sportmonks_player_id": 163202,
+   "sportmonks_related_player_id": null,
+   "player_name": "Inácio Miguel",
+   "related_player_name": null,
+   "type_id": 21,
+   "minute": 90,
+   "extra_minute": 1,
+   "result": null,
+   "sort_order": 1,
+   "rescinded": false
+  },
+  {
+   "sportmonks_event_id": 158482233,
+   "fixture_id": 1394,
+   "team_id": 83,
+   "sportmonks_player_id": 37653303,
+   "sportmonks_related_player_id": null,
+   "player_name": "Harold Majadibodu",
+   "related_player_name": null,
+   "type_id": 14,
+   "minute": 27,
+   "extra_minute": null,
+   "result": "0-1",
+   "sort_order": 1,
+   "rescinded": null
+  },
+  {
+   "sportmonks_event_id": 158482684,
+   "fixture_id": 1394,
+   "team_id": 60,
+   "sportmonks_player_id": 11675781,
+   "sportmonks_related_player_id": null,
+   "player_name": "Lehlogonolo Matlou",
+   "related_player_name": null,
+   "type_id": 19,
+   "minute": 32,
+   "extra_minute": null,
+   "result": null,
+   "sort_order": 1,
+   "rescinded": false
+  },
+  {
+   "sportmonks_event_id": 158485116,
+   "fixture_id": 1394,
+   "team_id": 60,
+   "sportmonks_player_id": 37547997,
+   "sportmonks_related_player_id": 37737418,
+   "player_name": "Darrel Matsheke",
+   "related_player_name": "Siviwe Nkwali",
+   "type_id": 18,
+   "minute": 58,
+   "extra_minute": null,
+   "result": null,
+   "sort_order": 1,
+   "rescinded": null
+  },
+  {
+   "sportmonks_event_id": 158485134,
+   "fixture_id": 1394,
+   "team_id": 60,
+   "sportmonks_player_id": 37907822,
+   "sportmonks_related_player_id": 38225982,
+   "player_name": "Quwan Christiano Plaatjies",
+   "related_player_name": "Raoul Daniels",
+   "type_id": 18,
+   "minute": 58,
+   "extra_minute": null,
+   "result": null,
+   "sort_order": 2,
+   "rescinded": null
+  },
+  {
+   "sportmonks_event_id": 158485360,
+   "fixture_id": 1394,
+   "team_id": 83,
+   "sportmonks_player_id": 36084792,
+   "sportmonks_related_player_id": 37583419,
+   "player_name": "Muzomuhle Khanyi",
+   "related_player_name": "Azola Matrose",
+   "type_id": 18,
+   "minute": 65,
+   "extra_minute": null,
+   "result": null,
+   "sort_order": 3,
+   "rescinded": null
+  },
+  {
+   "sportmonks_event_id": 158485565,
+   "fixture_id": 1394,
+   "team_id": 60,
+   "sportmonks_player_id": 1481621,
+   "sportmonks_related_player_id": 37266698,
+   "player_name": "T. Mthethwa",
+   "related_player_name": "Thabiso Lebitso",
+   "type_id": 18,
+   "minute": 71,
+   "extra_minute": null,
+   "result": null,
+   "sort_order": 4,
+   "rescinded": null
+  },
+  {
+   "sportmonks_event_id": 158485720,
+   "fixture_id": 1394,
+   "team_id": 83,
+   "sportmonks_player_id": 27422476,
+   "sportmonks_related_player_id": 37653303,
+   "player_name": "Ibrahim Bancé",
+   "related_player_name": "Harold Majadibodu",
+   "type_id": 18,
+   "minute": 76,
+   "extra_minute": null,
+   "result": null,
+   "sort_order": 5,
+   "rescinded": null
+  },
+  {
+   "sportmonks_event_id": 158485726,
+   "fixture_id": 1394,
+   "team_id": 83,
+   "sportmonks_player_id": 37737911,
+   "sportmonks_related_player_id": 289539,
+   "player_name": "Ntuthuko Mlotshwa",
+   "related_player_name": "Sirgio Kammies",
+   "type_id": 18,
+   "minute": 76,
+   "extra_minute": null,
+   "result": null,
+   "sort_order": 6,
+   "rescinded": null
+  },
+  {
+   "sportmonks_event_id": 158485852,
+   "fixture_id": 1394,
+   "team_id": 60,
+   "sportmonks_player_id": 1483871,
+   "sportmonks_related_player_id": 37648572,
+   "player_name": "Ashley Du Preez",
+   "related_player_name": "Q. Sibande",
+   "type_id": 18,
+   "minute": 81,
+   "extra_minute": null,
+   "result": null,
+   "sort_order": 7,
+   "rescinded": null
+  },
+  {
+   "sportmonks_event_id": 158485870,
+   "fixture_id": 1394,
+   "team_id": 60,
+   "sportmonks_player_id": 37920762,
+   "sportmonks_related_player_id": 11675781,
+   "player_name": "Kgaogelo Ramushu",
+   "related_player_name": "Lehlogonolo Matlou",
+   "type_id": 18,
+   "minute": 81,
+   "extra_minute": null,
+   "result": null,
+   "sort_order": 8,
+   "rescinded": null
+  },
+  {
+   "sportmonks_event_id": 158485906,
+   "fixture_id": 1394,
+   "team_id": 83,
+   "sportmonks_player_id": 37773005,
+   "sportmonks_related_player_id": 21414310,
+   "player_name": "Imraan Jones",
+   "related_player_name": "Justice Figuareido",
+   "type_id": 14,
+   "minute": 83,
+   "extra_minute": null,
+   "result": "0-2",
+   "sort_order": 2,
+   "rescinded": null
+  },
+  {
+   "sportmonks_event_id": 158485976,
+   "fixture_id": 1394,
+   "team_id": 83,
+   "sportmonks_player_id": 9949802,
+   "sportmonks_related_player_id": 37548618,
+   "player_name": "Bongani Sam",
+   "related_player_name": "Azola Tshobeni",
+   "type_id": 18,
+   "minute": 84,
+   "extra_minute": null,
+   "result": null,
+   "sort_order": 9,
+   "rescinded": null
+  },
+  {
+   "sportmonks_event_id": 158457803,
+   "fixture_id": 1395,
+   "team_id": 77,
+   "sportmonks_player_id": 37907680,
+   "sportmonks_related_player_id": null,
+   "player_name": "Samkele Sihlali",
+   "related_player_name": null,
+   "type_id": 14,
+   "minute": 7,
+   "extra_minute": null,
+   "result": "1-0",
+   "sort_order": 1,
+   "rescinded": null
+  },
+  {
+   "sportmonks_event_id": 158457945,
+   "fixture_id": 1395,
+   "team_id": 146,
+   "sportmonks_player_id": null,
+   "sportmonks_related_player_id": 37369352,
+   "player_name": "Raymond Makhuvele",
+   "related_player_name": "Felix Noge",
+   "type_id": 14,
+   "minute": 26,
+   "extra_minute": null,
+   "result": "1-1",
+   "sort_order": 2,
+   "rescinded": null
+  },
+  {
+   "sportmonks_event_id": 158457964,
+   "fixture_id": 1395,
+   "team_id": 77,
+   "sportmonks_player_id": 37618989,
+   "sportmonks_related_player_id": null,
+   "player_name": "Msindisi Ndlovu",
+   "related_player_name": null,
+   "type_id": 19,
+   "minute": 30,
+   "extra_minute": null,
+   "result": null,
+   "sort_order": 1,
+   "rescinded": false
+  },
+  {
+   "sportmonks_event_id": 158457987,
+   "fixture_id": 1395,
+   "team_id": 77,
+   "sportmonks_player_id": 22229131,
+   "sportmonks_related_player_id": 37563012,
+   "player_name": "Ndabayithethwa Ndlondlo",
+   "related_player_name": "Moremi Seketso",
+   "type_id": 14,
+   "minute": 32,
+   "extra_minute": null,
+   "result": "2-1",
+   "sort_order": 3,
+   "rescinded": null
+  },
+  {
+   "sportmonks_event_id": 158458555,
+   "fixture_id": 1395,
+   "team_id": 146,
+   "sportmonks_player_id": 288954,
+   "sportmonks_related_player_id": 29696394,
+   "player_name": "Maliele Vincent Pule",
+   "related_player_name": "Neo Mokhachane",
+   "type_id": 18,
+   "minute": 46,
+   "extra_minute": null,
+   "result": null,
+   "sort_order": 1,
+   "rescinded": null
+  },
+  {
+   "sportmonks_event_id": 158458568,
+   "fixture_id": 1395,
+   "team_id": 146,
+   "sportmonks_player_id": 37679570,
+   "sportmonks_related_player_id": 38221063,
+   "player_name": "Christian Saile",
+   "related_player_name": "Kwanda Lupalulele",
+   "type_id": 18,
+   "minute": 46,
+   "extra_minute": null,
+   "result": null,
+   "sort_order": 2,
+   "rescinded": null
+  },
+  {
+   "sportmonks_event_id": 158458732,
+   "fixture_id": 1395,
+   "team_id": 77,
+   "sportmonks_player_id": 37907680,
+   "sportmonks_related_player_id": 37618989,
+   "player_name": "Samkele Sihlali",
+   "related_player_name": "Msindisi Ndlovu",
+   "type_id": 14,
+   "minute": 49,
+   "extra_minute": null,
+   "result": "3-1",
+   "sort_order": 4,
+   "rescinded": null
+  },
+  {
+   "sportmonks_event_id": 158458939,
+   "fixture_id": 1395,
+   "team_id": 146,
+   "sportmonks_player_id": 288954,
+   "sportmonks_related_player_id": null,
+   "player_name": "Maliele Vincent Pule",
+   "related_player_name": null,
+   "type_id": 14,
+   "minute": 55,
+   "extra_minute": null,
+   "result": "3-2",
+   "sort_order": 5,
+   "rescinded": null
+  },
+  {
+   "sportmonks_event_id": 158458993,
+   "fixture_id": 1395,
+   "team_id": 146,
+   "sportmonks_player_id": 289610,
+   "sportmonks_related_player_id": null,
+   "player_name": "Relebogile Mokhuoane",
+   "related_player_name": "Raymond Makhuvele",
+   "type_id": 18,
+   "minute": 59,
+   "extra_minute": null,
+   "result": null,
+   "sort_order": 3,
+   "rescinded": null
+  },
+  {
+   "sportmonks_event_id": 158459106,
+   "fixture_id": 1395,
+   "team_id": 77,
+   "sportmonks_player_id": 37734002,
+   "sportmonks_related_player_id": 37563012,
+   "player_name": "Yanga Madiba",
+   "related_player_name": "Moremi Seketso",
+   "type_id": 18,
+   "minute": 67,
+   "extra_minute": null,
+   "result": null,
+   "sort_order": 4,
+   "rescinded": null
+  },
+  {
+   "sportmonks_event_id": 158459111,
+   "fixture_id": 1395,
+   "team_id": 77,
+   "sportmonks_player_id": 10626682,
+   "sportmonks_related_player_id": 37911643,
+   "player_name": "Onke Moletshe",
+   "related_player_name": "K. Ncube",
+   "type_id": 18,
+   "minute": 67,
+   "extra_minute": null,
+   "result": null,
+   "sort_order": 5,
+   "rescinded": null
+  },
+  {
+   "sportmonks_event_id": 158459173,
+   "fixture_id": 1395,
+   "team_id": 77,
+   "sportmonks_player_id": 3181437,
+   "sportmonks_related_player_id": 37618989,
+   "player_name": "Katlego Otladisa",
+   "related_player_name": "Msindisi Ndlovu",
+   "type_id": 18,
+   "minute": 67,
+   "extra_minute": null,
+   "result": null,
+   "sort_order": 6,
+   "rescinded": null
+  },
+  {
+   "sportmonks_event_id": 158459124,
+   "fixture_id": 1395,
+   "team_id": 146,
+   "sportmonks_player_id": 37551103,
+   "sportmonks_related_player_id": null,
+   "player_name": "Thabiso Sesane",
+   "related_player_name": null,
+   "type_id": 19,
+   "minute": 68,
+   "extra_minute": null,
+   "result": null,
+   "sort_order": 2,
+   "rescinded": false
+  },
+  {
+   "sportmonks_event_id": 158459145,
+   "fixture_id": 1395,
+   "team_id": 77,
+   "sportmonks_player_id": null,
+   "sportmonks_related_player_id": 37907680,
+   "player_name": "Lebogang Button",
+   "related_player_name": "Samkele Sihlali",
+   "type_id": 18,
+   "minute": 71,
+   "extra_minute": null,
+   "result": null,
+   "sort_order": 7,
+   "rescinded": null
+  },
+  {
+   "sportmonks_event_id": 158459234,
+   "fixture_id": 1395,
+   "team_id": 146,
+   "sportmonks_player_id": 37681850,
+   "sportmonks_related_player_id": 31626758,
+   "player_name": "Thato Letshedi",
+   "related_player_name": "Shadrack Kobedi",
+   "type_id": 18,
+   "minute": 78,
+   "extra_minute": null,
+   "result": null,
+   "sort_order": 8,
+   "rescinded": null
+  },
+  {
+   "sportmonks_event_id": 158459372,
+   "fixture_id": 1395,
+   "team_id": 77,
+   "sportmonks_player_id": 287823,
+   "sportmonks_related_player_id": 10310320,
+   "player_name": "D. Manaka",
+   "related_player_name": "Siphosakhe Ntiya-Ntiya",
+   "type_id": 18,
+   "minute": 84,
+   "extra_minute": null,
+   "result": null,
+   "sort_order": 10,
+   "rescinded": null
+  },
+  {
+   "sportmonks_event_id": 158459518,
+   "fixture_id": 1395,
+   "team_id": 146,
+   "sportmonks_player_id": 21414016,
+   "sportmonks_related_player_id": null,
+   "player_name": "Zakhele Lepasa",
+   "related_player_name": null,
+   "type_id": 19,
+   "minute": 90,
+   "extra_minute": 4,
+   "result": null,
+   "sort_order": 3,
+   "rescinded": false
+  }
+ ],
+ "players": [
+  {
+   "id": 15,
+   "sportmonks_player_id": 37567914,
+   "display_name": "Elson Sithole",
+   "common_name": "E. Sithole",
+   "position_id": 24
+  },
+  {
+   "id": 21,
+   "sportmonks_player_id": 3876830,
+   "display_name": "Siphesile Msomi",
+   "common_name": "S. Msomi",
+   "position_id": 26
+  },
+  {
+   "id": 23,
+   "sportmonks_player_id": 37707847,
+   "display_name": "Sabelo Sithole",
+   "common_name": "S. Sithole",
+   "position_id": 25
+  },
+  {
+   "id": 27,
+   "sportmonks_player_id": 37551386,
+   "display_name": "Khulekani Shezi",
+   "common_name": "K. Shezi",
+   "position_id": 25
+  },
+  {
+   "id": 36,
+   "sportmonks_player_id": 1494614,
+   "display_name": "Sedwyn George",
+   "common_name": "S. George",
+   "position_id": 27
+  },
+  {
+   "id": 37,
+   "sportmonks_player_id": 37566486,
+   "display_name": "Ayabulela Maxwele",
+   "common_name": "A. Maxwele",
+   "position_id": 26
+  },
+  {
+   "id": 42,
+   "sportmonks_player_id": 289686,
+   "display_name": "Nkosinathi Sibisi",
+   "common_name": "N. Sibisi",
+   "position_id": 25
+  },
+  {
+   "id": 44,
+   "sportmonks_player_id": 289313,
+   "display_name": "Deon Hotto",
+   "common_name": "D. Hotto Kavendji",
+   "position_id": 25
+  },
+  {
+   "id": 48,
+   "sportmonks_player_id": 37392896,
+   "display_name": "Thalente Mbatha",
+   "common_name": "T. Mbatha",
+   "position_id": 26
+  },
+  {
+   "id": 52,
+   "sportmonks_player_id": 289600,
+   "display_name": "Sipho Chaine",
+   "common_name": "S. Chaine",
+   "position_id": 24
+  },
+  {
+   "id": 57,
+   "sportmonks_player_id": 23223427,
+   "display_name": "Melusi Buthelezi",
+   "common_name": "M. Buthelezi",
+   "position_id": 24
+  },
+  {
+   "id": 58,
+   "sportmonks_player_id": 37551103,
+   "display_name": "Thabiso Sesane",
+   "common_name": "T. Sesane",
+   "position_id": 25
+  },
+  {
+   "id": 63,
+   "sportmonks_player_id": 22860309,
+   "display_name": "Seun Ndlovu",
+   "common_name": "S. Ndlovu",
+   "position_id": 25
+  },
+  {
+   "id": 65,
+   "sportmonks_player_id": 37583419,
+   "display_name": "Azola Matrose",
+   "common_name": "A. Matrose",
+   "position_id": 26
+  },
+  {
+   "id": 67,
+   "sportmonks_player_id": 37656406,
+   "display_name": "S. Kwayiba",
+   "common_name": "S. Kwayiba",
+   "position_id": 27
+  },
+  {
+   "id": 70,
+   "sportmonks_player_id": 37550321,
+   "display_name": "G. Philander",
+   "common_name": "G. Philander",
+   "position_id": 27
+  },
+  {
+   "id": 72,
+   "sportmonks_player_id": 37371114,
+   "display_name": "Stanley Nwabali",
+   "common_name": "S. Nwabali",
+   "position_id": 24
+  },
+  {
+   "id": 73,
+   "sportmonks_player_id": 289683,
+   "display_name": "A. Konqobe",
+   "common_name": "A. Konqobe",
+   "position_id": 25
+  },
+  {
+   "id": 74,
+   "sportmonks_player_id": 289539,
+   "display_name": "Sirgio Kammies",
+   "common_name": "S. Kammies",
+   "position_id": 25
+  },
+  {
+   "id": 76,
+   "sportmonks_player_id": 30082134,
+   "display_name": "M. Modise",
+   "common_name": "G. Modise",
+   "position_id": 25
+  },
+  {
+   "id": 83,
+   "sportmonks_player_id": 1483871,
+   "display_name": "Ashley Du Preez",
+   "common_name": "A. Du Preez",
+   "position_id": 27
+  },
+  {
+   "id": 86,
+   "sportmonks_player_id": 37551429,
+   "display_name": "Rushwin Dortley ",
+   "common_name": "R. Dortley",
+   "position_id": 25
+  },
+  {
+   "id": 89,
+   "sportmonks_player_id": 37679570,
+   "display_name": "Christian Saile",
+   "common_name": "C. Basomboli",
+   "position_id": 27
+  },
+  {
+   "id": 90,
+   "sportmonks_player_id": 7346488,
+   "display_name": "Sphiwe Msimango",
+   "common_name": "S. Msimango",
+   "position_id": 25
+  },
+  {
+   "id": 91,
+   "sportmonks_player_id": 37735374,
+   "display_name": "Mfundo Vilakazi",
+   "common_name": "M. Vilakazi",
+   "position_id": 26
+  },
+  {
+   "id": 94,
+   "sportmonks_player_id": 37673205,
+   "display_name": "Wandile Duba",
+   "common_name": "W. Duba",
+   "position_id": 27
+  },
+  {
+   "id": 96,
+   "sportmonks_player_id": 289681,
+   "display_name": "Reeve Frosler",
+   "common_name": "R. Frosler",
+   "position_id": 25
+  },
+  {
+   "id": 97,
+   "sportmonks_player_id": 37609474,
+   "display_name": "Mduduzi Shabalala",
+   "common_name": "M. Shabalala",
+   "position_id": 26
+  },
+  {
+   "id": 98,
+   "sportmonks_player_id": 289701,
+   "display_name": "Bruce Bvuma",
+   "common_name": "B. Bvuma",
+   "position_id": 24
+  },
+  {
+   "id": 100,
+   "sportmonks_player_id": 163202,
+   "display_name": "Inácio Miguel ",
+   "common_name": "I. Ferreira Santos",
+   "position_id": 25
+  },
+  {
+   "id": 102,
+   "sportmonks_player_id": 289115,
+   "display_name": "M. Rikhotso",
+   "common_name": "M. Rikhotso",
+   "position_id": 25
+  },
+  {
+   "id": 104,
+   "sportmonks_player_id": 287823,
+   "display_name": "D. Manaka",
+   "common_name": "D. Manaka",
+   "position_id": 26
+  },
+  {
+   "id": 121,
+   "sportmonks_player_id": 37529803,
+   "display_name": "Olwethu Mzimela",
+   "common_name": "O. Mzimela",
+   "position_id": 24
+  },
+  {
+   "id": 122,
+   "sportmonks_player_id": 288803,
+   "display_name": "Abbubaker Mobara",
+   "common_name": "A. Mobara",
+   "position_id": 25
+  },
+  {
+   "id": 123,
+   "sportmonks_player_id": 1507189,
+   "display_name": "Riaan Hanamub",
+   "common_name": "R. Hanamub",
+   "position_id": 25
+  },
+  {
+   "id": 126,
+   "sportmonks_player_id": 3861267,
+   "display_name": "Celimpilo Ngema",
+   "common_name": "C. Ngema",
+   "position_id": 26
+  },
+  {
+   "id": 128,
+   "sportmonks_player_id": 288846,
+   "display_name": "Taariq Fielies",
+   "common_name": "T. Fielies",
+   "position_id": 25
+  },
+  {
+   "id": 129,
+   "sportmonks_player_id": 37291269,
+   "display_name": "Mondli Mbanjwa",
+   "common_name": "M. Mbanjwa",
+   "position_id": 27
+  },
+  {
+   "id": 131,
+   "sportmonks_player_id": 37434592,
+   "display_name": "Ethan Brooks",
+   "common_name": "E. Brooks",
+   "position_id": 26
+  },
+  {
+   "id": 132,
+   "sportmonks_player_id": 37551389,
+   "display_name": "Tshepang Moremi",
+   "common_name": "T. Moremi",
+   "position_id": 27
+  },
+  {
+   "id": 135,
+   "sportmonks_player_id": 37296194,
+   "display_name": "Sifiso Ngobeni",
+   "common_name": "S. Ngobeni",
+   "position_id": 25
+  },
+  {
+   "id": 137,
+   "sportmonks_player_id": 37618989,
+   "display_name": "Msindisi Ndlovu",
+   "common_name": "M. Ndlovu",
+   "position_id": 27
+  },
+  {
+   "id": 138,
+   "sportmonks_player_id": 37551650,
+   "display_name": "Junior Dion",
+   "common_name": "S. Junior Dion",
+   "position_id": 27
+  },
+  {
+   "id": 140,
+   "sportmonks_player_id": 288891,
+   "display_name": "K. Mngonyama",
+   "common_name": "K. Mngonyama",
+   "position_id": 25
+  },
+  {
+   "id": 141,
+   "sportmonks_player_id": 406076,
+   "display_name": "Manuel Sapunga",
+   "common_name": "M. Sapunga",
+   "position_id": 24
+  },
+  {
+   "id": 142,
+   "sportmonks_player_id": 37583966,
+   "display_name": "Thabang Matuludi",
+   "common_name": "T. Matuludi",
+   "position_id": 25
+  },
+  {
+   "id": 143,
+   "sportmonks_player_id": 37604529,
+   "display_name": "Tlou Nkwe",
+   "common_name": "T. Nkwe",
+   "position_id": 25
+  },
+  {
+   "id": 144,
+   "sportmonks_player_id": 37583968,
+   "display_name": "Bulelani Nikani",
+   "common_name": "B. Nikani",
+   "position_id": 25
+  },
+  {
+   "id": 146,
+   "sportmonks_player_id": 37590176,
+   "display_name": "Mokibelo Simon Ramabu",
+   "common_name": "M. Ramabu",
+   "position_id": 27
+  },
+  {
+   "id": 151,
+   "sportmonks_player_id": 37414417,
+   "display_name": "Ndamulelo Rodney Maphangule",
+   "common_name": "N. Maphangule",
+   "position_id": 26
+  },
+  {
+   "id": 152,
+   "sportmonks_player_id": 37661388,
+   "display_name": "Bonginkosi Dlamini",
+   "common_name": "B. Dlamini",
+   "position_id": 27
+  },
+  {
+   "id": 154,
+   "sportmonks_player_id": 475006,
+   "display_name": "Manuel Kambala",
+   "common_name": "M. Kambala",
+   "position_id": 26
+  },
+  {
+   "id": 159,
+   "sportmonks_player_id": 37667491,
+   "display_name": "Lebohang Petrus Nkaki",
+   "common_name": "L. Nkaki",
+   "position_id": 25
+  },
+  {
+   "id": 160,
+   "sportmonks_player_id": 3861273,
+   "display_name": "Lindokuhle Mathebula",
+   "common_name": "L. Mathebula",
+   "position_id": 24
+  },
+  {
+   "id": 161,
+   "sportmonks_player_id": 37354706,
+   "display_name": "Ian Otieno",
+   "common_name": "I. Otieno",
+   "position_id": 24
+  },
+  {
+   "id": 162,
+   "sportmonks_player_id": 37579203,
+   "display_name": "K. Allan",
+   "common_name": "K. Allen",
+   "position_id": 25
+  },
+  {
+   "id": 163,
+   "sportmonks_player_id": 1481621,
+   "display_name": "T. Mthethwa",
+   "common_name": "T. Mthethwa",
+   "position_id": 26
+  },
+  {
+   "id": 164,
+   "sportmonks_player_id": 37639894,
+   "display_name": "Yanela Mbuthuma",
+   "common_name": "Y. Mbuthuma",
+   "position_id": 27
+  },
+  {
+   "id": 167,
+   "sportmonks_player_id": 430554,
+   "display_name": "Salim Magoola",
+   "common_name": "J. Salim Magoola",
+   "position_id": 24
+  },
+  {
+   "id": 170,
+   "sportmonks_player_id": 37379118,
+   "display_name": "Moses Mthembu ",
+   "common_name": "M. Mthembu",
+   "position_id": 26
+  },
+  {
+   "id": 171,
+   "sportmonks_player_id": 37584107,
+   "display_name": "L. Mhlongo",
+   "common_name": "L. Mhlongo",
+   "position_id": 26
+  },
+  {
+   "id": 172,
+   "sportmonks_player_id": 37549864,
+   "display_name": "L. Mabuya",
+   "common_name": "L. Mabuya",
+   "position_id": 25
+  },
+  {
+   "id": 175,
+   "sportmonks_player_id": 37752139,
+   "display_name": "Thabisa Ndelu",
+   "common_name": "T. Ndelu",
+   "position_id": 26
+  },
+  {
+   "id": 182,
+   "sportmonks_player_id": 288936,
+   "display_name": "M. Mvelase",
+   "common_name": "M. Mvelase",
+   "position_id": 26
+  },
+  {
+   "id": 185,
+   "sportmonks_player_id": 1501202,
+   "display_name": "M. Mbunjana",
+   "common_name": "M. Mbunjana",
+   "position_id": 26
+  },
+  {
+   "id": 186,
+   "sportmonks_player_id": 12016891,
+   "display_name": "S. Maduna",
+   "common_name": "S. Maduna",
+   "position_id": 26
+  },
+  {
+   "id": 187,
+   "sportmonks_player_id": 4925873,
+   "display_name": "S. Mahlangu",
+   "common_name": "S. Mahlangu",
+   "position_id": 26
+  },
+  {
+   "id": 188,
+   "sportmonks_player_id": 22860189,
+   "display_name": "Thato Khiba",
+   "common_name": "T. Khiba",
+   "position_id": 26
+  },
+  {
+   "id": 189,
+   "sportmonks_player_id": 37625553,
+   "display_name": "Nkosikhona Radebe",
+   "common_name": "N. Radebe",
+   "position_id": 25
+  },
+  {
+   "id": 191,
+   "sportmonks_player_id": 36872985,
+   "display_name": "I. Tapé",
+   "common_name": "E. Tape",
+   "position_id": 24
+  },
+  {
+   "id": 192,
+   "sportmonks_player_id": 289469,
+   "display_name": "Victor Letsoalo",
+   "common_name": "S. Letsoalo",
+   "position_id": 27
+  },
+  {
+   "id": 196,
+   "sportmonks_player_id": 37760511,
+   "display_name": "Khulumani Ndamane",
+   "common_name": "K. Ndamase",
+   "position_id": 25
+  },
+  {
+   "id": 200,
+   "sportmonks_player_id": 37648269,
+   "display_name": "Lebone Seema",
+   "common_name": "L. Seema",
+   "position_id": 25
+  },
+  {
+   "id": 201,
+   "sportmonks_player_id": 37583416,
+   "display_name": "Sazi Gumbi",
+   "common_name": "S. Gumbi",
+   "position_id": 26
+  },
+  {
+   "id": 212,
+   "sportmonks_player_id": 30082137,
+   "display_name": "Keenan Phillips",
+   "common_name": "K. Phillips",
+   "position_id": 25
+  },
+  {
+   "id": 216,
+   "sportmonks_player_id": 37527954,
+   "display_name": "Lungelo Nguse",
+   "common_name": "L. Nguse",
+   "position_id": 27
+  },
+  {
+   "id": 217,
+   "sportmonks_player_id": 37604204,
+   "display_name": "Nhlanhla Zwane",
+   "common_name": "N. Zwane",
+   "position_id": 26
+  },
+  {
+   "id": 222,
+   "sportmonks_player_id": 37762072,
+   "display_name": "Omega Mdaka",
+   "common_name": "O. Mdaka",
+   "position_id": 25
+  },
+  {
+   "id": 223,
+   "sportmonks_player_id": 37648573,
+   "display_name": "Kyle Jurgens",
+   "common_name": "K. Jurgens",
+   "position_id": 26
+  },
+  {
+   "id": 228,
+   "sportmonks_player_id": 37529815,
+   "display_name": "Chumani Butsaka",
+   "common_name": "C. Butsaka",
+   "position_id": 26
+  },
+  {
+   "id": 229,
+   "sportmonks_player_id": 288277,
+   "display_name": "Sage Stephens",
+   "common_name": "S. Stephens",
+   "position_id": 24
+  },
+  {
+   "id": 231,
+   "sportmonks_player_id": 22860311,
+   "display_name": "Sanele Barns",
+   "common_name": "S. Barns",
+   "position_id": 27
+  },
+  {
+   "id": 232,
+   "sportmonks_player_id": 1486387,
+   "display_name": "Fawaaz Basadien",
+   "common_name": "F. Basadien",
+   "position_id": 25
+  },
+  {
+   "id": 234,
+   "sportmonks_player_id": 30082139,
+   "display_name": "Thabo Moloisane",
+   "common_name": "T. Moloisane",
+   "position_id": 25
+  },
+  {
+   "id": 235,
+   "sportmonks_player_id": 37608827,
+   "display_name": "Athenkosi Mcaba",
+   "common_name": "A. Mcaba",
+   "position_id": 25
+  },
+  {
+   "id": 238,
+   "sportmonks_player_id": 289230,
+   "display_name": "Oscarine Masuluke",
+   "common_name": "O. Masuluke",
+   "position_id": 24
+  },
+  {
+   "id": 241,
+   "sportmonks_player_id": 289657,
+   "display_name": "Thakasani Mbanjwa",
+   "common_name": "T. Mbanjwa",
+   "position_id": 24
+  },
+  {
+   "id": 242,
+   "sportmonks_player_id": 289308,
+   "display_name": "N. Mobbie",
+   "common_name": "N. Mobbie",
+   "position_id": 25
+  },
+  {
+   "id": 250,
+   "sportmonks_player_id": 288954,
+   "display_name": "Maliele Vincent Pule",
+   "common_name": "M. Pule",
+   "position_id": 26
+  },
+  {
+   "id": 251,
+   "sportmonks_player_id": 22860322,
+   "display_name": "Brooklyn Poggenpoel",
+   "common_name": "B. Poggenpoel",
+   "position_id": 26
+  },
+  {
+   "id": 253,
+   "sportmonks_player_id": 289380,
+   "display_name": "Ricardo Goss",
+   "common_name": "R. Goss",
+   "position_id": 24
+  },
+  {
+   "id": 258,
+   "sportmonks_player_id": 37625529,
+   "display_name": "Bilal Baloyi",
+   "common_name": "B. Baloyi",
+   "position_id": 25
+  },
+  {
+   "id": 261,
+   "sportmonks_player_id": 287237,
+   "display_name": "Denis Onyango",
+   "common_name": "D. Onyango",
+   "position_id": 24
+  },
+  {
+   "id": 264,
+   "sportmonks_player_id": 289096,
+   "display_name": "Aubrey Modiba",
+   "common_name": "M. Modiba",
+   "position_id": 25
+  },
+  {
+   "id": 266,
+   "sportmonks_player_id": 1503717,
+   "display_name": "Marcelo Allende",
+   "common_name": "M. Allende Bravo",
+   "position_id": 26
+  },
+  {
+   "id": 267,
+   "sportmonks_player_id": 1504475,
+   "display_name": "Iqraam Rayners",
+   "common_name": "I. Rayners",
+   "position_id": 27
+  },
+  {
+   "id": 268,
+   "sportmonks_player_id": 9939953,
+   "display_name": "Bathusi Aubaas",
+   "common_name": "B. Aubaas",
+   "position_id": 26
+  },
+  {
+   "id": 269,
+   "sportmonks_player_id": 21781500,
+   "display_name": "Tashreeq Matthews",
+   "common_name": "T. Matthews",
+   "position_id": 27
+  },
+  {
+   "id": 270,
+   "sportmonks_player_id": 288275,
+   "display_name": "Themba Zwane",
+   "common_name": "T. Zwane",
+   "position_id": 27
+  },
+  {
+   "id": 276,
+   "sportmonks_player_id": 37648182,
+   "display_name": "Asekho Tiwani",
+   "common_name": "A. Tiwani",
+   "position_id": 25
+  },
+  {
+   "id": 278,
+   "sportmonks_player_id": 289327,
+   "display_name": "Lebohang Maboe",
+   "common_name": "L. Maboe",
+   "position_id": 26
+  },
+  {
+   "id": 280,
+   "sportmonks_player_id": 37779184,
+   "display_name": "Malibongwe Khoza",
+   "common_name": "M. Khoza",
+   "position_id": 25
+  },
+  {
+   "id": 284,
+   "sportmonks_player_id": 37656403,
+   "display_name": "John Managa Mokone",
+   "common_name": "J. Mokone",
+   "position_id": 25
+  },
+  {
+   "id": 289,
+   "sportmonks_player_id": 37583924,
+   "display_name": "Tshepo Kakora",
+   "common_name": "T. Kakora",
+   "position_id": 26
+  },
+  {
+   "id": 299,
+   "sportmonks_player_id": 1490667,
+   "display_name": "Motsie Matima",
+   "common_name": "M. Matima",
+   "position_id": 26
+  },
+  {
+   "id": 309,
+   "sportmonks_player_id": 30082138,
+   "display_name": "Siphesihle Mkhize",
+   "common_name": "S. Mkhize",
+   "position_id": 26
+  },
+  {
+   "id": 312,
+   "sportmonks_player_id": 289610,
+   "display_name": "Relebogile Mokhuoane",
+   "common_name": "R. Mokhuoane",
+   "position_id": 26
+  },
+  {
+   "id": 313,
+   "sportmonks_player_id": 2823377,
+   "display_name": "Katlego Mohamme",
+   "common_name": "K. Mohamme",
+   "position_id": 25
+  },
+  {
+   "id": 318,
+   "sportmonks_player_id": 37779826,
+   "display_name": "Tshepo Mokoane",
+   "common_name": "T. Mokoane",
+   "position_id": 27
+  },
+  {
+   "id": 319,
+   "sportmonks_player_id": 23223429,
+   "display_name": "Chibuike Ohizu",
+   "common_name": "C. Ohizu",
+   "position_id": 27
+  },
+  {
+   "id": 320,
+   "sportmonks_player_id": 37618987,
+   "display_name": "Mcedi Vandala",
+   "common_name": "M. Vandala",
+   "position_id": 27
+  },
+  {
+   "id": 334,
+   "sportmonks_player_id": 289303,
+   "display_name": "T. Nodada",
+   "common_name": "T. Nodada",
+   "position_id": 26
+  },
+  {
+   "id": 345,
+   "sportmonks_player_id": 37438632,
+   "display_name": "Evidence Makgopa",
+   "common_name": "E. Makgopa",
+   "position_id": 27
+  },
+  {
+   "id": 348,
+   "sportmonks_player_id": 37548618,
+   "display_name": "Azola Tshobeni",
+   "common_name": "A. Tshobeni",
+   "position_id": 26
+  },
+  {
+   "id": 352,
+   "sportmonks_player_id": 289455,
+   "display_name": "Paseka Mako",
+   "common_name": "P. Mako",
+   "position_id": 25
+  },
+  {
+   "id": 355,
+   "sportmonks_player_id": 37769580,
+   "display_name": "Mohau Nkota",
+   "common_name": "M. Nkota",
+   "position_id": 27
+  },
+  {
+   "id": 386,
+   "sportmonks_player_id": 37723175,
+   "display_name": "Thapelo Mokobodi",
+   "common_name": "T. Mokobodi",
+   "position_id": 26
+  },
+  {
+   "id": 408,
+   "sportmonks_player_id": 36084791,
+   "display_name": "Oswin Appollis",
+   "common_name": "O. Appollis",
+   "position_id": 27
+  },
+  {
+   "id": 439,
+   "sportmonks_player_id": 1504508,
+   "display_name": "Wonderboy Makhubu",
+   "common_name": "W. Makhubu",
+   "position_id": 27
+  },
+  {
+   "id": 468,
+   "sportmonks_player_id": 37549622,
+   "display_name": "Khetukuthula Ndlovu",
+   "common_name": "K. Ndlovu",
+   "position_id": 26
+  },
+  {
+   "id": 471,
+   "sportmonks_player_id": 37714261,
+   "display_name": "Ayanda Jiyane",
+   "common_name": "A. Jiyane",
+   "position_id": 25
+  },
+  {
+   "id": 513,
+   "sportmonks_player_id": 21414310,
+   "display_name": "Justice Figuareido",
+   "common_name": "J. Figuaredo",
+   "position_id": 27
+  },
+  {
+   "id": 520,
+   "sportmonks_player_id": 289136,
+   "display_name": "Zitha Kwinika",
+   "common_name": "A. Macheke",
+   "position_id": 25
+  },
+  {
+   "id": 521,
+   "sportmonks_player_id": 37529749,
+   "display_name": "Sibongiseni Mthethwa",
+   "common_name": "S. Mthethwa",
+   "position_id": 26
+  },
+  {
+   "id": 531,
+   "sportmonks_player_id": 11675781,
+   "display_name": "Lehlogonolo Matlou",
+   "common_name": "L. Matlou",
+   "position_id": 26
+  },
+  {
+   "id": 542,
+   "sportmonks_player_id": 37549624,
+   "display_name": "Khomotjo Lekoloane",
+   "common_name": "K. Lekoloane",
+   "position_id": 27
+  },
+  {
+   "id": 686,
+   "sportmonks_player_id": 37291256,
+   "display_name": "Nqobeko Dlamini",
+   "common_name": "N. Dlamini",
+   "position_id": 26
+  },
+  {
+   "id": 764,
+   "sportmonks_player_id": 22860191,
+   "display_name": "Pule Mmodi",
+   "common_name": "P. Mmodi",
+   "position_id": 27
+  },
+  {
+   "id": 782,
+   "sportmonks_player_id": 288680,
+   "display_name": "Thembela Sikhakhane",
+   "common_name": "T. Sikhakhane",
+   "position_id": 25
+  },
+  {
+   "id": 813,
+   "sportmonks_player_id": 37742824,
+   "display_name": "Boy Madingwane",
+   "common_name": "B. Madingwana",
+   "position_id": 25
+  },
+  {
+   "id": 924,
+   "sportmonks_player_id": 37632136,
+   "display_name": "David Lukhele",
+   "common_name": "D. Lukhele",
+   "position_id": 25
+  },
+  {
+   "id": 1052,
+   "sportmonks_player_id": 288995,
+   "display_name": "Hendrick Ekstein",
+   "common_name": "H. Ekstein",
+   "position_id": 27
+  },
+  {
+   "id": 1100,
+   "sportmonks_player_id": 37708606,
+   "display_name": "Nkosikhona Ndaba",
+   "common_name": "N. Ndaba",
+   "position_id": 25
+  },
+  {
+   "id": 1139,
+   "sportmonks_player_id": 37648572,
+   "display_name": "Q. Sibande",
+   "common_name": "Q. Sibande",
+   "position_id": 25
+  },
+  {
+   "id": 1221,
+   "sportmonks_player_id": 22229131,
+   "display_name": "Ndabayithethwa Ndlondlo",
+   "common_name": "N. Ndlondlo",
+   "position_id": 26
+  },
+  {
+   "id": 1287,
+   "sportmonks_player_id": 37289378,
+   "display_name": "Edson Khumalo",
+   "common_name": "E. Khumalo",
+   "position_id": 25
+  },
+  {
+   "id": 1297,
+   "sportmonks_player_id": 22860305,
+   "display_name": "M. Mahlangu",
+   "common_name": "M. Mahlangu",
+   "position_id": 25
+  },
+  {
+   "id": 1326,
+   "sportmonks_player_id": 21395025,
+   "display_name": "Ghampani Lungu",
+   "common_name": "L. Ghampani",
+   "position_id": 27
+  },
+  {
+   "id": 1411,
+   "sportmonks_player_id": 37786238,
+   "display_name": "Philani Sithebe",
+   "common_name": "P. Sithebe",
+   "position_id": 27
+  },
+  {
+   "id": 1437,
+   "sportmonks_player_id": 37562128,
+   "display_name": "Arthur Sales",
+   "common_name": "A. de Oliveira Sales",
+   "position_id": 27
+  },
+  {
+   "id": 1748,
+   "sportmonks_player_id": 289369,
+   "display_name": "Mothobi Mvala",
+   "common_name": "M. Mvala",
+   "position_id": 25
+  },
+  {
+   "id": 1756,
+   "sportmonks_player_id": 37681850,
+   "display_name": "Thato Letshedi",
+   "common_name": "T. Letshedi",
+   "position_id": 26
+  },
+  {
+   "id": 1861,
+   "sportmonks_player_id": 37789939,
+   "display_name": "Lindokuhle Zikhali",
+   "common_name": "L. Zikhali",
+   "position_id": 26
+  },
+  {
+   "id": 1905,
+   "sportmonks_player_id": 288671,
+   "display_name": "Brandon Petersen ",
+   "common_name": "B. Petersen",
+   "position_id": 24
+  },
+  {
+   "id": 1938,
+   "sportmonks_player_id": 37780311,
+   "display_name": "Sbangani Zulu",
+   "common_name": "S. Zulu",
+   "position_id": 25
+  },
+  {
+   "id": 1984,
+   "sportmonks_player_id": 37907680,
+   "display_name": "Samkele Sihlali",
+   "common_name": "S. Sihlali",
+   "position_id": 27
+  },
+  {
+   "id": 2125,
+   "sportmonks_player_id": 288251,
+   "display_name": "Kagiso Mlambo",
+   "common_name": "K. Mlambo",
+   "position_id": 24
+  },
+  {
+   "id": 2233,
+   "sportmonks_player_id": 3188054,
+   "display_name": "Goodman Mosele ",
+   "common_name": "G. Mosele",
+   "position_id": 26
+  },
+  {
+   "id": 2235,
+   "sportmonks_player_id": 288883,
+   "display_name": "Bandile Shandu",
+   "common_name": "B. Shandu",
+   "position_id": 25
+  },
+  {
+   "id": 2240,
+   "sportmonks_player_id": 37715082,
+   "display_name": "Siyabonga Ndlozi",
+   "common_name": "S. Ndlozi",
+   "position_id": 25
+  },
+  {
+   "id": 2250,
+   "sportmonks_player_id": 21054882,
+   "display_name": "Junior Zindoga",
+   "common_name": "J. Zindoga",
+   "position_id": 27
+  },
+  {
+   "id": 2252,
+   "sportmonks_player_id": 37911643,
+   "display_name": "K. Ncube",
+   "common_name": "K. Ncube",
+   "position_id": 25
+  },
+  {
+   "id": 2311,
+   "sportmonks_player_id": 1499980,
+   "display_name": "Terrence Mashego",
+   "common_name": "T. Mashego",
+   "position_id": 25
+  },
+  {
+   "id": 2462,
+   "sportmonks_player_id": 5337031,
+   "display_name": "Ntsako Makhubela",
+   "common_name": "N. Makhubela",
+   "position_id": 27
+  },
+  {
+   "id": 2473,
+   "sportmonks_player_id": 31626758,
+   "display_name": "Shadrack Kobedi",
+   "common_name": "S. Kobedi",
+   "position_id": 26
+  },
+  {
+   "id": 2495,
+   "sportmonks_player_id": 37734002,
+   "display_name": "Yanga Madiba",
+   "common_name": "Y. Madiba",
+   "position_id": 25
+  },
+  {
+   "id": 2501,
+   "sportmonks_player_id": 37910692,
+   "display_name": "Simphiwe Selepe",
+   "common_name": "S. Selepe",
+   "position_id": 26
+  },
+  {
+   "id": 2677,
+   "sportmonks_player_id": 289133,
+   "display_name": "Jody February",
+   "common_name": "J. February",
+   "position_id": 24
+  },
+  {
+   "id": 2697,
+   "sportmonks_player_id": 37744746,
+   "display_name": "Asanele Bonani",
+   "common_name": "A. Bonani",
+   "position_id": 26
+  },
+  {
+   "id": 2815,
+   "sportmonks_player_id": 37618577,
+   "display_name": "Ngoanamello Rammala",
+   "common_name": "N. Rammala",
+   "position_id": 27
+  },
+  {
+   "id": 2996,
+   "sportmonks_player_id": 37790056,
+   "display_name": "Monty Batlhabane",
+   "common_name": "M. Batlhabane",
+   "position_id": 26
+  },
+  {
+   "id": 6577,
+   "sportmonks_player_id": 3181437,
+   "display_name": "Katlego Otladisa",
+   "common_name": "K. Otladisa",
+   "position_id": 27
+  },
+  {
+   "id": 6997,
+   "sportmonks_player_id": 1507160,
+   "display_name": "Sandile Mthethwa",
+   "common_name": "S. Mthethwa",
+   "position_id": 25
+  },
+  {
+   "id": 7519,
+   "sportmonks_player_id": 37914624,
+   "display_name": "W. Ngema",
+   "common_name": "W. Ngema",
+   "position_id": 27
+  },
+  {
+   "id": 8108,
+   "sportmonks_player_id": 37656407,
+   "display_name": "Faiz Abrahams",
+   "common_name": "F. Abrahams",
+   "position_id": 27
+  },
+  {
+   "id": 8366,
+   "sportmonks_player_id": 37914848,
+   "display_name": "Siyabonga Ndebele",
+   "common_name": "S. Ndebele",
+   "position_id": 25
+  },
+  {
+   "id": 8408,
+   "sportmonks_player_id": 37916515,
+   "display_name": "Surprise Semangele Manthosi",
+   "common_name": "S. Manthosi",
+   "position_id": 25
+  },
+  {
+   "id": 8507,
+   "sportmonks_player_id": 37769579,
+   "display_name": "Siyabonga Dladla",
+   "common_name": "S. Dladla",
+   "position_id": 24
+  },
+  {
+   "id": 9367,
+   "sportmonks_player_id": 37760510,
+   "display_name": "Sbani Khumalo",
+   "common_name": "S. Mntungwa",
+   "position_id": 25
+  },
+  {
+   "id": 9876,
+   "sportmonks_player_id": 37920762,
+   "display_name": "Kgaogelo Ramushu",
+   "common_name": "K. Ramushu",
+   "position_id": 26
+  },
+  {
+   "id": 10296,
+   "sportmonks_player_id": 37688169,
+   "display_name": "P. Manqele",
+   "common_name": "P. Manqele",
+   "position_id": 24
+  },
+  {
+   "id": 11451,
+   "sportmonks_player_id": 37944920,
+   "display_name": "Seluleko Mahlambi",
+   "common_name": "S. Mahlambi",
+   "position_id": 27
+  },
+  {
+   "id": 11630,
+   "sportmonks_player_id": 37757357,
+   "display_name": "A. Mashele",
+   "common_name": "A. Mashele",
+   "position_id": 25
+  },
+  {
+   "id": 11927,
+   "sportmonks_player_id": 37947704,
+   "display_name": "Nkosiyethu Mkhabela",
+   "common_name": "N. Mkhabela",
+   "position_id": 26
+  },
+  {
+   "id": 11950,
+   "sportmonks_player_id": 37737418,
+   "display_name": "Siviwe Nkwali",
+   "common_name": "S. Nkwali",
+   "position_id": 25
+  },
+  {
+   "id": 11958,
+   "sportmonks_player_id": 36084792,
+   "display_name": "Muzomuhle Khanyi",
+   "common_name": "M. Khanyi",
+   "position_id": 27
+  },
+  {
+   "id": 11959,
+   "sportmonks_player_id": 37716963,
+   "display_name": "Mthetheleli Mthiyane",
+   "common_name": "M. Mthiyane",
+   "position_id": 26
+  },
+  {
+   "id": 11981,
+   "sportmonks_player_id": 37544414,
+   "display_name": "Tsepo Matsimbi",
+   "common_name": "T. Matsimbi",
+   "position_id": 25
+  },
+  {
+   "id": 12001,
+   "sportmonks_player_id": 37447070,
+   "display_name": "Bright Ndlovu",
+   "common_name": "B. Ndlovu",
+   "position_id": 25
+  },
+  {
+   "id": 12011,
+   "sportmonks_player_id": 38210468,
+   "display_name": "Siyanda Ndlovu",
+   "common_name": "S.Ndlovu",
+   "position_id": 27
+  },
+  {
+   "id": 12017,
+   "sportmonks_player_id": 37551385,
+   "display_name": "Philani Kumalo",
+   "common_name": "P. Kumalo",
+   "position_id": 27
+  },
+  {
+   "id": 12019,
+   "sportmonks_player_id": 38200961,
+   "display_name": "Jerome Karelse",
+   "common_name": "Jerome Karelse",
+   "position_id": 27
+  },
+  {
+   "id": 12034,
+   "sportmonks_player_id": 37711435,
+   "display_name": "Osborn Maluleke",
+   "common_name": "O. Maluleke",
+   "position_id": 25
+  },
+  {
+   "id": 12042,
+   "sportmonks_player_id": 38210469,
+   "display_name": "Nhlanhla Gasa",
+   "common_name": "N.Gasa",
+   "position_id": 27
+  },
+  {
+   "id": 12045,
+   "sportmonks_player_id": 38200926,
+   "display_name": "Ntandoyenkosi Mabaso",
+   "common_name": "N. Mabaso",
+   "position_id": 25
+  },
+  {
+   "id": 12062,
+   "sportmonks_player_id": 38210414,
+   "display_name": "Siyabonga Nzama",
+   "common_name": "S. Nzama",
+   "position_id": 26
+  },
+  {
+   "id": 12079,
+   "sportmonks_player_id": 38201512,
+   "display_name": "Lundi Mahala",
+   "common_name": "L. Mahala",
+   "position_id": 27
+  },
+  {
+   "id": 12081,
+   "sportmonks_player_id": 38205263,
+   "display_name": "Luyanda Khumalo",
+   "common_name": "L. Khumalo",
+   "position_id": 26
+  },
+  {
+   "id": 12157,
+   "sportmonks_player_id": 9949802,
+   "display_name": "Bongani Sam",
+   "common_name": "B. Sam",
+   "position_id": 25
+  },
+  {
+   "id": 12162,
+   "sportmonks_player_id": 289214,
+   "display_name": "Dumsani Msibi",
+   "common_name": "D. Msibi",
+   "position_id": 24
+  },
+  {
+   "id": 12168,
+   "sportmonks_player_id": 37653303,
+   "display_name": "Harold Majadibodu",
+   "common_name": "H. Majadibodu",
+   "position_id": 25
+  },
+  {
+   "id": 12173,
+   "sportmonks_player_id": 37654184,
+   "display_name": "Yandisa Mfolozi",
+   "common_name": "Y. Mfolozi",
+   "position_id": 25
+  },
+  {
+   "id": 12174,
+   "sportmonks_player_id": 38211141,
+   "display_name": "Manelisi Mazibuko",
+   "common_name": "M. Mazibuko",
+   "position_id": 26
+  },
+  {
+   "id": 12179,
+   "sportmonks_player_id": 38213845,
+   "display_name": "Sphesihle Jeza",
+   "common_name": "S.Jeza",
+   "position_id": 27
+  },
+  {
+   "id": 12188,
+   "sportmonks_player_id": 21414016,
+   "display_name": "Zakhele Lepasa",
+   "common_name": "Z. Lepasa",
+   "position_id": 27
+  },
+  {
+   "id": 12195,
+   "sportmonks_player_id": 37731574,
+   "display_name": "Thabang Makubo",
+   "common_name": "T. Makubo",
+   "position_id": 26
+  },
+  {
+   "id": 12198,
+   "sportmonks_player_id": 38206090,
+   "display_name": "Keabetswe Khonyane",
+   "common_name": "K. Khonyane",
+   "position_id": 25
+  },
+  {
+   "id": 12223,
+   "sportmonks_player_id": 1486668,
+   "display_name": "Simo Mbhele",
+   "common_name": "S. Mbhele",
+   "position_id": 26
+  },
+  {
+   "id": 12225,
+   "sportmonks_player_id": 37711437,
+   "display_name": "T. Pheeha",
+   "common_name": "T. Pheeha",
+   "position_id": 26
+  },
+  {
+   "id": 12229,
+   "sportmonks_player_id": 27422476,
+   "display_name": "Ibrahim Bancé",
+   "common_name": "I. Bance",
+   "position_id": 26
+  },
+  {
+   "id": 12235,
+   "sportmonks_player_id": 37740008,
+   "display_name": "Katekani Mhlongo",
+   "common_name": "K. Mhlongo",
+   "position_id": 25
+  },
+  {
+   "id": 12241,
+   "sportmonks_player_id": 37547997,
+   "display_name": "Darrel Matsheke",
+   "common_name": "D. Matsheke",
+   "position_id": 26
+  },
+  {
+   "id": 12251,
+   "sportmonks_player_id": 38210986,
+   "display_name": "Matthew Marou",
+   "common_name": "M. Marou",
+   "position_id": 27
+  },
+  {
+   "id": 12255,
+   "sportmonks_player_id": 10310320,
+   "display_name": "Siphosakhe Ntiya-Ntiya",
+   "common_name": "S. Ntiya-Ntiya",
+   "position_id": 25
+  },
+  {
+   "id": 12262,
+   "sportmonks_player_id": 37699787,
+   "display_name": "Eroine Agnikoi",
+   "common_name": "E. Agnikoi",
+   "position_id": 25
+  },
+  {
+   "id": 12266,
+   "sportmonks_player_id": 37592411,
+   "display_name": "Thandolwenkosi Methuseli Ngwenya",
+   "common_name": "T. Ngwenya",
+   "position_id": 27
+  },
+  {
+   "id": 12279,
+   "sportmonks_player_id": 37707846,
+   "display_name": "Siyanda Hlangabeza",
+   "common_name": "S. Hlangabeza",
+   "position_id": 26
+  },
+  {
+   "id": 12282,
+   "sportmonks_player_id": 37719994,
+   "display_name": "Athini Maqokola",
+   "common_name": "A. Maqokola",
+   "position_id": 27
+  },
+  {
+   "id": 12288,
+   "sportmonks_player_id": 37602220,
+   "display_name": "Liam Bern",
+   "common_name": "L. Bern",
+   "position_id": 26
+  },
+  {
+   "id": 12291,
+   "sportmonks_player_id": 37773273,
+   "display_name": "Thapelo Matlhoko",
+   "common_name": "T. Matlhoko",
+   "position_id": 27
+  },
+  {
+   "id": 12292,
+   "sportmonks_player_id": 37735392,
+   "display_name": "Sphamandla Zikhali",
+   "common_name": "S. Zikhali",
+   "position_id": 26
+  },
+  {
+   "id": 12311,
+   "sportmonks_player_id": 37614793,
+   "display_name": "Tsiki Ntsabeleng",
+   "common_name": "T. Ntsabeleng",
+   "position_id": 26
+  },
+  {
+   "id": 12324,
+   "sportmonks_player_id": 37555431,
+   "display_name": "Brayan León",
+   "common_name": "B. Muñiz",
+   "position_id": 27
+  },
+  {
+   "id": 12325,
+   "sportmonks_player_id": 2846627,
+   "display_name": "Nuno Santos",
+   "common_name": "N. Valente Santos",
+   "position_id": 26
+  },
+  {
+   "id": 12345,
+   "sportmonks_player_id": 37563012,
+   "display_name": "Moremi Seketso",
+   "common_name": "M. Seketso",
+   "position_id": 27
+  },
+  {
+   "id": 12348,
+   "sportmonks_player_id": 38201324,
+   "display_name": "Siyabonga Mashini",
+   "common_name": "S. Mashini",
+   "position_id": 27
+  },
+  {
+   "id": 12349,
+   "sportmonks_player_id": 37661391,
+   "display_name": "Edwin Ramaja",
+   "common_name": "E. Ramaja",
+   "position_id": 25
+  },
+  {
+   "id": 12363,
+   "sportmonks_player_id": 37420457,
+   "display_name": "Sapholwethu Kelepu",
+   "common_name": "S. Kelepu",
+   "position_id": 26
+  },
+  {
+   "id": 12364,
+   "sportmonks_player_id": 37760120,
+   "display_name": "Juan Adrian Mutudza",
+   "common_name": "J. Mutudza",
+   "position_id": 26
+  },
+  {
+   "id": 12377,
+   "sportmonks_player_id": 37915423,
+   "display_name": "Lucky Mahlatse Malatsi",
+   "common_name": "L. Malatsi",
+   "position_id": 27
+  },
+  {
+   "id": 12415,
+   "sportmonks_player_id": 288070,
+   "display_name": "Letsie  Koapeng",
+   "common_name": "L. Koapeng",
+   "position_id": 27
+  },
+  {
+   "id": 12434,
+   "sportmonks_player_id": 37316384,
+   "display_name": "Mfanafuthi Mkhize",
+   "common_name": "M. Mkhize",
+   "position_id": 25
+  },
+  {
+   "id": 12435,
+   "sportmonks_player_id": 37619173,
+   "display_name": "Luphumlo Sifumba",
+   "common_name": "L. Sifumba",
+   "position_id": 26
+  },
+  {
+   "id": 12436,
+   "sportmonks_player_id": 30446965,
+   "display_name": "Fredrick Asare",
+   "common_name": "F. Asare",
+   "position_id": 24
+  },
+  {
+   "id": 12453,
+   "sportmonks_player_id": 37773053,
+   "display_name": "Samkelo Maseko",
+   "common_name": "S. Maseko",
+   "position_id": 27
+  },
+  {
+   "id": 12456,
+   "sportmonks_player_id": 37618286,
+   "display_name": "Bokang Mokwena",
+   "common_name": "B. Mokwena",
+   "position_id": 27
+  },
+  {
+   "id": 12459,
+   "sportmonks_player_id": 38200924,
+   "display_name": "Jean Lwamba",
+   "common_name": "J. Lwamba",
+   "position_id": 27
+  },
+  {
+   "id": 12465,
+   "sportmonks_player_id": 37551387,
+   "display_name": "Siphamandla Ncanana",
+   "common_name": "S. Ncanana",
+   "position_id": 25
+  },
+  {
+   "id": 12475,
+   "sportmonks_player_id": 24436870,
+   "display_name": "Ethan Chislett",
+   "common_name": "E. Chislett",
+   "position_id": 26
+  },
+  {
+   "id": 12477,
+   "sportmonks_player_id": 37735430,
+   "display_name": "Thulani Mabaso",
+   "common_name": "T. Mabaso",
+   "position_id": 26
+  },
+  {
+   "id": 12499,
+   "sportmonks_player_id": 37265915,
+   "display_name": "Asanele Velebayi",
+   "common_name": "A. Velebayi",
+   "position_id": 27
+  },
+  {
+   "id": 12502,
+   "sportmonks_player_id": 163588,
+   "display_name": "Flávio Silva",
+   "common_name": "F. Silva",
+   "position_id": 27
+  },
+  {
+   "id": 12507,
+   "sportmonks_player_id": 38210417,
+   "display_name": "Melusi Mathebula",
+   "common_name": "M. Mathebula",
+   "position_id": 24
+  },
+  {
+   "id": 12509,
+   "sportmonks_player_id": 37673124,
+   "display_name": "Ntandoyenkosi Nkosi",
+   "common_name": "N. Nkosi",
+   "position_id": 26
+  },
+  {
+   "id": 12515,
+   "sportmonks_player_id": 37561561,
+   "display_name": "Igor Salatiel Silva",
+   "common_name": "I. Salatiel Silva",
+   "position_id": 25
+  },
+  {
+   "id": 12519,
+   "sportmonks_player_id": 10626682,
+   "display_name": "Onke Moletshe",
+   "common_name": "O. Moletshe",
+   "position_id": 27
+  },
+  {
+   "id": 12526,
+   "sportmonks_player_id": 169816,
+   "display_name": "Siyanda Xulu",
+   "common_name": "S. Xulu",
+   "position_id": 25
+  },
+  {
+   "id": 12532,
+   "sportmonks_player_id": 37594001,
+   "display_name": "Anslin Williams",
+   "common_name": "A. Williams",
+   "position_id": 27
+  },
+  {
+   "id": 12542,
+   "sportmonks_player_id": 37266698,
+   "display_name": "Thabiso Lebitso",
+   "common_name": "T. Lebitso",
+   "position_id": 25
+  },
+  {
+   "id": 13686,
+   "sportmonks_player_id": 37682719,
+   "display_name": "Tshepang Makara",
+   "common_name": "M. Tshepang",
+   "position_id": 25
+  },
+  {
+   "id": 13817,
+   "sportmonks_player_id": 766625,
+   "display_name": "Marcel Dandjinou",
+   "common_name": "M. Dandjinou",
+   "position_id": 24
+  },
+  {
+   "id": 13818,
+   "sportmonks_player_id": 22426140,
+   "display_name": "Sipho Sibiya",
+   "common_name": "S. Sibiya",
+   "position_id": 25
+  },
+  {
+   "id": 13820,
+   "sportmonks_player_id": 37771337,
+   "display_name": "Nkosinathi Thwala",
+   "common_name": "N. Thwala",
+   "position_id": 26
+  },
+  {
+   "id": 13827,
+   "sportmonks_player_id": 37773268,
+   "display_name": "Boitumelo Malatjie",
+   "common_name": "B. Malatjie",
+   "position_id": 25
+  },
+  {
+   "id": 13921,
+   "sportmonks_player_id": 37610347,
+   "display_name": "Kabelo Kgositsile",
+   "common_name": "K. Kgosietsile",
+   "position_id": 27
+  },
+  {
+   "id": 13967,
+   "sportmonks_player_id": 37716955,
+   "display_name": "Ronaldo van Neel",
+   "common_name": "R. Van Neel",
+   "position_id": 27
+  },
+  {
+   "id": 14028,
+   "sportmonks_player_id": 37773005,
+   "display_name": "Imraan Jones",
+   "common_name": "I. Jones",
+   "position_id": 25
+  },
+  {
+   "id": 14101,
+   "sportmonks_player_id": 37657173,
+   "display_name": "Wandile Mthombeni",
+   "common_name": "T. Mthombeni",
+   "position_id": 24
+  },
+  {
+   "id": 14103,
+   "sportmonks_player_id": 37744865,
+   "display_name": "Mlungisi Zwane",
+   "common_name": "M. Zwane",
+   "position_id": 26
+  },
+  {
+   "id": 14353,
+   "sportmonks_player_id": 22860319,
+   "display_name": "Givemore Khupe",
+   "common_name": "G. Khupe",
+   "position_id": 26
+  },
+  {
+   "id": 14363,
+   "sportmonks_player_id": 37681884,
+   "display_name": "Thabana Mabena",
+   "common_name": "T. Mabena",
+   "position_id": 26
+  },
+  {
+   "id": 14376,
+   "sportmonks_player_id": 37635528,
+   "display_name": "Bethuel Muzeu",
+   "common_name": "B. Muzeu",
+   "position_id": 27
+  },
+  {
+   "id": 14442,
+   "sportmonks_player_id": 37423260,
+   "display_name": "Siphamandla Hleza",
+   "common_name": "S. Hleza",
+   "position_id": 24
+  },
+  {
+   "id": 14446,
+   "sportmonks_player_id": 37715189,
+   "display_name": "Mfanufukile Madondo",
+   "common_name": "M. Madondo",
+   "position_id": 24
+  },
+  {
+   "id": 14449,
+   "sportmonks_player_id": 37715193,
+   "display_name": "Jabulile Gxakoshe",
+   "common_name": "J. Gxakoshe",
+   "position_id": 27
+  },
+  {
+   "id": 14450,
+   "sportmonks_player_id": 1494612,
+   "display_name": "Menzi Chili",
+   "common_name": "M. Chili",
+   "position_id": 26
+  },
+  {
+   "id": 14451,
+   "sportmonks_player_id": 37715195,
+   "display_name": "Siphosethu Ndlabi",
+   "common_name": "S. Ndlabi",
+   "position_id": 27
+  },
+  {
+   "id": 14452,
+   "sportmonks_player_id": 37715198,
+   "display_name": "Mjabulise Mkhize",
+   "common_name": "M. Mkhize",
+   "position_id": 27
+  },
+  {
+   "id": 14453,
+   "sportmonks_player_id": 37723047,
+   "display_name": "Mvelo Zikakayo",
+   "common_name": "M. Zikakayo",
+   "position_id": 27
+  },
+  {
+   "id": 14454,
+   "sportmonks_player_id": 37672364,
+   "display_name": "Olwethu Cele",
+   "common_name": "O. Cele",
+   "position_id": 25
+  },
+  {
+   "id": 14456,
+   "sportmonks_player_id": 37418681,
+   "display_name": "Vusumuzi Mthabela",
+   "common_name": "V. Mthabela",
+   "position_id": 26
+  },
+  {
+   "id": 14457,
+   "sportmonks_player_id": 37762200,
+   "display_name": "Nqaba Xulu",
+   "common_name": "N. Xulu",
+   "position_id": 27
+  },
+  {
+   "id": 14458,
+   "sportmonks_player_id": 3877065,
+   "display_name": "Sifiso Mdluli",
+   "common_name": "S. Mdluli",
+   "position_id": 25
+  },
+  {
+   "id": 14459,
+   "sportmonks_player_id": 38216189,
+   "display_name": "Konke Khwanya",
+   "common_name": "K.Khwanya",
+   "position_id": 25
+  },
+  {
+   "id": 14460,
+   "sportmonks_player_id": 38216190,
+   "display_name": "Thobani Bhengu",
+   "common_name": "T.Bhengu",
+   "position_id": 25
+  },
+  {
+   "id": 14722,
+   "sportmonks_player_id": 37571731,
+   "display_name": "Antonio Van Wyk",
+   "common_name": "A. Van Wyk",
+   "position_id": 27
+  },
+  {
+   "id": 14869,
+   "sportmonks_player_id": 37712864,
+   "display_name": "Seth Green",
+   "common_name": "S. Green",
+   "position_id": 27
+  },
+  {
+   "id": 14912,
+   "sportmonks_player_id": 37640547,
+   "display_name": "Nathan Garrow",
+   "common_name": "N. Garrow",
+   "position_id": 24
+  },
+  {
+   "id": 14969,
+   "sportmonks_player_id": 37770102,
+   "display_name": "Daba Diakité",
+   "common_name": "D. Benoit Diakité",
+   "position_id": 26
+  },
+  {
+   "id": 15017,
+   "sportmonks_player_id": 37715295,
+   "display_name": "Lifa Sylvester Makua",
+   "common_name": "L. Makua",
+   "position_id": 26
+  },
+  {
+   "id": 15081,
+   "sportmonks_player_id": 37740910,
+   "display_name": "Sphamandla Gwele",
+   "common_name": "S. Gwele",
+   "position_id": 25
+  },
+  {
+   "id": 15105,
+   "sportmonks_player_id": 29696394,
+   "display_name": "Neo Mokhachane",
+   "common_name": "N. Mokhachane",
+   "position_id": 27
+  },
+  {
+   "id": 15133,
+   "sportmonks_player_id": 37653293,
+   "display_name": "Cassius Mailula",
+   "common_name": "C. Mailula",
+   "position_id": 27
+  },
+  {
+   "id": 15238,
+   "sportmonks_player_id": 38206252,
+   "display_name": "Keanan Johannessen",
+   "common_name": "Keanan Johannessen",
+   "position_id": 26
+  },
+  {
+   "id": 15239,
+   "sportmonks_player_id": 37934940,
+   "display_name": "Gopolang Taunyana",
+   "common_name": "G. Taunyana",
+   "position_id": 25
+  },
+  {
+   "id": 15286,
+   "sportmonks_player_id": 193219,
+   "display_name": "Ebrahim Seedat",
+   "common_name": "E. Seedat",
+   "position_id": 25
+  },
+  {
+   "id": 15292,
+   "sportmonks_player_id": 37553500,
+   "display_name": "Tatenda Tavengwa",
+   "common_name": "T. Tavengwa",
+   "position_id": 26
+  },
+  {
+   "id": 19727,
+   "sportmonks_player_id": 37737911,
+   "display_name": "Ntuthuko Mlotshwa",
+   "common_name": "N. Mlotshwa",
+   "position_id": 27
+  },
+  {
+   "id": 19737,
+   "sportmonks_player_id": 37732755,
+   "display_name": "Nhlakanipho Ngcobo",
+   "common_name": "N. Ngcobo",
+   "position_id": 24
+  },
+  {
+   "id": 20531,
+   "sportmonks_player_id": 37907023,
+   "display_name": "Faveur Wilfried Kouassi",
+   "common_name": "F. Kouassi",
+   "position_id": 24
+  },
+  {
+   "id": 20815,
+   "sportmonks_player_id": 38219447,
+   "display_name": "Simphiwe Masilela",
+   "common_name": "S. Masilela",
+   "position_id": 26
+  },
+  {
+   "id": 20918,
+   "sportmonks_player_id": 38221063,
+   "display_name": "Kwanda Lupalulele",
+   "common_name": "K. Lupalulele",
+   "position_id": 25
+  },
+  {
+   "id": 21168,
+   "sportmonks_player_id": 37907872,
+   "display_name": "Tylo Jordan Sanger",
+   "common_name": "T. Sanger",
+   "position_id": 26
+  },
+  {
+   "id": 21171,
+   "sportmonks_player_id": 38221307,
+   "display_name": "Siyabonga Vukile Msomi",
+   "common_name": "S. Vukile Msomi",
+   "position_id": 25
+  },
+  {
+   "id": 21172,
+   "sportmonks_player_id": 37666126,
+   "display_name": "Alou Doumbia",
+   "common_name": "A. Doumbia",
+   "position_id": 25
+  },
+  {
+   "id": 30566,
+   "sportmonks_player_id": 38221884,
+   "display_name": "Lebohang Tshabalala",
+   "common_name": "L. Tshabalala",
+   "position_id": 26
+  },
+  {
+   "id": 34954,
+   "sportmonks_player_id": 37583885,
+   "display_name": "D'Angelo Shaheed Kazeem",
+   "common_name": "D. Kazeem",
+   "position_id": 25
+  },
+  {
+   "id": 39362,
+   "sportmonks_player_id": 38223049,
+   "display_name": "Ousman Barry",
+   "common_name": "O. Barry",
+   "position_id": 26
+  },
+  {
+   "id": 40882,
+   "sportmonks_player_id": 38223378,
+   "display_name": "Mpho Padime",
+   "common_name": "M. Padime",
+   "position_id": 27
+  },
+  {
+   "id": 45046,
+   "sportmonks_player_id": 37771323,
+   "display_name": "Oageng Phiri",
+   "common_name": "O. Phiri",
+   "position_id": 27
+  },
+  {
+   "id": 51705,
+   "sportmonks_player_id": 38206599,
+   "display_name": "Samba O'Neil",
+   "common_name": "N. Samba Gilbani",
+   "position_id": 25
+  },
+  {
+   "id": 61865,
+   "sportmonks_player_id": 37702399,
+   "display_name": "Siyabonga Gumede",
+   "common_name": "S. Gumede",
+   "position_id": 25
+  },
+  {
+   "id": 64323,
+   "sportmonks_player_id": 38225490,
+   "display_name": "Phakamani Jwara",
+   "common_name": "P. Jwara",
+   "position_id": 27
+  },
+  {
+   "id": 64332,
+   "sportmonks_player_id": 37914852,
+   "display_name": "Yanelisa Nomandela",
+   "common_name": "Y. Nomandela",
+   "position_id": 26
+  },
+  {
+   "id": 64334,
+   "sportmonks_player_id": 37739882,
+   "display_name": "Mthethwa",
+   "common_name": "C. Mthethwa",
+   "position_id": 26
+  },
+  {
+   "id": 64336,
+   "sportmonks_player_id": 37771339,
+   "display_name": "Sicelo Masilela",
+   "common_name": "S. Masilela",
+   "position_id": 27
+  },
+  {
+   "id": 65090,
+   "sportmonks_player_id": 38225489,
+   "display_name": "Siphesihle Tati",
+   "common_name": "S. Tati",
+   "position_id": 26
+  },
+  {
+   "id": 65099,
+   "sportmonks_player_id": 38225484,
+   "display_name": "Lennol Mathebula",
+   "common_name": "L. Mathebula",
+   "position_id": 25
+  },
+  {
+   "id": 65697,
+   "sportmonks_player_id": 38225873,
+   "display_name": "Tidimalo Molokwane",
+   "common_name": "T. Molokwane",
+   "position_id": 27
+  },
+  {
+   "id": 70813,
+   "sportmonks_player_id": 38225975,
+   "display_name": "Luthando Vena",
+   "common_name": "L. Vena",
+   "position_id": 25
+  },
+  {
+   "id": 70816,
+   "sportmonks_player_id": 37907822,
+   "display_name": "Quwan Christiano Plaatjies",
+   "common_name": "Q. Plaatjies",
+   "position_id": 27
+  },
+  {
+   "id": 70826,
+   "sportmonks_player_id": 38225982,
+   "display_name": "Raoul Daniels",
+   "common_name": "R. Daniels",
+   "position_id": 27
+  },
+  {
+   "id": 75454,
+   "sportmonks_player_id": 38221811,
+   "display_name": "Phabonke Mbatha",
+   "common_name": "P. Mbatha",
+   "position_id": 25
+  },
+  {
+   "id": 75581,
+   "sportmonks_player_id": 38230282,
+   "display_name": "Mancoba Zwane",
+   "common_name": "M. Zwane",
+   "position_id": 26
+  },
+  {
+   "id": 75674,
+   "sportmonks_player_id": 38226124,
+   "display_name": "Prince Manku",
+   "common_name": "P. Manku",
+   "position_id": 26
+  },
+  {
+   "id": 75678,
+   "sportmonks_player_id": 37712154,
+   "display_name": "Emile Merlin Lako Wendeu Wendeu Tcheuko",
+   "common_name": "E. Lako Wendeu Wendeu Tcheuko",
+   "position_id": 24
+  },
+  {
+   "id": 75680,
+   "sportmonks_player_id": 38226130,
+   "display_name": "Nelson Ralenkoane",
+   "common_name": "N. Ralenkoane",
+   "position_id": 25
+  },
+  {
+   "id": 80637,
+   "sportmonks_player_id": 38230683,
+   "display_name": "Patrick Motsoeneng",
+   "common_name": "P. Motsoeneng",
+   "position_id": 25
+  },
+  {
+   "id": 81465,
+   "sportmonks_player_id": 38230591,
+   "display_name": "Mnqobi Mbhele",
+   "common_name": "M. Mbhele",
+   "position_id": 25
+  },
+  {
+   "id": 81473,
+   "sportmonks_player_id": 38230590,
+   "display_name": "Lilitha Dyonasi",
+   "common_name": "L. Dyonasi",
+   "position_id": 27
+  },
+  {
+   "id": 81611,
+   "sportmonks_player_id": 37934938,
+   "display_name": "Kabelo Nkgwesa",
+   "common_name": "K. Nkgwesa",
+   "position_id": 25
+  },
+  {
+   "id": 81825,
+   "sportmonks_player_id": 38225487,
+   "display_name": "Mpho Maoke",
+   "common_name": "M. Maoke",
+   "position_id": 27
+  },
+  {
+   "id": 82172,
+   "sportmonks_player_id": 38231765,
+   "display_name": "Ndumiso Siphosakhe",
+   "common_name": "N. Biyela",
+   "position_id": 26
+  },
+  {
+   "id": 82270,
+   "sportmonks_player_id": 37681870,
+   "display_name": "Msindisi Khosa",
+   "common_name": "M. Khosa",
+   "position_id": 27
+  },
+  {
+   "id": 83323,
+   "sportmonks_player_id": 38201514,
+   "display_name": "Ntokozo Nzama",
+   "common_name": "N. Nzama",
+   "position_id": 25
+  }
+ ]
+}

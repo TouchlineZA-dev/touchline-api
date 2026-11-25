@@ -10,6 +10,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - uses: actions/setup-dotnet@v4
         with:
@@ -17,7 +19,36 @@ jobs:
 
       - run: dotnet restore Touchline.sln
       - run: dotnet build Touchline.sln --no-restore --configuration Release
-      - run: dotnet test Touchline.sln --no-build --configuration Release
+      - name: Test (database tests required)
+        run: dotnet test Touchline.sln --no-build --configuration Release --logger "trx;LogFileName=results.trx" --results-directory test-results
         env:
-          # Postgres auth tests run in a Testcontainers container; fail rather than skip without Docker.
+          # Postgres tests run in a Testcontainers container; fail rather than skip without Docker.
           TOUCHLINE_REQUIRE_DB_TESTS: "true"
+
+      - name: Record the result against the API revision
+        if: always()
+        run: |
+          echo "API revision: ${GITHUB_SHA}" >> "$GITHUB_STEP_SUMMARY"
+          echo "Test results: test-results/results.trx (artifact)" >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-results-${{ github.sha }}
+          path: test-results
+
+      - name: Dependency vulnerability check
+        run: |
+          dotnet list Touchline.sln package --vulnerable --include-transitive | tee vulnerable.txt
+          if grep -q "has the following vulnerable packages" vulnerable.txt; then
+            echo "Vulnerable packages found"; exit 1
+          fi
+
+  secret-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Secret scanning (gitleaks)
+        run: |
+          docker run --rm -v "$PWD:/repo" zricethezav/gitleaks:latest detect --source /repo --config /repo/.gitleaks.toml --redact --no-banner --log-opts="--since=2026-11-23"

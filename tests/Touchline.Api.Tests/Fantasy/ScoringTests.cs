@@ -26,6 +26,7 @@ public class ScoringTests
     [Fact]
     public void Starter_subbed_off_plays_until_that_minute()
     {
+        // Off in minute 67: plays 67 minutes.
         Assert.Equal(67, PlayerScoring.Minutes(Starter(wentOff: 67)));
         Assert.False(PlayerScoring.PlayedFullMatch(Starter(wentOff: 67)));
     }
@@ -33,20 +34,56 @@ public class ScoringTests
     [Fact]
     public void Substitute_plays_from_the_minute_he_came_on()
     {
-        Assert.Equal(30, PlayerScoring.Minutes(Sub(cameOn: 60)));
+        // On in minute 60: plays minutes 60–90, i.e. 90 − 60 + 1 = 31.
+        Assert.Equal(31, PlayerScoring.Minutes(Sub(cameOn: 60)));
     }
 
     [Fact]
     public void Substitute_who_is_then_sent_off_plays_between_the_two_minutes()
     {
-        Assert.Equal(20, PlayerScoring.Minutes(Sub(cameOn: 60, wentOff: 80)));
+        Assert.Equal(21, PlayerScoring.Minutes(Sub(cameOn: 60, wentOff: 80))); // on 60, off 80: 80 − 60 + 1
     }
 
     [Fact]
     public void Red_card_ends_minutes_at_the_card()
     {
         var f = Starter(wentOff: 35) with { RedCard = true };
-        Assert.Equal(35, PlayerScoring.Minutes(f));
+        Assert.Equal(35, PlayerScoring.Minutes(f)); // red in minute 35 → 35 minutes
+    }
+
+    [Fact]
+    public void Half_time_substitution_at_46_gives_46_and_45_minutes_and_both_get_the_appearance_point()
+    {
+        Assert.Equal(46, PlayerScoring.Minutes(Starter(wentOff: 46)));
+        Assert.Equal(45, PlayerScoring.Minutes(Sub(cameOn: 46)));
+        Assert.Equal(1, _scoring.AppearancePoints(Sub(cameOn: 46)));
+        Assert.Equal(1, _scoring.AppearancePoints(Starter(wentOff: 46)));
+    }
+
+    [Fact]
+    public void Going_off_in_minute_m_plays_m_and_coming_on_plays_length_minus_m_plus_one()
+    {
+        foreach (var m in new[] { 1, 30, 46, 60, 89, 90 })
+        {
+            Assert.Equal(m, PlayerScoring.Minutes(Starter(wentOff: m)));
+            Assert.Equal(90 - m + 1, PlayerScoring.Minutes(Sub(cameOn: m)));
+        }
+        Assert.Equal(16, PlayerScoring.Minutes(Sub(cameOn: 55, wentOff: 70))); // on 55, off 70: 70 − 55 + 1
+    }
+
+    [Fact]
+    public void Defender_subbed_off_at_60_keeps_his_clean_sheet()
+    {
+        var f = Starter(wentOff: 60) with { GoalsConceded = 0 };
+        Assert.Equal(60, PlayerScoring.Minutes(f));
+        Assert.Equal(2, _scoring.ScoreFixture(f, Position.DEF).CleanSheetPoints);
+    }
+
+    [Fact]
+    public void Minutes_never_exceed_the_match_length()
+    {
+        Assert.Equal(90, PlayerScoring.Minutes(Starter(wentOff: 94))); // e.g. stored as minute 94
+        Assert.Equal(1, PlayerScoring.Minutes(Sub(cameOn: 90)));
     }
 
     [Fact]
@@ -79,8 +116,8 @@ public class ScoringTests
     [InlineData(89, 1)]
     public void Appearance_points_by_minutes(int minutes, int expected)
     {
-        // Came on so that he plays exactly `minutes` until the end.
-        var f = Sub(cameOn: 90 - minutes);
+        // Came on so that he plays exactly `minutes` until the end (inclusive: 90 − m + 1).
+        var f = Sub(cameOn: 91 - minutes);
         Assert.Equal(minutes, PlayerScoring.Minutes(f));
         Assert.Equal(expected, _scoring.AppearancePoints(f));
     }
@@ -129,7 +166,9 @@ public class ScoringTests
     [InlineData(60, 2)]
     public void Clean_sheet_needs_sixty_minutes(int minutes, int expected)
     {
+        // Off in minute m plays m minutes.
         var f = Starter(wentOff: minutes) with { GoalsConceded = 0 };
+        Assert.Equal(minutes, PlayerScoring.Minutes(f));
         Assert.Equal(expected, _scoring.ScoreFixture(f, Position.DEF).CleanSheetPoints);
     }
 
@@ -208,7 +247,7 @@ public class ScoringTests
         var b = _scoring.ScoreGameweek([first, second], Position.ATT);
 
         Assert.Equal(2, b.Fixtures);
-        Assert.Equal(150, b.Minutes);
+        Assert.Equal(150, b.Minutes); // 90 + 60
         Assert.Equal(5, b.Total);
     }
 
@@ -247,17 +286,17 @@ public class ScoringTests
     }
 
     [Fact]
-    public void Triple_captain_is_times_nine()
+    public void Triple_captain_is_times_four()
     {
         var score = _team.Score(Team(5, 90, 4), Chips.TripleCaptain, 0);
-        Assert.Equal(45 + 8 + 18, score.Total);
+        Assert.Equal(20 + 8 + 18, score.Total);
     }
 
     [Fact]
     public void Triple_captain_moves_to_the_vice_captain_when_the_captain_does_not_play()
     {
         var score = _team.Score(Team(captainPoints: 0, captainMinutes: 0, vicePoints: 5), Chips.TripleCaptain, 0);
-        Assert.Equal(45, score.Picks.Single(p => p.PlayerId == 2).Contribution);
+        Assert.Equal(20, score.Picks.Single(p => p.PlayerId == 2).Contribution);
     }
 
     [Fact]
@@ -312,7 +351,7 @@ public class ScoringTests
     public void Missing_captaincy_is_filled_from_the_starting_xi()
     {
         var s = TestSquad.Selection() with { CaptainId = null, ViceCaptainId = null };
-        var filled = CaptaincyRules.EnsureCaptains(s, new Random(1));
+        var filled = CaptaincyRules.EnsureCaptains(s, teamId: 7, gameweekId: 11);
 
         Assert.Contains(filled.CaptainId!.Value, s.Starters);
         Assert.Contains(filled.ViceCaptainId!.Value, s.Starters);
@@ -323,6 +362,6 @@ public class ScoringTests
     public void Existing_captaincy_is_left_alone()
     {
         var s = TestSquad.Selection();
-        Assert.Same(s, CaptaincyRules.EnsureCaptains(s, new Random(1)));
+        Assert.Same(s, CaptaincyRules.EnsureCaptains(s, teamId: 7, gameweekId: 11));
     }
 }

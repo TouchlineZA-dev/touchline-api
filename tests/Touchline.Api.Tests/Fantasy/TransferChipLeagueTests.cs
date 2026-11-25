@@ -243,10 +243,11 @@ public class GameweekRulesTests
     [Fact]
     public void Finalise_only_when_marked_complete_or_every_fixture_is_final()
     {
-        Assert.True(GameweekRules.CanFinalise(false, [5, 7, 8]));
+        Assert.False(GameweekRules.CanFinalise(false, [5, 7, 8]));   // never on fixture states alone (Part 1b)
+        Assert.True(GameweekRules.CanFinalise(true, [5, 7, 8]));
         Assert.False(GameweekRules.CanFinalise(false, [5, 22]));
-        Assert.True(GameweekRules.CanFinalise(true, [5, 22]));
-        Assert.False(GameweekRules.CanFinalise(false, []));
+        Assert.False(GameweekRules.CanFinalise(true, [5, 22]));     // a fixture still live
+        Assert.False(GameweekRules.CanFinalise(true, []));
     }
 
     [Fact]

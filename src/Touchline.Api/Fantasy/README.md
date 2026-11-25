@@ -17,12 +17,13 @@ Money is in millions of rand with one decimal (7.5 = R7.5m). The API returns the
 ## Rules
 
 ### Teams and squads
-- One team per user per season. Creating a team needs only a name. Budget **R300.0m**; the squad's cost must be at most the budget, and `budget_remaining` is kept up to date.
+- One team per user per season. Creating a team needs only a name. Budget **R100.0m**; the squad's cost must be at most the budget, and `budget_remaining` is kept up to date.
 - **15 players: 2 GK, 5 DEF, 5 MID, 3 ATT**, each player once. Position comes from `football.players.position_id` (24 GK, 25 DEF, 26 MID, 27 ATT) and can't be changed. A player with an unknown position can't be picked.
+- **Only available players can be picked or priced:** players who have been in a PSL matchday squad (lineup type 11 or 12) this season, unless an admin override says otherwise (`PUT /admin/players/{id}/available`, migration 006). Before a season has any lineups, the previous season's are used. A player already in a squad is never forced out: the check applies to the first squad pick and to incoming transfers.
 - **Max 3 players from one real club.** A player's club is the team he most recently lined up for this season. A player with no club yet is allowed and flagged in the response.
 - **Starting XI:** exactly 1 GK plus a formation from 4-3-3, 4-4-2, 3-5-2, 3-4-3, 5-3-2 (so 3–5 DEF, 3–5 MID, 2–3 ATT).
 - **Bench:** 4 players, exactly 1 GK. The bench GK can only swap with the starting GK.
-- **Captain and vice-captain:** different players, both starting. A goalkeeper can be captain. If a team reaches the deadline with no captain or vice-captain, one is picked at random from its starting XI.
+- **Captain and vice-captain:** different players, both starting. A goalkeeper can be captain. If a team reaches the deadline (or scoring) with no captain or vice-captain, one is picked from its starting XI, deterministically by team and gameweek, so every re-score picks the same players.
 - Changes lock at the **deadline: 90 minutes before the gameweek's first kickoff**. A change the app made offline for a gameweek that has since locked is rejected with a message saying so.
 - Every check runs on every save, and every broken rule is returned at once.
 
@@ -32,7 +33,7 @@ Money is in millions of rand with one decimal (7.5 = R7.5m). The API returns the
 - **Bench Boost:** bench points count. **Triple Captain:** captain ×4. **Wildcard:** unlimited free transfers. Each chip once per season, at most one per gameweek.
 
 ### Scoring (per player, per fixture, added up over the gameweek)
-- **Minutes** (our plan has none, so they're worked out): from 0 if he started or the minute he came on, until the minute he was subbed off or sent off, else the end of the match (fixture length, or 90; for live matches, the current minute).
+- **Minutes** (our plan has none, so they're worked out): a starter plays from minute 0; a player coming on in minute m plays (length − m + 1) minutes; a player going off in minute m (sub or red card) plays m. A 46' sub gives the player going off 46 and the player coming on 45. Stoppage time: 45+x counts as 45 (the replacement plays from 46) and 90+x as 90; minutes never exceed the match length (fixture length, or 90), and goals, assists and cards in stoppage count normally.
 - **Appearance:** 45+ minutes = 1; on the pitch from kickoff to the final whistle = 2 in total.
 - **Goal** (types 14 and 16) +3. **Assist** (the goal event's related player) +2, switchable with `AssistsEnabled`. Rescinded events are ignored.
 - **Clean sheet** +2 for GK and DEF with 60+ minutes whose team conceded 0 in that fixture.
@@ -44,6 +45,7 @@ Money is in millions of rand with one decimal (7.5 = R7.5m). The API returns the
 - Then transfer hits are subtracted.
 
 ### Live and final points
+- Live states: every in-play and break state (Sportmonks 2, 3, 4, 6, 9, 21, 22, 23, 25).
 - While a gameweek is being played, points and standings are **provisional**: worked out from the latest football data, never saved, cached in memory for 60 seconds, and marked `"provisional": true` with each fixture's status.
 - A live match's current minute comes from the clock: time since kickoff, minus 15 minutes of half-time once past 45, capped at the match length, and never behind the latest event.
 - A gameweek is **finalised** (saved to `app.points_results` with a JSON breakdown, team totals in `app.fantasy_gameweek_entries`) only when `sync.gameweek_sync_status.marked_complete` is true or every fixture is final (state 5, 7 or 8). Re-running it updates rows; it never duplicates them.
@@ -79,14 +81,14 @@ Worked example (unit-tested): a midfielder with R1 = 6, R2 = 5, R3 = 4 and M = 2
 
 | Setting | Default | Meaning |
 |---|---|---|
-| `Budget` | 300.0 | Starting budget (millions) |
+| `Budget` | 100.0 | Starting budget (millions). The only place the budget is set (not in appsettings.json); env override `Fantasy__Budget` |
 | `SquadGoalkeepers` / `SquadDefenders` / `SquadMidfielders` / `SquadAttackers` | 2 / 5 / 5 / 3 | Squad composition |
 | `MaxPlayersPerClub` | 3 | Per real club |
 | `Formations` | `4-3-3,4-4-2,3-5-2,3-4-3,5-3-2` | Allowed formations (comma-separated) |
 | `DeadlineMinutesBeforeFirstKickoff` | 90 | Deadline |
 | `FreeTransfersPerGameweek` | 1 | No rollover |
 | `TransferHitPoints` | 4 | Per extra transfer |
-| `CaptainMultiplier` / `ViceCaptainMultiplier` / `TripleCaptainMultiplier` | 3 / 2 / 9 | |
+| `CaptainMultiplier` / `ViceCaptainMultiplier` / `TripleCaptainMultiplier` | 3 / 2 / 4 | |
 | `AppearanceMinMinutes` / `AppearancePoints` / `FullMatchPoints` | 45 / 1 / 2 | |
 | `GoalPoints` / `AssistPoints` / `AssistsEnabled` | 3 / 2 / true | |
 | `CleanSheetPoints` / `CleanSheetMinMinutes` | 2 / 60 | GK and DEF only |
@@ -99,10 +101,18 @@ Worked example (unit-tested): a midfielder with R1 = 6, R2 = 5, R3 = 4 and M = 2
 | `Pricing:ShrinkMinutes` | 900 | K |
 | `Pricing:WeightLastSeason` / `WeightTwoSeasonsAgo` / `WeightThreeSeasonsAgo` | 0.6 / 0.3 / 0.1 | |
 | `Pricing:MidSeasonMinMinutes` | 450 | |
+| `Pricing:PriceScale` | 1.0 | Multiplies every price range; must match the budget (scale = budget ÷ 100, so 100.0 → 1.0) |
 | `Pricing:PriceStep` | 0.5 | Rounding step |
 | `Pricing:Goalkeeper` / `Defender` / `Midfielder` / `Attacker` (`Min`, `Max`) | 4.0–6.0 / 4.0–7.0 / 4.5–12.0 / 4.5–12.5 | Price ranges |
 
+## Data and schema
+
+- Points, live or final, come only from the database. The API never contacts touchline-sync; it reads what the sync last wrote to `football`.
+- The app-schema SQL is in `docs/migrations`, applied by hand in the Supabase SQL Editor. Anyone running touchline-sync's Flyway must not recreate those tables.
+- Budget, `Pricing:PriceScale` and the `budget_remaining` default in `docs/migrations/003` must agree (currently 100.0, 1.0 and 100.0).
+
 ## Not ready yet
 
-- **Sportmonks codes:** which `player_lineups.type_id` is the starting XI and which player in a substitution comes on are not confirmed against the database. They're null in `Business/SportmonksCodes.cs`, which includes the SQL to confirm them. Until they're set, scoring, live points and pricing return 503; squads, transfers, chips and leagues work.
-- **Schema:** the fantasy endpoints need proposed migrations V033 and V034 (`docs/proposed-migrations`). Until then they return 503 "Schema not ready".
+- **Sportmonks codes:** confirmed against the database on 2026-11-22: lineup type 11 = starting XI, 12 = bench; in a substitution, `sportmonks_player_id` comes on. The proof is in `Business/SportmonksCodes.cs`.
+- **Live data:** the sync currently writes events and lineups in daily batches (around 23:00 UTC, about a day after kickoff), so provisional points update once a day, not minute by minute.
+- **Schema:** the fantasy endpoints need `docs/migrations` 001–005, applied by hand in the Supabase SQL Editor in number order. Until then they return 503 "Schema not ready".

@@ -7,7 +7,7 @@ using Touchline.Api.Models;
 namespace Touchline.Api.Services;
 
 /// <summary>Loads players as the fantasy rules see them: position, current club and current price.</summary>
-public sealed class FantasyDataService(TouchlineDbContext db, FootballService football)
+public sealed class FantasyDataService(TouchlineDbContext db, FootballService football, AvailabilityService availability)
 {
     public async Task<Dictionary<int, FantasyPlayer>> LoadPlayersAsync(int seasonId, IEnumerable<int> playerIds, CancellationToken ct = default)
     {
@@ -22,6 +22,7 @@ public sealed class FantasyDataService(TouchlineDbContext db, FootballService fo
         var clubIds = players.Select(p => clubs.TryGetValue(p.SportmonksPlayerId, out var c) ? c : (int?)null)
             .Where(c => c is not null).Select(c => c!.Value).Distinct().ToList();
         var clubNames = await db.Teams.Where(t => clubIds.Contains(t.Id)).ToDictionaryAsync(t => t.Id, t => t.Name, ct);
+        var available = await availability.GetAsync(seasonId, ct);
 
         return players.ToDictionary(p => p.Id, p =>
         {
@@ -33,7 +34,8 @@ public sealed class FantasyDataService(TouchlineDbContext db, FootballService fo
                 position,
                 clubId,
                 clubId is not null && clubNames.TryGetValue(clubId.Value, out var name) ? name : null,
-                prices.TryGetValue(p.Id, out var price) ? price : football.DefaultPrice(position));
+                prices.TryGetValue(p.Id, out var price) ? price : football.DefaultPrice(position),
+                available.IsAvailable(p.Id, p.SportmonksPlayerId));
         });
     }
 }
@@ -48,8 +50,42 @@ public sealed record LoadedSquad(FantasyGameweekEntry Entry, IReadOnlyList<Fanta
 /// Reads and writes app.fantasy_squads and app.fantasy_gameweek_entries. A team's picks are copied
 /// forward from its previous gameweek when it has none for a new one. No DELETE: rows are updated.
 /// </summary>
-public sealed class SquadStore(TouchlineDbContext db)
+public sealed class SquadStore(TouchlineDbContext db, SchemaFeatures schema)
 {
+    /// <summary>
+    /// The entry a team takes into a gameweek, frozen once the deadline has passed (handbook Gate 6):
+    /// copies the squad forward if needed, fills a missing captain/vice, then writes an immutable
+    /// snapshot (XI, bench order, captain, vice, chip, purchase prices, transfers and cost) the first
+    /// time it runs after the deadline. Writes are refused after the deadline, so the snapshot is the
+    /// state at the deadline. Never overwritten (needs migration 010; before it, nothing is snapshotted).
+    /// </summary>
+    public async Task<LoadedSquad?> LockAsync(int teamId, GameweekInfo gameweek, SeasonCalendar calendar, DateTimeOffset now, CancellationToken ct = default)
+    {
+        var squad = await EnsureAsync(teamId, gameweek, calendar, now, ct);
+        if (squad is null || !gameweek.IsLocked(now) || !await schema.HasColumnAsync("app", "fantasy_gameweek_entries", "locked_snapshot", ct))
+        {
+            return squad;
+        }
+
+        var snapshot = System.Text.Json.JsonSerializer.Serialize(new
+        {
+            formation = squad.Entry.Formation,
+            chip = squad.Entry.Chip,
+            transfersMade = squad.Entry.TransfersMade,
+            transferCost = squad.Entry.TransferCost,
+            version = squad.Entry.Version,
+            starters = squad.Picks.Where(p => !p.IsOnBench).OrderBy(p => p.Id)
+                .Select(p => new { playerId = p.PlayerId, purchasePrice = p.PurchasePrice, captain = p.IsCaptain, viceCaptain = p.IsViceCaptain }),
+            bench = squad.Picks.Where(p => p.IsOnBench).OrderBy(p => p.BenchOrder)
+                .Select(p => new { playerId = p.PlayerId, order = p.BenchOrder, purchasePrice = p.PurchasePrice }),
+        });
+        await db.Database.ExecuteSqlAsync($"""
+            UPDATE app.fantasy_gameweek_entries SET locked_at = {now}, locked_snapshot = CAST({snapshot} AS jsonb)
+            WHERE id = {squad.Entry.Id} AND locked_at IS NULL
+            """, ct);
+        return squad;
+    }
+
     public Task<bool> HasAnySquadAsync(int teamId, CancellationToken ct) =>
         db.FantasySquads.AnyAsync(p => p.FantasyTeamId == teamId, ct);
 
@@ -112,7 +148,7 @@ public sealed class SquadStore(TouchlineDbContext db)
         if (gameweek.IsLocked(now))
         {
             var selection = ToSelection(entry.Formation, picks);
-            var filled = CaptaincyRules.EnsureCaptains(selection, Random.Shared);
+            var filled = CaptaincyRules.EnsureCaptains(selection, teamId, gameweek.Id);
             if (!ReferenceEquals(filled, selection))
             {
                 await ApplySelectionAsync(picks, filled, ct);

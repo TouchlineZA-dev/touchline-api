@@ -6,7 +6,7 @@ Run it against **staging only**. Every value in `<angle brackets>` is a placehol
 
 ## 0. Before you start
 
-**Database.** Proposed migration V033 must be applied to the staging database through Flyway in `touchline-sync`. Until then, `/api/v1/me` returns `503 Schema not ready`. Confirm it with a read-only query as an admin role:
+**Database.** `docs/migrations/002_users_auth_link.sql` (the old V033) must be applied to the staging database, by hand in the Supabase SQL Editor as an owner account. Until then, `/api/v1/me` returns `503 Schema not ready`. Confirm it with a read-only query as an admin role:
 
 ```sql
 SELECT column_name, is_nullable
@@ -146,7 +146,7 @@ This applies if staging has a pre-Supabase `app.users` row with `auth_user_id IS
 { "status": 409, "title": "Account conflict", "code": "legacy_email_unlinked", "detail": "..." }
 ```
 
-No new row is created and the legacy row is unchanged. To resolve it, an admin sets `auth_user_id` on the legacy row through an approved Flyway or data-fix process, and the fan retries.
+No new row is created and the legacy row is unchanged. To resolve it, an admin sets `auth_user_id` on the legacy row with an approved data fix (owner account, Supabase SQL Editor), and the fan retries.
 
 ## Results log
 

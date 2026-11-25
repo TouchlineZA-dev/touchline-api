@@ -3,6 +3,14 @@ namespace Touchline.Api.Fantasy;
 /// <summary>Free transfers and points hits for one gameweek (section 4).</summary>
 public sealed class TransferRules(FantasyRules rules)
 {
+    /// <summary>
+    /// Unlimited free transfers before the Gameweek 1 deadline (changes go to GW1), while Wildcard is
+    /// active, and before a late entrant's first deadline (the first gameweek the team has a squad for;
+    /// rulebook §5 "Late entry").
+    /// </summary>
+    public static bool UnlimitedFreeTransfers(bool targetIsFirstGameweek, string? activeChip, bool targetIsTeamsFirstGameweek = false) =>
+        targetIsFirstGameweek || activeChip == Chips.Wildcard || targetIsTeamsFirstGameweek;
+
     /// <param name="alreadyMade">Transfers already made for this gameweek.</param>
     /// <param name="newTransfers">Transfers in this request.</param>
     /// <param name="unlimited">True before the Gameweek 1 deadline or with Wildcard active.</param>

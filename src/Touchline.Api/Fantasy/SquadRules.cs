@@ -13,9 +13,11 @@ public sealed class SquadRules(FantasyRules rules)
     /// <summary>
     /// Validates a full squad. <paramref name="maxCost"/> is the budget for a first squad
     /// pick; pass null when the budget is tracked through budget_remaining instead (transfers, lineup changes).
+    /// <paramref name="requireAvailable"/> checks every player is pickable (first squad pick); players
+    /// already in a squad are never blocked later.
     /// </summary>
     public RuleCheck ValidateSquad(
-        SquadSelection selection, IReadOnlyDictionary<int, FantasyPlayer> players, decimal? maxCost)
+        SquadSelection selection, IReadOnlyDictionary<int, FantasyPlayer> players, decimal? maxCost, bool requireAvailable = false)
     {
         var check = new RuleCheck();
         var all = selection.AllPlayers.ToList();
@@ -42,6 +44,10 @@ public sealed class SquadRules(FantasyRules rules)
             {
                 check.Fail($"{player.Name} has no known position yet, so he can't be picked.");
                 continue;
+            }
+            if (requireAvailable && !player.Available)
+            {
+                check.Fail(PlayerAvailability.NotAvailableMessage(player.Name));
             }
             known.Add(player);
         }
@@ -83,6 +89,10 @@ public sealed class SquadRules(FantasyRules rules)
         check.Merge(ValidateLineup(selection, players));
         return check;
     }
+
+    /// <summary>Budget left after a first squad pick: the budget minus the players' current prices.</summary>
+    public decimal BudgetAfterFirstPick(SquadSelection selection, IReadOnlyDictionary<int, FantasyPlayer> players) =>
+        rules.Budget - selection.AllPlayers.Distinct().Sum(id => players[id].Price);
 
     /// <summary>
     /// A lineup change rearranges the same 15 players: formation, starters, bench and captaincy.
@@ -160,6 +170,10 @@ public sealed class SquadRules(FantasyRules rules)
             else if (p.Position == Position.Unknown)
             {
                 check.Fail($"{p.Name} has no known position yet, so he can't be picked.");
+            }
+            else if (!p.Available)
+            {
+                check.Fail(PlayerAvailability.NotAvailableMessage(p.Name));
             }
         }
 

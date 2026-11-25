@@ -8,6 +8,9 @@ public record SeasonSummary(int Id, string Name, int CompetitionId, DateOnly? St
 
 public record TeamSummary(int Id, string Name, string? ShortCode, string? CrestUrl);
 
+/// <param name="Id">football.teams.id: the stable club id used everywhere in the API (favourite club, fixtures).</param>
+public record ClubView(int Id, long SportmonksTeamId, string Name, string? ShortCode, string? Crest);
+
 public record PlayerSummary(
     int Id,
     long SportmonksPlayerId,
@@ -18,7 +21,8 @@ public record PlayerSummary(
     string? TeamCrest,
     int? NationalityId,
     string? ImageUrl,
-    decimal Price);
+    decimal Price,
+    bool Available);
 
 public record FixtureSummary(
     int Id,
@@ -31,7 +35,14 @@ public record FixtureSummary(
     int? AwayTeamId,
     string AwayTeam,
     short? HomeScore,
-    short? AwayScore);
+    short? AwayScore,
+    MatchPhase Phase = MatchPhase.Scheduled,
+    bool NeedsReview = false,
+    int? CompetitionId = null)
+{
+    /// <summary>Deprecated alias of KickoffUtc for the web client during the rollout (docs/api/web-migration.md). Same instant, UTC.</summary>
+    public DateTimeOffset? Kickoff => KickoffUtc;
+}
 
 public record GameweekSummary(
     int Id,
@@ -40,7 +51,8 @@ public record GameweekSummary(
     DateOnly EndDate,
     bool IsActive,
     int? SeasonId,
-    bool ReadyToScore);
+    bool ReadyToScore,
+    int? Number = null);
 
 public record HealthReport(bool DatabaseReachable, string? DatabaseError, LastSyncJob? LastSyncJob);
 

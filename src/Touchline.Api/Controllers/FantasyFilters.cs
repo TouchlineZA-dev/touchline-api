@@ -18,18 +18,26 @@ public sealed class FantasyExceptionFilter(ProblemDetailsFactory problems) : IEx
         var http = context.HttpContext;
         ObjectResult? result = context.Exception switch
         {
-            RuleViolationException e => Problem(http, 400, e.Title, "Fix the problems listed in 'errors'.", ("errors", e.Errors)),
-            NotFoundException e => Problem(http, 404, "Not found", e.Message),
-            ForbiddenException e => Problem(http, 403, "Forbidden", e.Message),
-            ConflictException e => e.Current is null
-                ? Problem(http, 409, e.Title, e.Message)
-                : Problem(http, 409, e.Title, e.Message, ("current", e.Current)),
-            UserConflictException e => Problem(http, 409, "Account conflict", e.Message),
+            RuleViolationException e => Problem(http, 400, e.Title, "Fix the problems listed in 'errors'.", ("errors", e.Errors), ("code", e.Code)),
+            NotFoundException e => Problem(http, 404, "Not found", e.Message, ("code", "not_found")),
+            ForbiddenException e => Problem(http, 403, "Forbidden", e.Message, ("code", "forbidden")),
+            ConflictException e => Problem(http, 409, e.Title, e.Message,
+                new (string, object?)[] { ("code", e.Code), ("current", e.Current) }.Where(x => x.Item2 is not null).Select(x => (x.Item1, x.Item2!)).ToArray()),
+            // The squad version changed between reading and writing (EF concurrency token on version): another device won.
+            Microsoft.EntityFrameworkCore.DbUpdateConcurrencyException => Problem(http, 409, "Team changed",
+                "Your team changed on another device while this was being saved, so nothing was saved. Reload and try again.",
+                ("code", ErrorCodes.StaleSquad)),
+            // Same body as /api/v1/me: a stable "code" (legacy_email_unlinked / email_in_use) the app can act on.
+            UserConflictException e => Problem(http, 409, "Account conflict", e.Message, ("code", e.Code)),
+            CodedException e => Problem(http, e.Status, e.Title, e.Message, ("code", e.Code)),
             SchemaNotReadyException e => Problem(http, 503, "Schema not ready", e.Message),
+            _ when Transient(context.Exception) => Problem(http, 409, "Team changed",
+                "Another change to your team was being saved at the same moment, so nothing was saved. Reload and try again.",
+                ("code", ErrorCodes.StaleSquad)),
             SportmonksCodesNotConfirmedException e => Problem(http, 503, "Sportmonks codes not confirmed", e.Message),
             _ when MissingSchema(context.Exception) => Problem(http, 503, "Schema not ready",
-                "The database is missing a table or column the fantasy API needs. Apply proposed migrations V033 and V034 " +
-                "(docs/proposed-migrations)."),
+                "The database is missing a table or column the fantasy API needs. Apply the files in " +
+                "docs/migrations in the Supabase SQL Editor, in number order."),
             _ => null,
         };
 
@@ -45,6 +53,15 @@ public sealed class FantasyExceptionFilter(ProblemDetailsFactory problems) : IEx
         var problem = problems.CreateProblemDetails(http, status, title, detail: detail);
         foreach (var (key, value) in extensions) problem.Extensions[key] = value;
         return new ObjectResult(problem) { StatusCode = status };
+    }
+
+    private static bool Transient(Exception ex)
+    {
+        for (var e = ex; e is not null; e = e.InnerException)
+        {
+            if (e is PostgresException { SqlState: PostgresErrorCodes.DeadlockDetected or PostgresErrorCodes.SerializationFailure }) return true;
+        }
+        return false;
     }
 
     private static bool MissingSchema(Exception ex)
@@ -84,7 +101,15 @@ public sealed class ETagAttribute : Attribute, IAsyncResultFilter
 
             var etag = http.Items[SquadVersionKey] is int version ? SquadVersion.ETag(version, hash) : $"\"h-{hash}\"";
             http.Response.Headers.ETag = etag;
-            http.Response.Headers.CacheControl = "private, no-cache";
+            // Public football reads may be cached by shared caches; anything signed in is private to the caller
+            // and never shared (Gate 9 "cache public match reads separately from authenticated responses").
+            var path = http.Request.Path.Value ?? "";
+            var personal = http.Request.Headers.Authorization.Count > 0
+                || path.StartsWith("/api/v1/me", StringComparison.OrdinalIgnoreCase)
+                || path.StartsWith("/api/v1/fantasy", StringComparison.OrdinalIgnoreCase)
+                || path.StartsWith("/api/v1/admin", StringComparison.OrdinalIgnoreCase);
+            http.Response.Headers.CacheControl = personal ? "private, no-cache" : "public, max-age=15";
+            http.Response.Headers.Vary = "Authorization";
 
             var ifNoneMatch = http.Request.Headers.IfNoneMatch.ToString();
             if (ifNoneMatch.Split(',').Select(t => t.Trim()).Contains(etag))

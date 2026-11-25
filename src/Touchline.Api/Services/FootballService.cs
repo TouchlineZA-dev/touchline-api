@@ -8,7 +8,7 @@ using Touchline.Api.Models;
 namespace Touchline.Api.Services;
 
 public sealed class FootballService(
-    TouchlineDbContext db, IOptions<FootballOptions> options, IOptions<FantasyRules> fantasy)
+    TouchlineDbContext db, IOptions<FootballOptions> options, IOptions<FantasyRules> fantasy, AvailabilityService availability, FootballReads reads)
 {
     /// <summary>
     /// Price when app.player_prices has no row: the position's minimum price (Fantasy:Pricing),
@@ -29,14 +29,31 @@ public sealed class FootballService(
             .FirstOrDefaultAsync(ct);
     }
 
-    public async Task<IReadOnlyList<TeamSummary>> GetTeamsAsync(CancellationToken ct = default)
+    /// <summary>
+    /// Clubs in a season: teams that play at least one of its fixtures. football.teams also holds
+    /// clubs from other leagues the sync has seen (311 rows on 2026-11-22), so it isn't filtered by itself.
+    /// </summary>
+    public async Task<IReadOnlyList<TeamSummary>> GetTeamsAsync(int seasonId, CancellationToken ct = default)
     {
+        var seasonFixtures = db.Fixtures.Where(f => f.SeasonId == seasonId && !f.IsPlaceholder);
         var teams = await db.Teams
-            .Where(t => !t.IsPlaceholder)
+            .Where(t => !t.IsPlaceholder
+                && seasonFixtures.Any(f => f.HomeTeamId == t.Id || f.AwayTeamId == t.Id))
             .OrderBy(t => t.Name)
             .ToListAsync(ct);
 
         return teams.Select(t => new TeamSummary(t.Id, t.Name, t.ShortCode, RealImageOrNull(t.ImagePath))).ToList();
+    }
+
+    /// <summary>GET /clubs: the season's clubs with internal and Sportmonks ids.</summary>
+    public async Task<IReadOnlyList<ClubView>> GetClubsAsync(int seasonId, CancellationToken ct = default)
+    {
+        var seasonFixtures = db.Fixtures.Where(f => f.SeasonId == seasonId && !f.IsPlaceholder);
+        var teams = await db.Teams
+            .Where(t => !t.IsPlaceholder && seasonFixtures.Any(f => f.HomeTeamId == t.Id || f.AwayTeamId == t.Id))
+            .OrderBy(t => t.Name)
+            .ToListAsync(ct);
+        return teams.Select(t => new ClubView(t.Id, t.SportmonksTeamId, t.Name, t.ShortCode, RealImageOrNull(t.ImagePath))).ToList();
     }
 
     public async Task<IReadOnlyList<PlayerSummary>> GetPlayersAsync(int seasonId, CancellationToken ct = default)
@@ -50,6 +67,7 @@ public sealed class FootballService(
         var teams = await db.Teams.ToDictionaryAsync(t => t.Id, ct);
 
         var clubBySportmonksId = await GetLatestClubsAsync(seasonId, ct);
+        var available = await availability.GetAsync(seasonId, ct);
 
         return players
             .Select(p =>
@@ -71,7 +89,8 @@ public sealed class FootballService(
                     TeamCrest: RealImageOrNull(team?.ImagePath),
                     NationalityId: p.NationalityId,
                     ImageUrl: RealImageOrNull(p.ImagePath),
-                    Price: prices.TryGetValue(p.Id, out var price) ? price : DefaultPrice(position));
+                    Price: prices.TryGetValue(p.Id, out var price) ? price : DefaultPrice(position),
+                    Available: position != Position.Unknown && available.IsAvailable(p.Id, p.SportmonksPlayerId));
             })
             .OrderBy(p => p.Name)
             .ToList();
@@ -84,17 +103,31 @@ public sealed class FootballService(
     /// </summary>
     public async Task<Dictionary<long, int>> GetLatestClubsAsync(int seasonId, CancellationToken ct = default)
     {
-        var clubs = await db.Database.SqlQuery<PlayerClubRow>($"""
-            SELECT DISTINCT ON (l.sportmonks_player_id)
-                   l.sportmonks_player_id AS "SportmonksPlayerId",
-                   l.team_id              AS "TeamId"
-            FROM football.player_lineups l
-            JOIN football.fixtures f ON f.id = l.fixture_id
-            WHERE f.season_id = {seasonId}
-              AND l.sportmonks_player_id IS NOT NULL
-              AND l.team_id IS NOT NULL
-            ORDER BY l.sportmonks_player_id, f.starting_at DESC NULLS LAST
-            """).ToListAsync(ct);
+        // Withdrawn lineup rows (touchline-sync V041) don't count; before V041 there are none.
+        var clubs = await (await reads.LineupsHaveWithdrawnAsync(ct)
+            ? db.Database.SqlQuery<PlayerClubRow>($"""
+                SELECT DISTINCT ON (l.sportmonks_player_id)
+                       l.sportmonks_player_id AS "SportmonksPlayerId",
+                       l.team_id              AS "TeamId"
+                FROM football.player_lineups l
+                JOIN football.fixtures f ON f.id = l.fixture_id
+                WHERE f.season_id = {seasonId}
+                  AND l.sportmonks_player_id IS NOT NULL
+                  AND l.team_id IS NOT NULL
+                  AND l.withdrawn_at IS NULL
+                ORDER BY l.sportmonks_player_id, f.starting_at DESC NULLS LAST
+                """)
+            : db.Database.SqlQuery<PlayerClubRow>($"""
+                SELECT DISTINCT ON (l.sportmonks_player_id)
+                       l.sportmonks_player_id AS "SportmonksPlayerId",
+                       l.team_id              AS "TeamId"
+                FROM football.player_lineups l
+                JOIN football.fixtures f ON f.id = l.fixture_id
+                WHERE f.season_id = {seasonId}
+                  AND l.sportmonks_player_id IS NOT NULL
+                  AND l.team_id IS NOT NULL
+                ORDER BY l.sportmonks_player_id, f.starting_at DESC NULLS LAST
+                """)).ToListAsync(ct);
 
         return clubs.ToDictionary(c => c.SportmonksPlayerId, c => c.TeamId);
     }
@@ -105,10 +138,24 @@ public sealed class FootballService(
     /// <summary>Null for Sportmonks' stock "placeholder" image.</summary>
     public static string? ImageOrNull(string? url) => RealImageOrNull(url);
 
+    /// <summary>The current season of a competition (internal football.competitions.id).</summary>
+    public Task<SeasonSummary?> GetCurrentSeasonAsync(int competitionId, CancellationToken ct = default) =>
+        db.Seasons.Where(s => s.CompetitionId == competitionId && s.IsCurrent)
+            .Select(s => new SeasonSummary(s.Id, s.Name, s.CompetitionId, s.StartingAt, s.EndingAt))
+            .FirstOrDefaultAsync(ct);
+
+    /// <summary>
+    /// Fixtures of a season, optionally between two instants and/or for one club. Status and phase come
+    /// from MatchStateMatrix; a match that hasn't started has a null score.
+    /// </summary>
     public async Task<IReadOnlyList<FixtureSummary>> GetFixturesAsync(
-        int seasonId, DateTimeOffset? from, DateTimeOffset? to, CancellationToken ct = default)
+        int seasonId, DateTimeOffset? from, DateTimeOffset? to, CancellationToken ct = default, int? teamId = null)
     {
         var query = db.Fixtures.Where(f => f.SeasonId == seasonId);
+        if (teamId is not null)
+        {
+            query = query.Where(f => f.HomeTeamId == teamId || f.AwayTeamId == teamId);
+        }
 
         // Npgsql only writes UTC DateTimeOffset values to timestamptz.
         if (from is not null)
@@ -128,18 +175,26 @@ public sealed class FootballService(
         string NameOf(int? id) => id is not null && teamNames.TryGetValue(id.Value, out var n) ? n : "TBD";
 
         return fixtures
-            .Select(f => new FixtureSummary(
-                f.Id,
-                f.SportmonksFixtureId,
-                f.StartingAt,
-                MatchStatusExtensions.FromStateId(f.StateId),
-                f.StateId,
-                f.HomeTeamId,
-                NameOf(f.HomeTeamId),
-                f.AwayTeamId,
-                NameOf(f.AwayTeamId),
-                f.HomeScore,
-                f.AwayScore))
+            .Select(f =>
+            {
+                var state = MatchStateMatrix.For(f.StateId);
+                var showScore = state.Played || state.ResultFinal;
+                return new FixtureSummary(
+                    f.Id,
+                    f.SportmonksFixtureId,
+                    f.StartingAt,
+                    state.Status,
+                    f.StateId,
+                    f.HomeTeamId,
+                    NameOf(f.HomeTeamId),
+                    f.AwayTeamId,
+                    NameOf(f.AwayTeamId),
+                    showScore ? f.HomeScore ?? 0 : null,
+                    showScore ? f.AwayScore ?? 0 : null,
+                    state.Phase,
+                    state.NeedsReview,
+                    f.CompetitionId);
+            })
             .ToList();
     }
 

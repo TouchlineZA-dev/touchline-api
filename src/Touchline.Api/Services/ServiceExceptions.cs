@@ -14,11 +14,12 @@ public sealed class UserConflictException(string message, string code, Exception
 }
 
 /// <summary>One or more fantasy rules are broken. Returned as 400 listing every broken rule.</summary>
-public sealed class RuleViolationException(IReadOnlyList<string> errors, string title = "Some rules aren't met")
+public sealed class RuleViolationException(IReadOnlyList<string> errors, string title = "Some rules aren't met", string code = "rule_violation")
     : Exception(string.Join(" ", errors))
 {
     public IReadOnlyList<string> Errors { get; } = errors;
     public string Title { get; } = title;
+    public string Code { get; } = code;
 
     public RuleViolationException(string error) : this([error]) { }
 }
@@ -30,10 +31,28 @@ public sealed class NotFoundException(string message) : Exception(message);
 public sealed class ForbiddenException(string message) : Exception(message);
 
 /// <summary>409. Current carries the latest state when the client's copy is out of date (If-Match).</summary>
-public sealed class ConflictException(string message, string title = "Conflict", object? current = null) : Exception(message)
+public sealed class ConflictException(string message, string title = "Conflict", object? current = null, string? code = null) : Exception(message)
 {
     public string Title { get; } = title;
     public object? Current { get; } = current;
+    /// <summary>Machine-readable reason (docs/api/errors.md), e.g. stale_squad, gameweek_locked, price_changed.</summary>
+    public string? Code { get; } = code;
+}
+
+/// <summary>The stable error codes clients act on (docs/api/errors.md).</summary>
+public static class ErrorCodes
+{
+    public const string TargetGameweekRequired = "target_gameweek_required";
+    public const string GameweekLocked = "gameweek_locked";
+    public const string StaleSquad = "stale_squad";
+    public const string SquadAlreadyPicked = "squad_already_picked";
+    public const string QuoteExpired = "quote_expired";
+    public const string PriceChanged = "price_changed";
+    public const string InsufficientFunds = "insufficient_funds";
+    public const string IdempotencyKeyRequired = "idempotency_key_required";
+    public const string IdempotencyKeyReused = "idempotency_key_reused";
+    public const string RuleViolation = "rule_violation";
+    public const string ChipNotCancellable = "chip_not_cancellable";
 }
 
 /// <summary>
@@ -43,3 +62,19 @@ public sealed class ConflictException(string message, string title = "Conflict",
 public sealed class SportmonksCodesNotConfirmedException() : Exception(
     "Minutes can't be worked out yet: the lineup type and substitution codes in Business/SportmonksCodes.cs " +
     "haven't been confirmed against the database. Scoring, live points and pricing are unavailable until they are.");
+
+/// <summary>
+/// An error with a stable machine-readable "code" in the problem details, so the app doesn't parse
+/// English text (e.g. username_taken, account_suspended, account_deleted, reauthentication_required).
+/// </summary>
+public sealed class CodedException(int status, string code, string title, string detail) : Exception(detail)
+{
+    public const string UsernameTaken = "username_taken";
+    public const string AccountSuspended = "account_suspended";
+    public const string AccountDeleted = "account_deleted";
+    public const string ReauthenticationRequired = "reauthentication_required";
+
+    public int Status { get; } = status;
+    public string Code { get; } = code;
+    public string Title { get; } = title;
+}

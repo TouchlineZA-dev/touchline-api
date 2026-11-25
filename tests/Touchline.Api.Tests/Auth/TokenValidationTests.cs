@@ -104,9 +104,10 @@ public sealed class TokenValidationTests : IClassFixture<TokenValidationTests.Ap
     }
 
     [Fact]
-    public void Only_me_requires_authentication()
+    public void Only_me_fantasy_and_admin_require_authentication()
     {
-        // Public football endpoints must stay reachable without a token.
+        // Public football endpoints must stay reachable without a token. /me and every fantasy
+        // and admin route need one.
         var endpoints = _api.Factory.Services.GetRequiredService<EndpointDataSource>().Endpoints
             .OfType<RouteEndpoint>()
             .ToList();
@@ -118,7 +119,15 @@ public sealed class TokenValidationTests : IClassFixture<TokenValidationTests.Ap
             .Distinct()
             .ToList();
 
-        Assert.Equal(["api/v1/me"], protectedRoutes);
+        bool NeedsToken(string? route) =>
+            route == "api/v1/me" || route?.StartsWith("api/v1/me/", StringComparison.Ordinal) == true
+            || route?.StartsWith("api/v1/fantasy/", StringComparison.Ordinal) == true || route == "api/v1/fantasy"
+            || route?.StartsWith("api/v1/admin/", StringComparison.Ordinal) == true;
+
+        Assert.Contains("api/v1/me", protectedRoutes);
+        Assert.All(protectedRoutes, route => Assert.True(NeedsToken(route), $"{route} shouldn't require a token"));
+        Assert.All(endpoints.Select(e => e.RoutePattern.RawText).Where(NeedsToken).Distinct(),
+            route => Assert.Contains(route, protectedRoutes));
         Assert.Contains(endpoints, e => e.RoutePattern.RawText == "api/v1/teams");
         Assert.Contains(endpoints, e => e.RoutePattern.RawText == "api/v1/players");
         Assert.Contains(endpoints, e => e.RoutePattern.RawText == "api/v1/fixtures");

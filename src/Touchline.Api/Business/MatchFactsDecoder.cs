@@ -1,0 +1,178 @@
+using Touchline.Api.Fantasy;
+using Touchline.Api.Models;
+using Codes = Touchline.Api.Business.SportmonksCodes;
+
+namespace Touchline.Api.Business;
+
+/// <summary>One player's facts in one fixture, keyed by football.players.id.</summary>
+public sealed record PlayerFacts(int PlayerId, Position Position, PlayerFixtureFacts Facts);
+
+/// <summary>A football.players row as the decoder needs it.</summary>
+public sealed record DecoderPlayer(int PlayerId, short? PositionId);
+
+/// <summary>
+/// Turns one fixture's football.player_lineups and football.match_events rows into
+/// PlayerFixtureFacts for the scoring rules. Pure: no database access, so every case can be
+/// unit-tested with made-up rows. ID rule: lineups and events carry Sportmonks player ids; they are
+/// bridged to football.players.id here and nothing downstream sees a Sportmonks id.
+/// </summary>
+public static class MatchFactsDecoder
+{
+    public static readonly IReadOnlyList<short> ScoringEventTypes =
+    [
+        Codes.EventTypes.Goal, Codes.EventTypes.OwnGoal, Codes.EventTypes.PenaltyScored, Codes.EventTypes.Substitution,
+        Codes.EventTypes.YellowCard, Codes.EventTypes.RedCard, Codes.EventTypes.SecondYellowRed,
+    ];
+
+    /// <summary>
+    /// Only fixtures played on the pitch (live or finished, per MatchStateMatrix.Played) produce points.
+    /// Postponed, cancelled, abandoned, not started, "awaiting updates", awarded and walk-over fixtures
+    /// produce nothing, even if some events were recorded for them (an abandoned match can have goals
+    /// and cards from before it stopped).
+    /// </summary>
+    public static bool Counts(short? stateId) => MatchStateMatrix.For(stateId).Played;
+
+    /// <summary>
+    /// The minute a player leaves (sub or red card), with stoppage time (team decision 2026-11-23):
+    /// first-half stoppage (45+x) counts as 45 and second-half stoppage (90+x) as 90, because only
+    /// the minute is used. Minutes beyond the match length are capped later, so a full match is always
+    /// exactly the match length.
+    /// </summary>
+    public static int OffMinute(MatchEvent e) => e.Minute ?? 0;
+
+    /// <summary>The minute a substitute comes on: a first-half stoppage sub (45+x) plays from minute 46.</summary>
+    public static int OnMinute(MatchEvent e) => e.Minute == 45 && e.ExtraMinute > 0 ? 46 : e.Minute ?? 0;
+
+    /// <param name="endMinute">The fixture's last minute so far: its length when finished, the current minute when live.</param>
+    /// <param name="players">football.players rows by Sportmonks id. Players missing here can't be in a squad and are skipped.</param>
+    public static IReadOnlyList<PlayerFacts> Decode(
+        Fixture fixture,
+        IEnumerable<PlayerLineup> lineups,
+        IEnumerable<MatchEvent> events,
+        IReadOnlyDictionary<long, DecoderPlayer> players,
+        int endMinute,
+        short startingXiType,
+        bool comingOnIsPlayerId)
+    {
+        if (!Counts(fixture.StateId)) return [];
+
+        var builders = new Dictionary<long, FactsBuilder>();
+        FactsBuilder For(long sportmonksId, int? teamId)
+        {
+            if (!builders.TryGetValue(sportmonksId, out var b))
+            {
+                b = new FactsBuilder();
+                builders[sportmonksId] = b;
+            }
+            b.TeamId ??= teamId;
+            return b;
+        }
+
+        foreach (var lineup in lineups.Where(l => l.FixtureId == fixture.Id && l.SportmonksPlayerId is not null))
+        {
+            var b = For(lineup.SportmonksPlayerId!.Value, lineup.TeamId);
+            b.Started |= lineup.TypeId == startingXiType;
+        }
+
+        var scoring = DistinctEvents(events
+            .Where(e => e.FixtureId == fixture.Id && e.Rescinded != true && ScoringEventTypes.Contains(e.TypeId)))
+            .OrderBy(e => e.Minute ?? 0).ThenBy(e => e.ExtraMinute ?? 0).ThenBy(e => e.SortOrder ?? 0);
+
+        foreach (var e in scoring)
+        {
+            var minute = OffMinute(e);
+            switch (e.TypeId)
+            {
+                case Codes.EventTypes.Substitution:
+                    var onId = comingOnIsPlayerId ? e.SportmonksPlayerId : e.SportmonksRelatedPlayerId;
+                    var offId = comingOnIsPlayerId ? e.SportmonksRelatedPlayerId : e.SportmonksPlayerId;
+                    if (onId is not null) For(onId.Value, e.TeamId).CameOn ??= OnMinute(e);
+                    if (offId is not null) For(offId.Value, e.TeamId).LeaveAt(minute);
+                    break;
+                case Codes.EventTypes.Goal:
+                case Codes.EventTypes.PenaltyScored:
+                    if (e.SportmonksPlayerId is { } scorer)
+                    {
+                        var b = For(scorer, null);
+                        if (e.TypeId == Codes.EventTypes.Goal) b.Goals++; else b.Penalties++;
+                    }
+                    // The assist is the goal event's related player, when present.
+                    if (e.SportmonksRelatedPlayerId is { } assister) For(assister, null).Assists++;
+                    break;
+                case Codes.EventTypes.OwnGoal:
+                    if (e.SportmonksPlayerId is { } ownGoalScorer) For(ownGoalScorer, null).OwnGoals++;
+                    break;
+                case Codes.EventTypes.YellowCard:
+                    if (e.SportmonksPlayerId is { } booked) For(booked, null).Yellows++;
+                    break;
+                case Codes.EventTypes.RedCard:
+                    if (e.SportmonksPlayerId is { } sentOff)
+                    {
+                        var b = For(sentOff, null);
+                        b.Red = true;
+                        b.LeaveAt(minute);
+                    }
+                    break;
+                case Codes.EventTypes.SecondYellowRed:
+                    if (e.SportmonksPlayerId is { } secondYellow)
+                    {
+                        var b = For(secondYellow, null);
+                        b.SecondYellow = true;
+                        b.LeaveAt(minute);
+                    }
+                    break;
+            }
+        }
+
+        var finished = MatchStatusExtensions.IsFinal(fixture.StateId);
+        var result = new List<PlayerFacts>();
+        foreach (var (sportmonksId, b) in builders)
+        {
+            if (!players.TryGetValue(sportmonksId, out var player)) continue;
+
+            // Unknown team → unknown conceded → no clean sheet.
+            int? conceded = null;
+            if (b.TeamId is not null && b.TeamId == fixture.HomeTeamId) conceded = fixture.AwayScore ?? 0;
+            else if (b.TeamId is not null && b.TeamId == fixture.AwayTeamId) conceded = fixture.HomeScore ?? 0;
+
+            result.Add(new PlayerFacts(player.PlayerId, PositionExtensions.FromSportmonks(player.PositionId), new PlayerFixtureFacts
+            {
+                FixtureId = fixture.Id,
+                Started = b.Started,
+                CameOnMinute = b.Started ? null : b.CameOn,
+                WentOffMinute = b.WentOff,
+                MatchEndMinute = endMinute,
+                FixtureFinished = finished,
+                Goals = b.Goals,
+                PenaltiesScored = b.Penalties,
+                Assists = b.Assists,
+                OwnGoals = b.OwnGoals,
+                YellowCards = b.Yellows,
+                RedCard = b.Red,
+                SecondYellow = b.SecondYellow,
+                GoalsConceded = conceded,
+            }));
+        }
+        return result;
+    }
+
+    /// <summary>
+    /// One row per provider event. The worker upserts on sportmonks_event_id, so duplicates shouldn't
+    /// exist; if the same snapshot is ever stored twice, the event still counts once (latest row wins).
+    /// </summary>
+    public static IEnumerable<MatchEvent> DistinctEvents(IEnumerable<MatchEvent> events) =>
+        events.GroupBy(e => e.SportmonksEventId > 0 ? (object)e.SportmonksEventId : e)
+            .Select(g => g.OrderByDescending(e => e.UpdatedAt).ThenByDescending(e => e.Id).First());
+
+    private sealed class FactsBuilder
+    {
+        public int? TeamId;
+        public bool Started;
+        public int? CameOn;
+        public int? WentOff;
+        public int Goals, Penalties, Assists, OwnGoals, Yellows;
+        public bool Red, SecondYellow;
+
+        public void LeaveAt(int minute) => WentOff = WentOff is null ? minute : Math.Min(WentOff.Value, minute);
+    }
+}

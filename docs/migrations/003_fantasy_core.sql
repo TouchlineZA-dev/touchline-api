@@ -1,55 +1,70 @@
--- PROPOSED — not applied. Copy into touchline-sync/db/migrations/ once the team agrees,
--- because Flyway in the sync repo owns all DDL. Depends on V033 (app.users.auth_user_id).
+-- 003: fantasy core for touchline-api.
 --
--- V034: fantasy core for touchline-api.
+-- What:       new columns on existing app tables (gameweeks.deadline_at, users.is_admin,
+--             fantasy_squads.bench_order), budget and price defaults for the R100.0m budget, and the
+--             fantasy tables: gameweek entries, transfers, chip usage, leagues, league members,
+--             transfer windows and price overrides. Mapped in src/Touchline.Api/Models/FantasyEntities.cs.
+-- Depends on: 002 (app.users.auth_user_id), and the existing app tables (users, gameweeks,
+--             fantasy_teams, fantasy_squads, points_results, player_prices).
+-- How:        applied by hand in the Supabase SQL Editor by an owner account (postgres), after 002.
+-- Re-running: safe. Tables, columns, indexes and constraints are only created if missing; defaults,
+--             comments, triggers and grants can be repeated.
 --
--- Builds on the existing app tables from the sync repo's Flyway migrations (V009, V014–V018,
--- V022–V025, V031). It is NOT the frontend draft 20261122090000_fantasy_api.sql.
--- Only what's missing is added. No DELETE is granted anywhere: leaving a league sets left_at,
--- overrides and transfers are insert-only, and squads are changed by updating rows.
---
--- REVIEW BEFORE APPLYING (things this file assumes about earlier migrations):
---   1. The constraint name uq_fantasy_squads_team_gw_player and its columns
---      (fantasy_team_id, gameweek_id, player_id).
---   2. The updated_at trigger function from V002 is callable as set_updated_at(). Schema-qualify
---      it below if it lives outside the search_path Flyway uses.
---   3. app.points_results has no unique key on (fantasy_team_id, player_id, gameweek_id) yet; one is
---      added here so re-scoring updates rows instead of duplicating them. If duplicates already
---      exist, the index creation fails: clean them up first.
+-- Only the app schema is changed. football is referenced only as a foreign-key target. No DELETE is
+-- granted: leaving a league sets left_at, overrides and transfers are insert-only, and squads are
+-- changed by updating rows. NOT the frontend draft 20261122090000_fantasy_api.sql.
 
 -- ---------------------------------------------------------------------------------------------
--- 1. Defaults for the R300.0m budget (money in millions, NUMERIC(5,1))
+-- 1. Defaults for the R100.0m budget (money in millions, NUMERIC(5,1)).
+--    Must match FantasyRules.Budget in touchline-api (env override Fantasy__Budget).
 -- ---------------------------------------------------------------------------------------------
 
-ALTER TABLE app.fantasy_teams ALTER COLUMN budget_remaining SET DEFAULT 300.0;
+ALTER TABLE app.fantasy_teams ALTER COLUMN budget_remaining SET DEFAULT 100.0;
 
--- The old 50.0 default would make a 15-player squad cost R750m against a R300m budget.
+-- The old 50.0 default would make a 15-player squad cost R750m. 4.0 is the cheapest position minimum.
 ALTER TABLE app.player_prices ALTER COLUMN price SET DEFAULT 4.0;
 
 -- ---------------------------------------------------------------------------------------------
 -- 2. New columns on existing tables
 -- ---------------------------------------------------------------------------------------------
 
-ALTER TABLE app.gameweeks ADD COLUMN deadline_at TIMESTAMPTZ;
+ALTER TABLE app.gameweeks ADD COLUMN IF NOT EXISTS deadline_at TIMESTAMPTZ;
 COMMENT ON COLUMN app.gameweeks.deadline_at IS
-    'Squad changes lock at this time (UTC). Set by the API: 90 minutes before the first kickoff (setting Fantasy:DeadlineMinutesBeforeFirstKickoff).';
+    'Squad changes lock at this time (UTC): 90 minutes before the first kickoff (Fantasy:DeadlineMinutesBeforeFirstKickoff).';
 
-ALTER TABLE app.users ADD COLUMN is_admin BOOLEAN NOT NULL DEFAULT false;
+ALTER TABLE app.users ADD COLUMN IF NOT EXISTS is_admin BOOLEAN NOT NULL DEFAULT false;
 COMMENT ON COLUMN app.users.is_admin IS 'Allows the /api/v1/admin routes (gameweeks, scoring, prices).';
 
-ALTER TABLE app.fantasy_squads ADD COLUMN bench_order SMALLINT;
-ALTER TABLE app.fantasy_squads ADD CONSTRAINT ck_fantasy_squads_bench_order
-    CHECK (bench_order IS NULL OR (is_on_bench AND bench_order BETWEEN 1 AND 4));
+ALTER TABLE app.fantasy_squads ADD COLUMN IF NOT EXISTS bench_order SMALLINT;
 COMMENT ON COLUMN app.fantasy_squads.bench_order IS
     '1–4 for bench players, NULL for starters. Existing bench rows keep NULL until their team next saves.';
 
--- Swapping two players within one transaction (without DELETE) needs the uniqueness check
--- deferred to commit. A unique constraint can't be altered to deferrable, so drop and re-add it.
-ALTER TABLE app.fantasy_squads DROP CONSTRAINT uq_fantasy_squads_team_gw_player;
-ALTER TABLE app.fantasy_squads ADD CONSTRAINT uq_fantasy_squads_team_gw_player
-    UNIQUE (fantasy_team_id, gameweek_id, player_id) DEFERRABLE INITIALLY DEFERRED;
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'ck_fantasy_squads_bench_order' AND conrelid = 'app.fantasy_squads'::regclass) THEN
+        ALTER TABLE app.fantasy_squads ADD CONSTRAINT ck_fantasy_squads_bench_order
+            CHECK (bench_order IS NULL OR (is_on_bench AND bench_order BETWEEN 1 AND 4));
+    END IF;
+END $$;
+
+-- Swapping two players within one transaction needs the "player once per team per gameweek" check
+-- deferred to commit. A unique constraint can't be altered to deferrable, so if it isn't deferrable
+-- yet it's replaced (a constraint change only; no rows are touched).
+DO $$
+BEGIN
+    IF EXISTS (SELECT 1 FROM pg_constraint
+               WHERE conname = 'uq_fantasy_squads_team_gw_player' AND conrelid = 'app.fantasy_squads'::regclass AND NOT condeferrable) THEN
+        ALTER TABLE app.fantasy_squads DROP CONSTRAINT uq_fantasy_squads_team_gw_player;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'uq_fantasy_squads_team_gw_player' AND conrelid = 'app.fantasy_squads'::regclass) THEN
+        ALTER TABLE app.fantasy_squads ADD CONSTRAINT uq_fantasy_squads_team_gw_player
+            UNIQUE (fantasy_team_id, gameweek_id, player_id) DEFERRABLE INITIALLY DEFERRED;
+    END IF;
+END $$;
 
 -- Re-scoring a gameweek updates these rows instead of adding new ones.
+-- Fails if duplicates already exist; find them with
+--   SELECT fantasy_team_id, player_id, gameweek_id, count(*) FROM app.points_results GROUP BY 1,2,3 HAVING count(*) > 1;
 CREATE UNIQUE INDEX IF NOT EXISTS uq_points_results_team_player_gw
     ON app.points_results (fantasy_team_id, player_id, gameweek_id);
 
@@ -58,7 +73,7 @@ CREATE UNIQUE INDEX IF NOT EXISTS uq_points_results_team_player_gw
 -- ---------------------------------------------------------------------------------------------
 
 -- One row per team per gameweek: formation, chip, transfers and the team's points.
-CREATE TABLE app.fantasy_gameweek_entries (
+CREATE TABLE IF NOT EXISTS app.fantasy_gameweek_entries (
     id               INTEGER GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY,
     fantasy_team_id  INTEGER     NOT NULL REFERENCES app.fantasy_teams (id),
     gameweek_id      INTEGER     NOT NULL REFERENCES app.gameweeks (id),
@@ -75,10 +90,10 @@ CREATE TABLE app.fantasy_gameweek_entries (
     CONSTRAINT uq_fantasy_gameweek_entries_team_gw UNIQUE (fantasy_team_id, gameweek_id)
 );
 COMMENT ON COLUMN app.fantasy_gameweek_entries.points IS 'Final team points (after hits). NULL until the gameweek is finalised.';
-COMMENT ON COLUMN app.fantasy_gameweek_entries.version IS 'Incremented on every change; sent as the ETag and checked against If-Match.';
+COMMENT ON COLUMN app.fantasy_gameweek_entries.version IS 'Incremented on every change. Sent as the ETag and checked against If-Match.';
 
 -- Insert only: one row per player swapped.
-CREATE TABLE app.fantasy_transfers (
+CREATE TABLE IF NOT EXISTS app.fantasy_transfers (
     id               INTEGER GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY,
     fantasy_team_id  INTEGER      NOT NULL REFERENCES app.fantasy_teams (id),
     gameweek_id      INTEGER      NOT NULL REFERENCES app.gameweeks (id),
@@ -88,10 +103,10 @@ CREATE TABLE app.fantasy_transfers (
     price_in         NUMERIC(5,1) NOT NULL,
     created_at       TIMESTAMPTZ  NOT NULL DEFAULT now()
 );
-CREATE INDEX ix_fantasy_transfers_team_gw ON app.fantasy_transfers (fantasy_team_id, gameweek_id);
+CREATE INDEX IF NOT EXISTS ix_fantasy_transfers_team_gw ON app.fantasy_transfers (fantasy_team_id, gameweek_id);
 
 -- Each chip once per season; at most one chip per gameweek.
-CREATE TABLE app.fantasy_chip_usage (
+CREATE TABLE IF NOT EXISTS app.fantasy_chip_usage (
     id               INTEGER GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY,
     fantasy_team_id  INTEGER     NOT NULL REFERENCES app.fantasy_teams (id),
     season_id        INTEGER     NOT NULL REFERENCES football.seasons (id),
@@ -103,7 +118,7 @@ CREATE TABLE app.fantasy_chip_usage (
 );
 
 -- Private leagues. Join only by code; there is no public list.
-CREATE TABLE app.leagues (
+CREATE TABLE IF NOT EXISTS app.leagues (
     id             INTEGER GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY,
     name           VARCHAR(50) NOT NULL CHECK (length(trim(name)) > 0),
     join_code      VARCHAR(20) NOT NULL,
@@ -116,7 +131,7 @@ CREATE TABLE app.leagues (
     CONSTRAINT uq_leagues_join_code UNIQUE (join_code)
 );
 
-CREATE TABLE app.league_members (
+CREATE TABLE IF NOT EXISTS app.league_members (
     id               INTEGER GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY,
     league_id        INTEGER     NOT NULL REFERENCES app.leagues (id),
     fantasy_team_id  INTEGER     NOT NULL REFERENCES app.fantasy_teams (id),
@@ -124,11 +139,11 @@ CREATE TABLE app.league_members (
     left_at          TIMESTAMPTZ,
     CONSTRAINT uq_league_members_league_team UNIQUE (league_id, fantasy_team_id)
 );
-CREATE INDEX ix_league_members_team ON app.league_members (fantasy_team_id);
+CREATE INDEX IF NOT EXISTS ix_league_members_team ON app.league_members (fantasy_team_id);
 COMMENT ON COLUMN app.league_members.left_at IS 'Set when a team leaves (no DELETE). Rejoining clears it.';
 
 -- PSL transfer windows. An admin enters the official dates; prices are calculated once per window.
-CREATE TABLE app.transfer_windows (
+CREATE TABLE IF NOT EXISTS app.transfer_windows (
     id                     INTEGER GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY,
     season_id              INTEGER     NOT NULL REFERENCES football.seasons (id),
     name                   VARCHAR(50) NOT NULL,
@@ -141,7 +156,7 @@ CREATE TABLE app.transfer_windows (
 );
 
 -- Admin overrides for the valuation formula. Insert only: the latest row per player and season wins.
-CREATE TABLE app.player_price_overrides (
+CREATE TABLE IF NOT EXISTS app.player_price_overrides (
     id                  INTEGER GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY,
     player_id           INTEGER      NOT NULL REFERENCES football.players (id),
     season_id           INTEGER      NOT NULL REFERENCES football.seasons (id),
@@ -152,17 +167,18 @@ CREATE TABLE app.player_price_overrides (
     created_at          TIMESTAMPTZ  NOT NULL DEFAULT now(),
     CONSTRAINT ck_player_price_overrides_something CHECK (expected_minutes IS NOT NULL OR price IS NOT NULL)
 );
-CREATE INDEX ix_player_price_overrides_player_season ON app.player_price_overrides (player_id, season_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS ix_player_price_overrides_player_season
+    ON app.player_price_overrides (player_id, season_id, created_at DESC);
 
 -- ---------------------------------------------------------------------------------------------
--- 4. updated_at triggers (function from V002)
+-- 4. updated_at triggers (set_updated_at() is the existing trigger function used by every app table)
 -- ---------------------------------------------------------------------------------------------
 
-CREATE TRIGGER trg_fantasy_gameweek_entries_updated_at BEFORE UPDATE ON app.fantasy_gameweek_entries
+CREATE OR REPLACE TRIGGER trg_fantasy_gameweek_entries_updated_at BEFORE UPDATE ON app.fantasy_gameweek_entries
     FOR EACH ROW EXECUTE FUNCTION set_updated_at();
-CREATE TRIGGER trg_leagues_updated_at BEFORE UPDATE ON app.leagues
+CREATE OR REPLACE TRIGGER trg_leagues_updated_at BEFORE UPDATE ON app.leagues
     FOR EACH ROW EXECUTE FUNCTION set_updated_at();
-CREATE TRIGGER trg_transfer_windows_updated_at BEFORE UPDATE ON app.transfer_windows
+CREATE OR REPLACE TRIGGER trg_transfer_windows_updated_at BEFORE UPDATE ON app.transfer_windows
     FOR EACH ROW EXECUTE FUNCTION set_updated_at();
 
 -- ---------------------------------------------------------------------------------------------

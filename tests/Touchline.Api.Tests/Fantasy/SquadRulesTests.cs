@@ -118,6 +118,41 @@ public class SquadRulesTests
     }
 
     [Fact]
+    public void Unavailable_player_cannot_be_picked_in_a_first_squad()
+    {
+        var s = TestSquad.Selection();
+        s = s with { Bench = s.Bench.Select(id => id == 15 ? 98 : id).ToList() };
+
+        var check = _rules.ValidateSquad(s, _players, 100.0m, requireAvailable: true);
+        AssertFails(check, "Player 98 isn't available to pick: he hasn't been in a PSL matchday squad this season.");
+    }
+
+    [Fact]
+    public void Unavailable_player_already_in_a_squad_does_not_block_lineup_changes()
+    {
+        var s = TestSquad.Selection();
+        s = s with { Bench = s.Bench.Select(id => id == 15 ? 98 : id).ToList() };
+        Assert.True(_rules.ValidateLineupChange(s, s, _players).IsValid);
+    }
+
+    [Fact]
+    public void Unavailable_player_cannot_be_transferred_in()
+    {
+        var outcome = _rules.ApplyTransfers(TestSquad.Selection(), [15], [98], _players, budgetRemaining: 7.0m);
+        Assert.Contains("Player 98 isn't available to pick: he hasn't been in a PSL matchday squad this season.", outcome.Check.Errors);
+    }
+
+    [Theory]
+    [InlineData(true, null, true)]
+    [InlineData(false, null, false)]
+    [InlineData(false, true, true)]   // new signing marked available by an admin
+    [InlineData(true, false, false)]  // player who left, marked unavailable by an admin
+    public void Availability_comes_from_lineups_unless_an_admin_overrides_it(bool inLineups, bool? adminOverride, bool expected)
+    {
+        Assert.Equal(expected, PlayerAvailability.IsAvailable(inLineups, adminOverride));
+    }
+
+    [Fact]
     public void Unknown_player_id_fails()
     {
         var s = TestSquad.Selection();
