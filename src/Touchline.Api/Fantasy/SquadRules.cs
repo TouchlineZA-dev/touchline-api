@@ -24,12 +24,12 @@ public sealed class SquadRules(FantasyRules rules)
 
         if (all.Count != rules.SquadSize)
         {
-            check.Fail($"A squad needs exactly {rules.SquadSize} players; you have {all.Count}.");
+            check.Fail("squad_size", $"A squad needs exactly {rules.SquadSize} players; you have {all.Count}.");
         }
 
         foreach (var dup in all.GroupBy(id => id).Where(g => g.Count() > 1))
         {
-            check.Fail($"{NameOf(dup.Key, players)} is in the squad more than once.");
+            check.Fail("duplicate_player", $"{NameOf(dup.Key, players)} is in the squad more than once.");
         }
 
         var known = new List<FantasyPlayer>();
@@ -37,17 +37,17 @@ public sealed class SquadRules(FantasyRules rules)
         {
             if (!players.TryGetValue(id, out var player))
             {
-                check.Fail($"Player {id} doesn't exist.");
+                check.Fail("unknown_player", $"Player {id} doesn't exist.");
                 continue;
             }
             if (player.Position == Position.Unknown)
             {
-                check.Fail($"{player.Name} has no known position yet, so he can't be picked.");
+                check.Fail("unknown_position", $"{player.Name} has no known position yet, so he can't be picked.");
                 continue;
             }
             if (requireAvailable && !player.Available)
             {
-                check.Fail(PlayerAvailability.NotAvailableMessage(player.Name));
+                check.Fail("player_unavailable", PlayerAvailability.NotAvailableMessage(player.Name));
             }
             known.Add(player);
         }
@@ -58,7 +58,7 @@ public sealed class SquadRules(FantasyRules rules)
             var have = known.Count(p => p.Position == position);
             if (have != need)
             {
-                check.Fail($"A squad needs exactly {need} {PositionNames.Plural(position, need)}; you have {have}.");
+                check.Fail("position_count", $"A squad needs exactly {need} {PositionNames.Plural(position, need)}; you have {have}.");
             }
         }
 
@@ -68,7 +68,7 @@ public sealed class SquadRules(FantasyRules rules)
             if (count > rules.MaxPlayersPerClub)
             {
                 var clubName = club.First().ClubName ?? $"club {club.Key}";
-                check.Fail($"Max {rules.MaxPlayersPerClub} players from {clubName}; you have {count}.");
+                check.Fail("club_limit", $"Max {rules.MaxPlayersPerClub} players from {clubName}; you have {count}.");
             }
         }
 
@@ -82,7 +82,7 @@ public sealed class SquadRules(FantasyRules rules)
             var cost = known.Sum(p => p.Price);
             if (cost > maxCost.Value)
             {
-                check.Fail($"The squad costs {Money(cost)}, which is over the {Money(maxCost.Value)} budget.");
+                check.Fail("over_budget", $"The squad costs {Money(cost)}, which is over the {Money(maxCost.Value)} budget.");
             }
         }
 
@@ -107,14 +107,14 @@ public sealed class SquadRules(FantasyRules rules)
 
         if (!before.SetEquals(after) || proposed.AllPlayers.Count() != current.AllPlayers.Count())
         {
-            check.Fail("A lineup change can't add or remove players; use transfers for that.");
+            check.Fail("lineup_changes_players", "A lineup change can't add or remove players; use transfers for that.");
         }
 
         var startingGoalkeepers = proposed.Starters.Count(id => PositionOf(id, players) == Position.GK);
         var benchGoalkeepers = proposed.Bench.Count(id => PositionOf(id, players) == Position.GK);
         if (startingGoalkeepers != 1 || benchGoalkeepers != 1)
         {
-            check.Fail("The bench goalkeeper can only swap with the starting goalkeeper.");
+            check.Fail("bench_gk_swap", "The bench goalkeeper can only swap with the starting goalkeeper.");
         }
 
         return check.Merge(ValidateSquad(proposed, players, maxCost: null));
@@ -136,44 +136,44 @@ public sealed class SquadRules(FantasyRules rules)
 
         if (outIds.Count == 0 && inIds.Count == 0)
         {
-            return new TransferOutcome(check.Fail("Choose at least one transfer."), null, budgetRemaining);
+            return new TransferOutcome(check.Fail("transfer_empty", "Choose at least one transfer."), null, budgetRemaining);
         }
         if (outIds.Count != inIds.Count)
         {
-            check.Fail($"You're selling {outIds.Count} and buying {inIds.Count}; the numbers must match.");
+            check.Fail("transfer_count_mismatch", $"You're selling {outIds.Count} and buying {inIds.Count}; the numbers must match.");
         }
 
         foreach (var dup in outIds.GroupBy(id => id).Where(g => g.Count() > 1))
         {
-            check.Fail($"{NameOf(dup.Key, players)} is listed to sell more than once.");
+            check.Fail("transfer_duplicate", $"{NameOf(dup.Key, players)} is listed to sell more than once.");
         }
         foreach (var dup in inIds.GroupBy(id => id).Where(g => g.Count() > 1))
         {
-            check.Fail($"{NameOf(dup.Key, players)} is listed to buy more than once.");
+            check.Fail("transfer_duplicate", $"{NameOf(dup.Key, players)} is listed to buy more than once.");
         }
 
         var squad = current.AllPlayers.ToHashSet();
         foreach (var id in outIds.Distinct().Where(id => !squad.Contains(id)))
         {
-            check.Fail($"{NameOf(id, players)} isn't in your squad.");
+            check.Fail("transfer_not_in_squad", $"{NameOf(id, players)} isn't in your squad.");
         }
         foreach (var id in inIds.Distinct())
         {
             if (squad.Contains(id) && !outIds.Contains(id))
             {
-                check.Fail($"{NameOf(id, players)} is already in your squad.");
+                check.Fail("transfer_already_in_squad", $"{NameOf(id, players)} is already in your squad.");
             }
             else if (!players.TryGetValue(id, out var p))
             {
-                check.Fail($"Player {id} doesn't exist.");
+                check.Fail("unknown_player", $"Player {id} doesn't exist.");
             }
             else if (p.Position == Position.Unknown)
             {
-                check.Fail($"{p.Name} has no known position yet, so he can't be picked.");
+                check.Fail("unknown_position", $"{p.Name} has no known position yet, so he can't be picked.");
             }
             else if (!p.Available)
             {
-                check.Fail(PlayerAvailability.NotAvailableMessage(p.Name));
+                check.Fail("player_unavailable", PlayerAvailability.NotAvailableMessage(p.Name));
             }
         }
 
@@ -183,7 +183,7 @@ public sealed class SquadRules(FantasyRules rules)
             var buying = inIds.Count(id => PositionOf(id, players) == position);
             if (selling != buying)
             {
-                check.Fail(
+                check.Fail("transfer_position_mismatch", 
                     $"You're selling {selling} {PositionNames.Plural(position, selling)} but buying {buying}. " +
                     $"Transfers must swap like for like to keep {rules.SquadGoalkeepers} GK, {rules.SquadDefenders} DEF, " +
                     $"{rules.SquadMidfielders} MID, {rules.SquadAttackers} ATT.");
@@ -222,7 +222,7 @@ public sealed class SquadRules(FantasyRules rules)
             - inIds.Sum(id => players[id].Price);
         if (newBudget < 0)
         {
-            check.Fail($"These transfers cost {Money(-newBudget)} more than you have ({Money(budgetRemaining)} left).");
+            check.Fail("insufficient_funds", $"These transfers cost {Money(-newBudget)} more than you have ({Money(budgetRemaining)} left).");
         }
 
         check.Merge(ValidateSquad(proposed, players, maxCost: null));
@@ -239,12 +239,12 @@ public sealed class SquadRules(FantasyRules rules)
 
         if (!Formation.TryParse(selection.Formation, out var formation) || !allowed.Contains(formation))
         {
-            check.Fail($"'{selection.Formation}' isn't an allowed formation. Choose one of {string.Join(", ", allowed)}.");
+            check.Fail("formation_not_allowed", $"'{selection.Formation}' isn't an allowed formation. Choose one of {string.Join(", ", allowed)}.");
         }
 
         if (selection.Starters.Count != startersNeeded)
         {
-            check.Fail($"The starting XI needs exactly {startersNeeded} players; you have {selection.Starters.Count}.");
+            check.Fail("starters_count", $"The starting XI needs exactly {startersNeeded} players; you have {selection.Starters.Count}.");
         }
 
         var starting = selection.Starters.Select(id => PositionOf(id, players)).ToList();
@@ -255,7 +255,7 @@ public sealed class SquadRules(FantasyRules rules)
 
         if (gk != 1)
         {
-            check.Fail($"The starting XI needs exactly 1 goalkeeper; you have {gk}.");
+            check.Fail("starting_gk", $"The starting XI needs exactly 1 goalkeeper; you have {gk}.");
         }
 
         RangeCheck(check, def, allowed.Min(f => f.Defenders), allowed.Max(f => f.Defenders), Position.DEF);
@@ -265,34 +265,34 @@ public sealed class SquadRules(FantasyRules rules)
         var actual = new Formation(def, mid, att);
         if (allowed.Contains(formation) && actual != formation && gk + def + mid + att == selection.Starters.Count)
         {
-            check.Fail(
+            check.Fail("formation_mismatch", 
                 $"Your formation is {formation}, but your starting XI has {def} {PositionNames.Plural(Position.DEF, def)}, " +
                 $"{mid} {PositionNames.Plural(Position.MID, mid)} and {att} {PositionNames.Plural(Position.ATT, att)}.");
         }
 
         if (selection.Bench.Count != benchNeeded)
         {
-            check.Fail($"The bench needs exactly {benchNeeded} players; you have {selection.Bench.Count}.");
+            check.Fail("bench_count", $"The bench needs exactly {benchNeeded} players; you have {selection.Bench.Count}.");
         }
         var benchGk = selection.Bench.Count(id => PositionOf(id, players) == Position.GK);
         if (benchGk != 1)
         {
-            check.Fail($"The bench needs exactly 1 goalkeeper; you have {benchGk}.");
+            check.Fail("bench_gk", $"The bench needs exactly 1 goalkeeper; you have {benchGk}.");
         }
 
-        if (selection.CaptainId is null) check.Fail("Pick a captain.");
-        if (selection.ViceCaptainId is null) check.Fail("Pick a vice-captain.");
+        if (selection.CaptainId is null) check.Fail("captain_missing", "Pick a captain.");
+        if (selection.ViceCaptainId is null) check.Fail("vice_captain_missing", "Pick a vice-captain.");
         if (selection.CaptainId is not null && selection.CaptainId == selection.ViceCaptainId)
         {
-            check.Fail("The captain and vice-captain must be different players.");
+            check.Fail("captain_vice_same", "The captain and vice-captain must be different players.");
         }
         if (selection.CaptainId is { } c && !selection.Starters.Contains(c))
         {
-            check.Fail("The captain must be in the starting XI.");
+            check.Fail("captain_not_starter", "The captain must be in the starting XI.");
         }
         if (selection.ViceCaptainId is { } v && !selection.Starters.Contains(v))
         {
-            check.Fail("The vice-captain must be in the starting XI.");
+            check.Fail("vice_captain_not_starter", "The vice-captain must be in the starting XI.");
         }
 
         return check;
@@ -303,7 +303,7 @@ public sealed class SquadRules(FantasyRules rules)
         if (have < min || have > max)
         {
             var range = min == max ? $"{min}" : max - min == 1 ? $"{min} or {max}" : $"{min} to {max}";
-            check.Fail($"The starting XI needs {range} {PositionNames.Plural(position, 2)}; you have {have}.");
+            check.Fail("formation_range", $"The starting XI needs {range} {PositionNames.Plural(position, 2)}; you have {have}.");
         }
     }
 

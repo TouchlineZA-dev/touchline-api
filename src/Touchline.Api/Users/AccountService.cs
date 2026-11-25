@@ -1,3 +1,4 @@
+using Touchline.Api.Fantasy;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Touchline.Api.Data;
@@ -6,7 +7,14 @@ using Touchline.Api.Services;
 
 namespace Touchline.Api.Users;
 
-public sealed record OnboardingView(bool NeedsUsername, bool NeedsTeam, bool NeedsSquad);
+/// <param name="Step">The first unfinished onboarding step: "username", "team", "squad" or "done". Choosing a favourite club is optional and never blocks.</param>
+/// <param name="HasDraft">True when any wizard draft is saved (offer "Resume where you left off?").</param>
+/// <param name="Drafts">The kinds with a saved draft (onboarding, squad, lineup, transfers, league). Empty before migration 015.</param>
+public sealed record OnboardingView(bool NeedsUsername, bool NeedsTeam, bool NeedsSquad, string Step = "done", bool HasDraft = false, IReadOnlyList<string>? Drafts = null)
+{
+    public static string StepFor(bool needsUsername, bool needsTeam, bool needsSquad) =>
+        needsUsername ? "username" : needsTeam ? "team" : needsSquad ? "squad" : "done";
+}
 
 public sealed record AccountPoliciesView(
     int UsernameMinLength, int UsernameMaxLength, string UsernameCharacters, int UsernameCooldownDays,
@@ -59,6 +67,7 @@ public sealed class AccountService(
     SchemaFeatures schema,
     FootballService football,
     CurrentUser currentUser,
+    DraftService drafts,
     IOptions<AccountOptions> options,
     TimeProvider time)
 {
@@ -72,10 +81,14 @@ public sealed class AccountService(
             .Where(t => t.UserId == user.Id && t.SeasonId == season.Id).Select(t => (int?)t.Id).FirstOrDefaultAsync(ct);
         var hasSquad = teamId is not null && await db.FantasySquads.AnyAsync(p => p.FantasyTeamId == teamId, ct);
         var needsUsername = account is not null ? account.UsernameCanonical is null : UsernameRules.IsGenerated(user.Username);
+        var needsTeam = teamId is null;
+        var needsSquad = teamId is not null && !hasSquad;
+        var draftKinds = await drafts.LiveKindsAsync(user.Id, ct);
 
         return new MeView(
             user.Id, user.Username, RealEmail(user.Email), user.AuthUserId!.Value,
-            new OnboardingView(needsUsername, teamId is null, teamId is not null && !hasSquad),
+            new OnboardingView(needsUsername, needsTeam, needsSquad, OnboardingView.StepFor(needsUsername, needsTeam, needsSquad),
+                draftKinds.Count > 0, draftKinds),
             account?.FavouriteClubId,
             account?.SuspendedAt is not null,
             Policies(account));
@@ -91,7 +104,7 @@ public sealed class AccountService(
         if (request.Username is not null)
         {
             var errors = UsernameRules.Validate(request.Username);
-            if (errors.Count > 0) throw new RuleViolationException(errors, "Choose another username");
+            if (errors.Count > 0) throw new RuleViolationException(errors, "Choose another username", violations: errors.Select(e => new RuleViolationItem(UsernameRules.RuleFor(e), e)).ToList());
             var name = UsernameRules.Normalise(request.Username);
             var canonical = UsernameRules.Canonical(name);
 
@@ -102,7 +115,7 @@ public sealed class AccountService(
                 {
                     throw new RuleViolationException(
                         [$"You can change your username again from {last.AddDays(_options.UsernameCooldownDays):yyyy-MM-dd HH:mm} UTC."],
-                        "Username recently changed");
+                        "Username recently changed", ErrorCodes.UsernameCooldown);
                 }
 
                 await using var transaction = await db.Database.BeginTransactionAsync(ct);
@@ -138,7 +151,7 @@ public sealed class AccountService(
             var clubs = await football.GetTeamsAsync(season.Id, ct);
             if (clubs.All(c => c.Id != clubId))
             {
-                throw new RuleViolationException($"Club {clubId} isn't playing in the current PSL season. GET /api/v1/clubs lists them.");
+                throw new RuleViolationException("favourite_club_unknown", $"Club {clubId} isn't playing in the current PSL season. GET /api/v1/clubs lists them.");
             }
             await db.Database.ExecuteSqlAsync($"UPDATE app.users SET favourite_club_id = {clubId} WHERE id = {user.Id}", ct);
         }
@@ -247,6 +260,7 @@ public sealed class AccountService(
             UPDATE app.notification_preferences SET goal_alerts = false, deadline_reminders = false, league_updates = false, updated_at = now()
             WHERE user_id = {user.Id}
             """, ct);
+        await drafts.ClearAllAsync(user.Id, ct);   // unfinished wizard input goes too (UPDATE, never DELETE)
 
         var teams = await db.FantasyTeams.AsTracking().Where(t => t.UserId == user.Id).ToListAsync(ct);
         foreach (var team in teams)

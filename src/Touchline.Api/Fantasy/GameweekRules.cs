@@ -135,13 +135,13 @@ public sealed class LeagueRules(FantasyRules rules)
     public RuleCheck CanJoin(int activeMembers, int maxMembers, bool alreadyMember)
     {
         var check = new RuleCheck();
-        if (alreadyMember) check.Fail("Your team is already in this league.");
-        else if (activeMembers >= maxMembers) check.Fail($"This league is full ({maxMembers} teams).");
+        if (alreadyMember) check.Fail("already_member", "Your team is already in this league.");
+        else if (activeMembers >= maxMembers) check.Fail("league_full", $"This league is full ({maxMembers} teams).");
         return check;
     }
 
     public static RuleCheck CanLeave(bool isOwner) =>
-        isOwner ? new RuleCheck().Fail("You own this league, so you can't leave it.") : RuleCheck.Ok();
+        isOwner ? new RuleCheck().Fail("owner_cannot_leave", "You own this league, so you can't leave it.") : RuleCheck.Ok();
 
     /// <summary>Highest points first; ties go to overall points, then username (A–Z).</summary>
     public static IReadOnlyList<RankedEntry> Rank(IEnumerable<StandingInput> entries) =>

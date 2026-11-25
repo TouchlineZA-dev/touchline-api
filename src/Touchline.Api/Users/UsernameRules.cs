@@ -50,4 +50,11 @@ public static partial class UsernameRules
 
     [GeneratedRegex("^user_[0-9a-f]{32}$")]
     private static partial Regex GeneratedName();
+
+    /// <summary>The machine-readable rule name for one of <see cref="Validate"/>'s messages.</summary>
+    public static string RuleFor(string message) =>
+        message.Contains("reserved", StringComparison.Ordinal) ? "username_reserved"
+        : message.StartsWith("Usernames are", StringComparison.Ordinal) ? "username_length"
+        : message.StartsWith("Use only", StringComparison.Ordinal) ? "username_characters"
+        : "username_invalid";
 }

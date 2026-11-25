@@ -106,10 +106,25 @@ public sealed class GameweekService(TouchlineDbContext db, IOptions<FantasyRules
         var ready = readyIds.ToHashSet();
         var numbers = await PersistedNumbersAsync(ids, ct);
 
+        // Deadlines as the fantasy routes use them (stored, or 90 minutes before the first kickoff), so the
+        // app can show "pick your team by …" before sign-in. Absent on a database older than migration 003.
+        var deadlines = new Dictionary<int, DateTimeOffset?>();
+        foreach (var season in gameweeks.Select(g => g.SeasonId).OfType<int>().Distinct())
+        {
+            try
+            {
+                foreach (var info in (await GetCalendarAsync(season, ct)).Gameweeks) deadlines[info.Gameweek.Id] = info.Deadline;
+            }
+            catch (Exception ex) when (ex.GetBaseException() is Npgsql.PostgresException { SqlState: Npgsql.PostgresErrorCodes.UndefinedColumn })
+            {
+            }
+        }
+
         return gameweeks
             .Select(g => new GameweekSummary(
                 g.Id, g.Name, g.StartDate, g.EndDate, g.IsActive, g.SeasonId, ready.Contains(g.Id),
-                numbers.TryGetValue(g.Id, out var n) ? n : null))
+                numbers.TryGetValue(g.Id, out var n) ? n : null,
+                deadlines.GetValueOrDefault(g.Id)))
             .ToList();
     }
 

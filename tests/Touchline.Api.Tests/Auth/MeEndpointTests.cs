@@ -70,7 +70,8 @@ public sealed class MeEndpointTests(PostgresFixture db) : IClassFixture<Postgres
         // Sprint 3 added fields after the original four; the original four keep their names and order.
         Assert.Equal(["id", "username", "email", "authUserId", "onboarding", "favouriteClubId", "suspended", "policies"],
             json.RootElement.EnumerateObject().Select(p => p.Name).ToArray());
-        Assert.Equal(["needsUsername", "needsTeam", "needsSquad"],
+        // The audit (25 Nov 2026) added step, hasDraft and drafts after the Sprint 3 flags, which keep their names and order.
+        Assert.Equal(["needsUsername", "needsTeam", "needsSquad", "step", "hasDraft", "drafts"],
             json.RootElement.GetProperty("onboarding").EnumerateObject().Select(p => p.Name).ToArray());
     }
 

@@ -18,11 +18,13 @@ public sealed class FantasyExceptionFilter(ProblemDetailsFactory problems) : IEx
         var http = context.HttpContext;
         ObjectResult? result = context.Exception switch
         {
-            RuleViolationException e => Problem(http, 400, e.Title, "Fix the problems listed in 'errors'.", ("errors", e.Errors), ("code", e.Code)),
+            RuleViolationException e => Problem(http, 400, e.Title, "Fix the problems listed in 'errors'.",
+                ("errors", e.Errors), ("violations", e.Violations), ("code", e.Code)),
             NotFoundException e => Problem(http, 404, "Not found", e.Message, ("code", "not_found")),
             ForbiddenException e => Problem(http, 403, "Forbidden", e.Message, ("code", "forbidden")),
+            // Every 409 carries a machine-readable code; "conflict" when no more specific one applies.
             ConflictException e => Problem(http, 409, e.Title, e.Message,
-                new (string, object?)[] { ("code", e.Code), ("current", e.Current) }.Where(x => x.Item2 is not null).Select(x => (x.Item1, x.Item2!)).ToArray()),
+                new (string, object?)[] { ("code", e.Code ?? ErrorCodes.Conflict), ("current", e.Current) }.Where(x => x.Item2 is not null).Select(x => (x.Item1, x.Item2!)).ToArray()),
             // The squad version changed between reading and writing (EF concurrency token on version): another device won.
             Microsoft.EntityFrameworkCore.DbUpdateConcurrencyException => Problem(http, 409, "Team changed",
                 "Your team changed on another device while this was being saved, so nothing was saved. Reload and try again.",

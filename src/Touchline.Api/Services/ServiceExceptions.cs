@@ -14,14 +14,28 @@ public sealed class UserConflictException(string message, string code, Exception
 }
 
 /// <summary>One or more fantasy rules are broken. Returned as 400 listing every broken rule.</summary>
-public sealed class RuleViolationException(IReadOnlyList<string> errors, string title = "Some rules aren't met", string code = "rule_violation")
+public sealed class RuleViolationException(IReadOnlyList<string> errors, string title = "Some rules aren't met", string code = "rule_violation",
+    IReadOnlyList<Fantasy.RuleViolationItem>? violations = null)
     : Exception(string.Join(" ", errors))
 {
     public IReadOnlyList<string> Errors { get; } = errors;
     public string Title { get; } = title;
     public string Code { get; } = code;
 
+    /// <summary>
+    /// Each problem with a machine-readable rule name (returned as "violations"). Without a rule check, every
+    /// message gets the generic rule name, so the field is always present and lines up with "errors".
+    /// </summary>
+    public IReadOnlyList<Fantasy.RuleViolationItem> Violations { get; } =
+        violations ?? errors.Select(e => new Fantasy.RuleViolationItem(Fantasy.RuleCheck.GenericRule, e)).ToList();
+
     public RuleViolationException(string error) : this([error]) { }
+
+    public RuleViolationException(string rule, string error) : this([error], violations: [new Fantasy.RuleViolationItem(rule, error)]) { }
+
+    /// <summary>From a failed rule check: messages and rule names together.</summary>
+    public RuleViolationException(Fantasy.RuleCheck check, string title, string code = "rule_violation")
+        : this(check.Errors, title, code, check.Violations) { }
 }
 
 /// <summary>404.</summary>
@@ -53,6 +67,14 @@ public static class ErrorCodes
     public const string IdempotencyKeyReused = "idempotency_key_reused";
     public const string RuleViolation = "rule_violation";
     public const string ChipNotCancellable = "chip_not_cancellable";
+    public const string Conflict = "conflict";
+    public const string TeamExists = "team_exists";
+    public const string LeagueFull = "league_full";
+    public const string AlreadyMember = "already_member";
+    public const string DraftStale = "draft_stale";
+    public const string DraftNotFound = "draft_not_found";
+    public const string DraftsUnavailable = "drafts_unavailable";
+    public const string UsernameCooldown = "username_cooldown";
 }
 
 /// <summary>

@@ -63,7 +63,7 @@ Notes on these settings:
 | `GET /api/v1/teams` | none | Clubs playing in the current PSL season (teams with a fixture in it) |
 | `GET /api/v1/players` | none | Players with position, current club, price and `available` (pickable this season) |
 | `GET /api/v1/fixtures?from=&to=` | none | Current-season fixtures with a status (Scheduled, Live, Finished or NoResult) |
-| `GET /api/v1/gameweeks?seasonId=` | none | Gameweeks from `app.gameweeks`, with `readyToScore` taken from `sync.gameweek_sync_status` |
+| `GET /api/v1/gameweeks?seasonId=` | none | Gameweeks from `app.gameweeks`, with `deadline` / `deadlineSast` and `readyToScore` taken from `sync.gameweek_sync_status` |
 | `GET /api/v1/me` | Bearer | The caller's `app.users` row, created on first sign-in. Needs migration 002. |
 
 ### Fantasy (Bearer; the user always comes from the token)
@@ -87,7 +87,23 @@ All need migrations 001–005 (`docs/migrations`). Rules: [`src/Touchline.Api/Fa
 | `POST /api/v1/fantasy/leagues/{id}/leave` | Leave (not the owner) |
 | `GET /api/v1/fantasy/leagues/{id}/standings?gameweek=N` | Standings; `overall` works as the id |
 
-GET fantasy endpoints return an `ETag` and answer `304` to a matching `If-None-Match`. Validation failures are `400` ProblemDetails with every broken rule in `errors`.
+GET fantasy endpoints return an `ETag` and answer `304` to a matching `If-None-Match`. Validation failures are `400` ProblemDetails with every broken rule in `errors` and, for each, a machine-readable rule name in `violations` (`docs/api/errors.md`). A `401` says why (`token_expired`: refresh and retry; `token_missing` / `token_invalid`: sign in).
+
+### Wizards and drafts (Bearer)
+
+For step-by-step screens. The full contract for the UI is [`docs/ui/wizard-contract.md`](docs/ui/wizard-contract.md).
+
+| Method and path | What it does |
+|---|---|
+| `POST /api/v1/fantasy/team/squad/validate` | Check a squad in progress (works before the team exists): budget left, positions filled vs needed, club counts, formation, bench, captaincy. Never saves |
+| `POST /api/v1/fantasy/team/lineup/validate` | Check a lineup or substitution on the saved squad. Never saves |
+| `POST /api/v1/fantasy/team/transfers/validate` | Check a transfer plan (Out and In may differ while choosing): bank, positions, clubs, cost and hit. Never saves |
+| `GET /api/v1/me/drafts` | My saved drafts (no payloads) |
+| `GET /api/v1/me/drafts/{kind}` | One draft: `onboarding`, `squad`, `lineup`, `transfers` or `league` |
+| `PUT /api/v1/me/drafts/{kind}` | Save (overwrite) `{ payload, version, step? }`; a stale `version` is `409 draft_stale` |
+| `DELETE /api/v1/me/drafts/{kind}` | Discard (marked cleared, never deleted) |
+
+`GET /api/v1/me` adds `onboarding.step` (`username`, `team`, `squad`, `done`), `hasDraft` and `drafts`. Drafts need migration 015 (touchline-sync V051); until it's applied they answer `503 drafts_unavailable` and everything else works. Drafts expire after `Drafts:ExpiryDays` (14).
 
 ### Admin (Bearer, `app.users.is_admin`)
 

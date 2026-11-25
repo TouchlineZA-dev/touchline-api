@@ -1,13 +1,12 @@
 # Pinned Flyway migrations
 
 These files are a copy of `db/migrations/*.sql` from **touchline-sync `main` at
-`3d63fd0`** (V001–V041, 2026-11-23), plus `V042__operations.sql` from the sync owner's unmerged branch
-`sprint/3-4-live-freshness-corrections` at `39c3c57`, so the API's migrations (V043+) are tested on top of all of his. They are the canonical schema the
-API's database tests build from (`tests/Touchline.Api.Tests/Db/TestDatabase.cs`).
+`c817044`** (V001–V041, V043–V050, 2026-11-25). The sync owner's operations migration is V049 there
+(renamed from V042, which no longer exists). They are the canonical schema the API's database tests build
+from (`tests/Touchline.Api.Tests/Db/TestDatabase.cs`).
 
-- One deliberate difference: the two role passwords in `V001` are replaced by `'<redacted>'`, so the
-  plaintext passwords committed in the sync repo aren't copied into this one. The test harness replaces
-  them with its own anyway.
+- `V001` is copied unchanged: since 24 Nov 2026 it creates the two login roles without passwords. The test
+  harness gives them its own test-only password.
 - Do not edit them here otherwise. To refresh after new sync migrations merge, copy the folder again from
   touchline-sync main and update the commit above:
   `git -C <touchline-sync> archive origin/main db/migrations | tar -x --strip-components=2 -C tests/db/flyway`

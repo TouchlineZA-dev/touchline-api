@@ -16,6 +16,7 @@ These SQL files create and change the `app` tables that touchline-api owns. They
 | `010_safe_writes.sql` | Receipts with idempotency keys, granted free transfers, the locked deadline snapshot, cancellable chips (Sprint 4, not applied yet) |
 | `011_settlement.sql` | Gameweek state machine, fixture resolutions, score revisions and corrections (Sprint 5, not applied yet) |
 | `012_admin_audit_log.sql` | Insert-only audit log of every admin route call (Sprint 7, not applied yet) |
+| `015_wizard_drafts.sql` | Wizard drafts: save and resume unfinished input per manager (onboarding, squad, lineup, transfers, league). Cleared by UPDATE, never deleted (audit 25 Nov 2026, not applied yet) |
 
 touchline-sync keeps the same SQL as Flyway versions, so a Flyway run there is a no-op for anything already applied here:
 
@@ -33,8 +34,10 @@ touchline-sync keeps the same SQL as Flyway versions, so a Flyway run there is a
 | 010 | V046 |
 | 011 | V047 |
 | 012 | V048 |
+| 013, 014 | not used (V049 and V050 are the sync owner's) |
+| 015 | V051 |
 
-Change both copies together. From 007 on, file NNN is Flyway V(NNN+36): V039–V042 are the sync owner's (version drift and worker grants, live freshness, corrections and completeness, operations). The API's database tests apply the pinned Flyway set (`tests/db/flyway`) and then these files from 007 on, so a new file here is tested before it reaches touchline-sync.
+Change both copies together. From 007 on, file NNN is Flyway V(NNN+36). V039–V041, V049 (operations, renamed from V042) and V050 (API handoff fixes) are the sync owner's, so 013 and 014 are skipped here. The API's database tests apply the pinned Flyway set (`tests/db/flyway`) and then these files from 007 on, so a new file here is tested before it reaches touchline-sync.
 
 The API code works before a new file is applied: it checks for new tables and columns (`Data/SchemaFeatures.cs`) and falls back to the old behaviour.
 

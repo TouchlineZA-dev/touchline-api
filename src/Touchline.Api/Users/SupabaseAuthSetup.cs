@@ -45,6 +45,9 @@ public static class SupabaseAuthSetup
                     RoleClaimType = "role",
                     IssuerSigningKeyResolver = (_, _, kid, _) => keys.GetKeys(kid),
                 };
+                // A 401 says why (token_missing / token_expired / token_invalid), so the app refreshes an
+                // expired session and retries instead of signing the manager out.
+                options.Events = new JwtBearerEvents { OnChallenge = AuthChallenge.WriteAsync };
             });
 
         services.AddAuthorization();
