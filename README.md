@@ -93,6 +93,9 @@ The exit code is 0 when nothing is DOWN and 1 otherwise.
 | `GET /api/v1/fixtures?from=&to=` | none | Current-season fixtures with a status (Scheduled, Live, Finished or NoResult) |
 | `GET /api/v1/gameweeks?seasonId=` | none | Gameweeks from `app.gameweeks`, with `deadline` / `deadlineSast` and `readyToScore` taken from `sync.gameweek_sync_status` |
 | `GET /api/v1/me` | Bearer | The caller's `app.users` row, created on first sign-in. Needs migration 002. |
+| `GET /api/v1/news?category=&clubId=&page=&pageSize=` | none | South African football news, newest first, de-duplicated, with source and freshness ([`docs/api/news.md`](docs/api/news.md)) |
+| `GET /api/v1/news/categories` | none | Category ids for the filter, with counts |
+| `GET /api/v1/news/headlines?max=` | none | The web app's current headlines shape (compatibility) |
 
 ### Fantasy (Bearer; the user always comes from the token)
 
@@ -145,6 +148,8 @@ For step-by-step screens. The full contract for the UI is [`docs/ui/wizard-contr
 | `POST /api/v1/admin/prices/recalculate?windowId=N[&force=true]` | The once-per-window price run |
 | `PUT /api/v1/admin/players/{id}/price-override` | `{ seasonId, expectedMinutes?, price?, reason }` |
 | `PUT /api/v1/admin/players/{id}/available` | `{ available, reason, seasonId? }`: make a player pickable or not (needs 006) |
+
+**News** is read only from Postgres (`sync.news_cache`, written by the touchline-sync RSS job); the API never calls a news provider. Articles always keep their source and link to the publisher, and the article text is never returned. An unwritten feed is `503 news_unavailable`; an empty feed, a filter with no matches and a stale feed are separate `status` values.
 
 Paths match the existing Netlify functions, so the frontend can later point `VITE_API_BASE_URL` at this API. The response shapes are not identical yet:
 

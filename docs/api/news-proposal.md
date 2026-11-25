@@ -1,6 +1,6 @@
 # Proposal: one news contract through the C# API (needs the news-service owner)
 
-**Status:** proposal for the team. Nothing is built.
+**Status:** superseded on 25 Nov 2026 by [news.md](news.md): the routes are built and read `sync.news_cache` from Postgres. The differences from this proposal are listed there under "Decisions for the team". Kept for the sprint history.
 
 **Owner:** the news-service maintainer (`touchline-news-api` in Touchline_Main) together with the API owner. `05-news-service.md` isn't in `docs/plans`, so this follows 02 and 01 Gate 4.
 
