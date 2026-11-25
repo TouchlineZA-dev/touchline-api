@@ -178,7 +178,7 @@ WWW-Authenticate: Bearer error="invalid_token", error_description="The access to
 
 ```http
 POST /fantasy/team/transfers/confirm
-Idempotency-Key: 6f1c0a52-3c1e-4b8e-9f0b-2a7d0c4e9b11
+Idempotency-Key: 00000000-0000-4000-8000-000000000001   (example: a new random UUID per confirmation)
 
 { "gameweekId": 10, "out": [203], "in": [377], "squadVersion": 7, "priceRevision": 41, "quotedAtUtc": "2026-11-25T18:00:00Z" }
 ```
