@@ -67,6 +67,8 @@ builder.Services.Configure<StagingKitOptions>(builder.Configuration.GetSection(S
 builder.Services.Configure<FreshnessOptions>(builder.Configuration.GetSection(FreshnessOptions.SectionName));
 builder.Services.AddScoped<GameweekService>();
 builder.Services.AddScoped<HealthService>();
+builder.Services.AddScoped<NewsService>();
+builder.Services.Configure<NewsOptions>(builder.Configuration.GetSection(NewsOptions.SectionName));
 
 // Fantasy: every rule number lives in the "Fantasy" section (Fantasy/FantasyRules.cs).
 builder.Services.Configure<FantasyRules>(builder.Configuration.GetSection(FantasyRules.SectionName));
