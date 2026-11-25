@@ -43,8 +43,11 @@ public class FantasyTeam
     public int UserId { get; set; }
     public int SeasonId { get; set; }
     public string Name { get; set; } = "";
-    /// <summary>Millions of rand. docs/migrations/003 sets the column default to 100.0.</summary>
-    public decimal BudgetRemaining { get; set; } = 100.0m;
+    /// <summary>
+    /// Millions of rand. Required, so every new team states its budget: always set it from
+    /// FantasyRules.Budget (Fantasy:Budget), the one source of truth. No default here on purpose.
+    /// </summary>
+    public required decimal BudgetRemaining { get; set; }
     public DateTimeOffset CreatedAt { get; set; }
     public DateTimeOffset UpdatedAt { get; set; }
 }

@@ -13,7 +13,7 @@ The inspected branch is two commits ahead of the locally recorded `origin/main` 
 
 1. **Build against the released Flyway schema.** Coordinate the [sync migration work](01-sync-worker.md). `tests/Touchline.Api.Tests/Auth/PostgresFixture.cs` reads V033 from a deleted file. Change the fixture to consume the canonical migration release. Run auth and fantasy persistence tests on disposable Postgres with the real grants. Exercise a populated upgrade and clean install.
 2. **Establish one identity.** Use the same environment-specific Supabase project as both clients. Verify issuer, audience, signature and token subject. Preserve the API’s 409 recovery for legacy and conflicting emails. Add a profile update contract for display name and favourite club, and a team rename action if retaining those web features. Pick stable internal club IDs and define how existing club selections are mapped.
-3. **Prove a team is shared.** Create the current PSL season’s gameweek through the admin route using synced fixtures and an editable deadline. Sign in, call `GET /me`, create a team with `POST /fantasy/team`, submit 15 picks with `PUT /fantasy/team/squad` and load `GET /fantasy/team/snapshot` on the other client. Use the configured R300m starting budget and check the returned balance.
+3. **Prove a team is shared.** Create the current PSL season’s gameweek through the admin route using synced fixtures and an editable deadline. Sign in, call `GET /me`, create a team with `POST /fantasy/team`, submit 15 picks with `PUT /fantasy/team/squad` and load `GET /fantasy/team/snapshot` on the other client. Use the configured R100.0m starting budget (`Fantasy:Budget`; the R300m first written here was scrapped) and check the returned balance.
 
 ## Complete the public contract
 

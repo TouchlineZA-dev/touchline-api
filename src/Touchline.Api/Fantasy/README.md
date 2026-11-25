@@ -81,7 +81,7 @@ Worked example (unit-tested): a midfielder with R1 = 6, R2 = 5, R3 = 4 and M = 2
 
 | Setting | Default | Meaning |
 |---|---|---|
-| `Budget` | 100.0 | Starting budget (millions) |
+| `Budget` | 100.0 | Starting budget (millions). The only place the budget is set (not in appsettings.json); env override `Fantasy__Budget` |
 | `SquadGoalkeepers` / `SquadDefenders` / `SquadMidfielders` / `SquadAttackers` | 2 / 5 / 5 / 3 | Squad composition |
 | `MaxPlayersPerClub` | 3 | Per real club |
 | `Formations` | `4-3-3,4-4-2,3-5-2,3-4-3,5-3-2` | Allowed formations (comma-separated) |
@@ -101,7 +101,7 @@ Worked example (unit-tested): a midfielder with R1 = 6, R2 = 5, R3 = 4 and M = 2
 | `Pricing:ShrinkMinutes` | 900 | K |
 | `Pricing:WeightLastSeason` / `WeightTwoSeasonsAgo` / `WeightThreeSeasonsAgo` | 0.6 / 0.3 / 0.1 | |
 | `Pricing:MidSeasonMinMinutes` | 450 | |
-| `Pricing:PriceScale` | 1.0 | Multiplies every price range; must match the budget (100.0 → 1.0, 300.0 → 3.0) |
+| `Pricing:PriceScale` | 1.0 | Multiplies every price range; must match the budget (scale = budget ÷ 100, so 100.0 → 1.0) |
 | `Pricing:PriceStep` | 0.5 | Rounding step |
 | `Pricing:Goalkeeper` / `Defender` / `Midfielder` / `Attacker` (`Min`, `Max`) | 4.0–6.0 / 4.0–7.0 / 4.5–12.0 / 4.5–12.5 | Price ranges |
 
