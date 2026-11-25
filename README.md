@@ -54,6 +54,33 @@ Notes on these settings:
 - **Port 6543** is the Supabase transaction pooler, which suits a web API. Connect as `app_api_user`. `Program.cs` sets `No Reset On Close`, because the pooler hangs on the reset Npgsql otherwise sends when reusing a connection. That role can only read `football` and `sync`, and can read, insert and update `app`. It has no DELETE anywhere.
 - **Legacy JWT secret.** If the Supabase project still signs tokens with the legacy shared secret instead of JWT signing keys, also set `Supabase:JwtSecret`.
 
+## Health check
+
+`scripts/api-health-check.ps1` calls the main public routes against a running API and prints one line per check. Run it from the repo root on Windows PowerShell 5.1 or PowerShell 7:
+
+```powershell
+# Public routes only (Railway production by default)
+powershell -ExecutionPolicy Bypass -File .\scripts\api-health-check.ps1 -NoAuth
+# Against a local API (dotnet run --project src/Touchline.Api)
+powershell -ExecutionPolicy Bypass -File .\scripts\api-health-check.ps1 -NoAuth -BaseUrl http://localhost:5147
+# Also the signed-in and admin routes, as a test account
+powershell -ExecutionPolicy Bypass -File .\scripts\api-health-check.ps1 -Email test@example.com
+```
+
+| State | Meaning |
+|---|---|
+| UP | The route answered as expected |
+| WARN | The route works, but the data isn't right. For example: football data isn't fresh, fixtures past kickoff are still `Scheduled`, or `/health` reports `degraded` |
+| DOWN | No response, a 5xx, a 404, or an unexpected status. The note says why; for a 500 it gives the traceId to search for in the Railway logs |
+| SKIP | Not tested: nothing to test with, `-NoAuth`, or admin routes for a non-admin account |
+
+The exit code is 0 when nothing is DOWN and 1 otherwise.
+
+**Signing in.** Without `-NoAuth`, the script signs in to Supabase itself, so you never copy a token by hand:
+- **Key:** it needs the project's **publishable** key (`sb_publishable_…`, or the legacy anon key). It reads `SUPABASE_PUBLISHABLE_KEY` from `.env`, or asks for it at a prompt.
+- **Never the secret key.** The script refuses `sb_secret_…` and `service_role` keys. Never put a secret key in `.env` for this.
+- **Password:** typed in hidden. The password and token are never printed or saved.
+
 ## Endpoints (v1)
 
 | Method and path | Auth | What it returns |
