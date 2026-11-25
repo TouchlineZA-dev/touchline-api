@@ -13,7 +13,12 @@ public sealed class FantasyRules
 
     // ---- Teams and squad -------------------------------------------------------------
 
-    /// <summary>Starting budget per team, in millions (R100.0m).</summary>
+    /// <summary>
+    /// Starting budget per team, in millions (R100.0m). The single source of truth for the budget:
+    /// team creation, squad validation, transfers, autopick, GET /api/v1/rules and the snapshot all read it.
+    /// Deliberately not repeated in appsettings.json. Override only with the environment variable
+    /// <c>Fantasy__Budget</c> (logged at startup as "Fantasy budget: …").
+    /// </summary>
     public decimal Budget { get; set; } = 100.0m;
 
     /// <summary>Squad composition. 15 players: 2 GK, 5 DEF, 5 MID, 3 ATT.</summary>
@@ -139,7 +144,7 @@ public sealed class PricingRules
 
     /// <summary>
     /// Multiplies every position's price range below, so prices scale with the budget.
-    /// Budget 100.0 → 1.0. (A 300.0 budget would use 3.0.) Fantasy:Budget, this scale and the
+    /// Scale = Budget ÷ 100, so Budget 100.0 → 1.0. Fantasy:Budget, this scale and the
     /// fantasy_teams.budget_remaining default in docs/migrations/003 must agree.
     /// </summary>
     public decimal PriceScale { get; set; } = 1.0m;

@@ -52,6 +52,7 @@ Notes on these settings:
 
 - **Never commit secrets.** Use `.env` (or user-secrets) locally. When hosting, use environment variables such as `ConnectionStrings__Touchline` and `Supabase__Url`.
 - **Port 6543** is the Supabase transaction pooler, which suits a web API. Connect as `app_api_user`. `Program.cs` sets `No Reset On Close`, because the pooler hangs on the reset Npgsql otherwise sends when reusing a connection. That role can only read `football` and `sync`, and can read, insert and update `app`. It has no DELETE anywhere.
+- **Fantasy budget (`Fantasy__Budget`).** The starting budget is R100.0m, set in one place: the default of `FantasyRules.Budget` (`src/Touchline.Api/Fantasy/FantasyRules.cs`). It is deliberately not in `appsettings.json`. The only way to override it is the environment variable **`Fantasy__Budget`** (config key `Fantasy:Budget`), which beats everything else, including `.env`. **It should not be set on Railway or any other host**; if it is, delete it. The API logs the effective value once at startup as `Fantasy budget: 100.0`; check that line after every deploy. Team creation, squad validation, transfers, autopick, `GET /api/v1/rules` (`squad.budget`) and the team snapshot (`budgetRemaining` = budget − squad cost) all read this one value.
 - **Legacy JWT secret.** If the Supabase project still signs tokens with the legacy shared secret instead of JWT signing keys, also set `Supabase:JwtSecret`.
 
 ## Endpoints (v1)

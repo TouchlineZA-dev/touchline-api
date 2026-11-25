@@ -23,6 +23,7 @@
 | `Cors__AllowedOrigins__0…n` | staging web origins, e.g. `https://staging.touchline…` | production web origins only; no wildcards |
 | `OpenApi__Expose` | `true` (the mobile developer reads the contract) | optional |
 | `StagingKit__Enabled` | `true` | never (refused anyway) |
+| `Fantasy__Budget` | **not set** (default R100.0m; startup log shows `Fantasy budget: 100.0`) | **not set** |
 | `Fantasy__RequireTargetGameweek` | `true` | `true` (set `false` only during a client rollout) |
 
 **Secrets:** these live in the host's secret store, never in files:

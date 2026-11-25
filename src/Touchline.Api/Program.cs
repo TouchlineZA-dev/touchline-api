@@ -101,6 +101,11 @@ builder.Services.AddCors(o => o.AddPolicy(FrontendCors, p => p
 
 var app = builder.Build();
 
+// The effective budget, after appsettings and environment variables (Fantasy__Budget), so a deploy
+// running with the wrong budget shows up in the first log lines.
+app.Logger.LogInformation("Fantasy budget: {Budget}",
+    app.Services.GetRequiredService<Microsoft.Extensions.Options.IOptions<FantasyRules>>().Value.Budget);
+
 app.UseExceptionHandler();
 app.UseStatusCodePages();
 

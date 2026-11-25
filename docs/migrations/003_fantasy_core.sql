@@ -16,7 +16,7 @@
 
 -- ---------------------------------------------------------------------------------------------
 -- 1. Defaults for the R100.0m budget (money in millions, NUMERIC(5,1)).
---    Must match Fantasy:Budget in touchline-api's appsettings.
+--    Must match FantasyRules.Budget in touchline-api (env override Fantasy__Budget).
 -- ---------------------------------------------------------------------------------------------
 
 ALTER TABLE app.fantasy_teams ALTER COLUMN budget_remaining SET DEFAULT 100.0;
