@@ -1,0 +1,3 @@
+# Confirmed false positives (gitleaks fingerprint: commit:file:rule:line). Each needs a reason.
+# An example UUID next to "Idempotency-Key:" in the wizard contract (replaced in 936206c by a low-entropy example).
+295add5c6cde136f84a32495d9b68ba7027133a0:docs/ui/wizard-contract.md:generic-api-key:181
