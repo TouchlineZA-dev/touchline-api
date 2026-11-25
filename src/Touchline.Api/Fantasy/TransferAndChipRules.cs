@@ -51,18 +51,18 @@ public static class ChipRules
         var check = new RuleCheck();
         if (!Chips.IsValid(chip))
         {
-            return check.Fail($"'{chip}' isn't a chip. Choose one of {string.Join(", ", Chips.All)}.");
+            return check.Fail("chip_unknown", $"'{chip}' isn't a chip. Choose one of {string.Join(", ", Chips.All)}.");
         }
 
         if (usedThisSeason.Any(u => u.Chip == chip))
         {
-            check.Fail($"You've already used {DisplayName(chip!)} this season. Each chip can be used once per season.");
+            check.Fail("chip_used", $"You've already used {DisplayName(chip!)} this season. Each chip can be used once per season.");
         }
 
         var activeThisWeek = usedThisSeason.FirstOrDefault(u => u.GameweekId == gameweekId);
         if (activeThisWeek is not null && activeThisWeek.Chip != chip)
         {
-            check.Fail($"{DisplayName(activeThisWeek.Chip)} is already active this gameweek. Only one chip per gameweek.");
+            check.Fail("chip_one_per_gameweek", $"{DisplayName(activeThisWeek.Chip)} is already active this gameweek. Only one chip per gameweek.");
         }
 
         return check;

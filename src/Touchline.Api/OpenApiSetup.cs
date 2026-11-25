@@ -30,20 +30,28 @@ public static class OpenApiSetup
                 var authed = path.StartsWith("api/v1/me", StringComparison.Ordinal) || path.StartsWith("api/v1/fantasy", StringComparison.Ordinal)
                              || path.StartsWith("api/v1/admin", StringComparison.Ordinal);
                 operation.Responses ??= new OpenApiResponses();
-                Add(operation, "400", "Validation failed (code: rule_violation, target_gameweek_required, insufficient_funds, …)", "rule_violation", 400, "Some rules aren't met");
+                Add(operation, "400", "Validation failed (code: rule_violation, invalid_request, target_gameweek_required, insufficient_funds, username_cooldown, ...). " +
+                    "'violations' names each broken rule (docs/api/errors.md, Rule names).", "rule_violation", 400, "Some rules aren't met",
+                    e => e["violations"] = new JsonArray(new JsonObject { ["rule"] = "club_limit", ["message"] = "Max 3 players from Orlando Pirates; you have 4." }));
                 if (authed)
                 {
-                    Add(operation, "401", "Missing, expired or invalid Supabase token", "invalid_subject", 401, "Unauthorized");
+                    Add(operation, "401", "No usable token. code token_expired (retry: refresh): refresh the Supabase session and retry once. " +
+                        "code token_missing or token_invalid (retry: sign_in): sign in again.", "token_expired", 401, "Session expired",
+                        e => e["retry"] = "refresh");
                     Add(operation, "403", "Not allowed (code: forbidden, account_suspended, account_deleted, reauthentication_required)", "forbidden", 403, "Forbidden");
-                    Add(operation, "409", "Conflict (code: stale_squad, gameweek_locked, price_changed, quote_expired, idempotency_key_reused, username_taken, …)", "stale_squad", 409, "Team changed");
+                    Add(operation, "409", "Conflict (code: stale_squad, gameweek_locked, price_changed, quote_expired, idempotency_key_reused, username_taken, " +
+                        "team_exists, league_full, already_member, draft_stale, ...). 'current' holds the latest state when there is one.", "stale_squad", 409, "Team changed");
+                    Add(operation, "429", "Too many requests for this manager in a minute (code: rate_limited). Wait and retry; the session is fine.", "rate_limited", 429, "Too many requests");
                 }
-                Add(operation, "404", "Not found (code: not_found)", "not_found", 404, "Not found");
-                Add(operation, "503", "Data or schema not available", null, 503, "Schema not ready");
+                Add(operation, "404", "Not found (code: not_found, draft_not_found)", "not_found", 404, "Not found");
+                Add(operation, "503", "Data or schema not available (code: drafts_unavailable for drafts before migration 015)", null, 503, "Schema not ready");
+                WizardExamples.Apply(operation, path, context.Description.HttpMethod ?? "");
                 return Task.CompletedTask;
             });
         });
 
-    private static void Add(OpenApiOperation operation, string status, string description, string? code, int statusCode, string title)
+    private static void Add(OpenApiOperation operation, string status, string description, string? code, int statusCode, string title,
+        Action<JsonObject>? extra = null)
     {
         if (operation.Responses!.ContainsKey(status)) return;
         var example = new JsonObject
@@ -54,6 +62,7 @@ public static class OpenApiSetup
             ["detail"] = "Human-readable explanation.",
         };
         if (code is not null) example["code"] = code;
+        extra?.Invoke(example);
         operation.Responses[status] = new OpenApiResponse
         {
             Description = description,

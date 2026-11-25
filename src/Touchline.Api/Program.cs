@@ -21,7 +21,10 @@ StartupValidation.ThrowIfInvalid(builder.Configuration, builder.Environment);
 
 builder.Services
     .AddControllers()
-    .AddJsonOptions(o => o.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
+    .AddJsonOptions(o => o.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()))
+    // A request the API can't read (missing field, wrong type, bad JSON) gets the same shape as every other
+    // 400: a machine-readable code, "errors" as a list of messages, and "violations" naming each field.
+    .ConfigureApiBehaviorOptions(o => o.InvalidModelStateResponseFactory = Touchline.Api.Controllers.InvalidRequest.Create);
 builder.Services.AddProblemDetails();
 builder.Services.AddTouchlineOpenApi();
 builder.Services.AddHttpContextAccessor();
@@ -79,6 +82,9 @@ builder.Services.AddScoped<FantasyContextService>();
 builder.Services.AddScoped<LeagueService>();
 builder.Services.AddScoped<FantasyTeamService>();
 builder.Services.AddScoped<SafeWriteService>();
+builder.Services.AddScoped<DraftService>();
+builder.Services.Configure<DraftOptions>(builder.Configuration.GetSection(DraftOptions.SectionName));
+builder.Services.AddScoped<WizardService>();
 builder.Services.AddScoped<PricingService>();
 builder.Services.AddScoped<AdminService>();
 

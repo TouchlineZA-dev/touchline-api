@@ -25,7 +25,9 @@
 | 400 | `insufficient_funds` | The transfers cost more than the bank holds | Show the shortfall; suggest cheaper players |
 | 400 | `target_gameweek_required` | A squad, lineup, transfer or chip write didn't say which gameweek it's for | Send `gameweekId` from `GET /fantasy/team/squad` or `/snapshot` |
 | 400 | `idempotency_key_required` | A transfer confirmation came without an `Idempotency-Key` header | Generate a UUID per confirmation and resend |
-| 401 | (none; the JWT handler answers) | Missing, expired or invalid token | Refresh the Supabase session and retry |
+| 401 | `token_expired` (`retry: "refresh"`) | The access token has expired. `WWW-Authenticate: Bearer error="invalid_token"` | Refresh the Supabase session silently and retry the request once. Keep the form as it is |
+| 401 | `token_missing` (`retry: "sign_in"`) | No `Authorization` header | Attach the token; if there is no session, sign in |
+| 401 | `token_invalid` (`retry: "sign_in"`) | Wrong project or audience, bad signature, malformed | Sign in again (a refresh can't fix it) |
 | 401 | `invalid_subject` | The token has no valid `sub` | Sign in again |
 | 403 | `forbidden` | Signed in but not allowed (e.g. not an admin, not a league member) | Hide the action |
 | 403 | `account_suspended` | Suspended account: reads only | Show the suspension notice |
@@ -43,6 +45,35 @@
 | 409 | `legacy_email_unlinked`, `email_in_use` | Account email conflicts on first sign-in (see `docs/accounts/policies.md`) | Show the recovery text |
 | 503 | (title "Schema not ready") | A migration the feature needs isn't applied yet | Retry later |
 | 503 | (title "Sportmonks codes not confirmed") | Scoring decoding isn't enabled | Retry later |
+| 400 | `invalid_request` | The body or query couldn't be read (missing field, wrong type, bad JSON). `errors` lists them; `violations` has each `field` | Fix the request (a client bug) |
+| 400 | `username_cooldown` | The username was changed less than 30 days ago | Show the date in the message |
+| 404 | `draft_not_found` | No draft of that kind (never saved, discarded or expired) | Start the wizard fresh |
+| 409 | `team_exists` | This manager already has a team this season | Load the team |
+| 409 | `league_full` | The league has 20 teams | Explain; nothing to retry |
+| 409 | `already_member` | The team is already in that league | Open the league |
+| 409 | `draft_stale` | Another device saved (or discarded) the draft since it was loaded. `current` has the newer draft, or `draft: null` | Ask: keep theirs, or overwrite with mine (save again with `current.version`) |
+| 409 | `conflict` | Any other conflict without a more specific code | Reload |
+| 413 | `request_too_large` | The body is over 64 KB | Send less (drafts: keep payloads small) |
+| 429 | `rate_limited` | Too many requests from this manager in a minute (checked before the token, so it can come first) | Wait and retry. **Never a sign-out** |
+| 503 | `drafts_unavailable` | Drafts need migration 015 (touchline-sync V051), not applied yet | Keep the draft on the device; everything else works |
+
+**Which errors mean "sign in again"?** Only 401 with `retry: "sign_in"` (`token_missing`, `token_invalid`), and 403 `account_deleted`. 401 `token_expired` means refresh and retry. Every other status (400, 403, 404, 409, 413, 429, 5xx) is about the request or the data, never the session: show the message, keep what the manager typed, and never sign them out.
+
+## Rule names
+
+Every 400 has `violations`: one `{ "rule", "message" }` per problem, in the same order as `errors`, so a wizard can highlight the right field. Rules that aren't listed below come back as `rule`.
+
+| Area | Rule names |
+|---|---|
+| Squad | `squad_size`, `duplicate_player`, `unknown_player`, `unknown_position`, `player_unavailable`, `position_count`, `club_limit`, `over_budget` |
+| Starting XI and bench | `formation_not_allowed`, `formation_range`, `formation_mismatch`, `starters_count`, `starting_gk`, `bench_count`, `bench_gk`, `bench_gk_swap`, `lineup_changes_players` |
+| Captaincy | `captain_missing`, `vice_captain_missing`, `captain_vice_same`, `captain_not_starter`, `vice_captain_not_starter` |
+| Transfers | `transfer_empty`, `transfer_count_mismatch`, `transfer_duplicate`, `transfer_not_in_squad`, `transfer_already_in_squad`, `transfer_position_mismatch`, `insufficient_funds` |
+| Chips | `chip_unknown`, `chip_used`, `chip_one_per_gameweek` |
+| Leagues | `league_code_format`, `league_name_length`, `league_full`, `already_member`, `owner_cannot_leave` |
+| Account | `username_length`, `username_characters`, `username_reserved`, `favourite_club_unknown`, `team_name_length` |
+| Drafts | `draft_kind`, `draft_payload`, `draft_step`, `draft_version` |
+| Unreadable request | `invalid_request` (with `field`) |
 
 ## Writes, versions and retries
 

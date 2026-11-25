@@ -1,4 +1,4 @@
--- V042: Sprint 5. Operational visibility and a single active scheduler.
+-- V049 (was V042, renumbered 24 Nov 2026 to run after V043–V048): Sprint 5. Operational visibility and a single active scheduler.
 --
 --   1. sync_jobs: which runner ran the job, and partial-response counters
 --   2. sync.scheduler_lease: exactly one scheduler (Netlify or the Python

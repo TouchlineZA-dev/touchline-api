@@ -20,12 +20,15 @@ public abstract class FantasyControllerBase(CurrentUser currentUser, UserService
     /// The signed-in manager (email optional). A deleted account gets 403 account_deleted; a suspended
     /// one can read but every write gets 403 account_suspended.
     /// </summary>
-    protected async Task<AppUser> MeAsync(CancellationToken ct)
+    protected async Task<AppUser> MeAsync(CancellationToken ct) => await MeAsync(readOnly: false, ct);
+
+    /// <param name="readOnly">True for POST routes that never write (wizard validation): suspended managers may use them.</param>
+    protected async Task<AppUser> MeAsync(bool readOnly, CancellationToken ct)
     {
         if (currentUser.AuthUserId is not { } authUserId) throw new ForbiddenException("Token has no valid 'sub' claim.");
         var me = await users.GetOrCreateAsync(authUserId, currentUser.Email, ct);
         HttpContext.Items[AdminAuditFilter.UserIdKey] = me.Id;
-        if (!HttpMethods.IsGet(Request.Method) && !HttpMethods.IsHead(Request.Method))
+        if (!readOnly && !HttpMethods.IsGet(Request.Method) && !HttpMethods.IsHead(Request.Method))
         {
             await HttpContext.RequestServices.GetRequiredService<AccountService>().RequireCanWriteAsync(me.Id, ct);
         }
@@ -37,7 +40,7 @@ public abstract class FantasyControllerBase(CurrentUser currentUser, UserService
 }
 
 [Route("api/v1/fantasy/team")]
-public sealed class FantasyTeamController(CurrentUser currentUser, UserService users, FantasyTeamService teams, SafeWriteService safe)
+public sealed class FantasyTeamController(CurrentUser currentUser, UserService users, FantasyTeamService teams, SafeWriteService safe, WizardService wizard)
     : FantasyControllerBase(currentUser, users)
 {
     /// <summary>Quote transfers for the target gameweek: costs, bank, free transfers, hit, violations and the versions to confirm with. Saves nothing.</summary>
@@ -65,6 +68,24 @@ public sealed class FantasyTeamController(CurrentUser currentUser, UserService u
     [HttpPost("autopick/preview")]
     public async Task<IActionResult> AutopickPreview(AutopickRequest request, CancellationToken ct) =>
         Ok(await safe.AutopickAsync(await MeAsync(ct), request, ct));
+
+    /// <summary>
+    /// Wizard step check for a squad in progress (onboarding): budget left, positions filled vs needed, club counts,
+    /// formation, bench and captaincy, with every broken rule named. Works before a team exists. Never saves.
+    /// </summary>
+    [HttpPost("squad/validate"), EnableRateLimiting(RateLimitPolicies.WizardChecks)]
+    public async Task<IActionResult> ValidateSquad(SquadCheckRequest request, CancellationToken ct) =>
+        Ok(await wizard.CheckSquadAsync(await MeAsync(readOnly: true, ct), request, ct));
+
+    /// <summary>Wizard step check for a lineup or substitution on the saved squad. Never saves.</summary>
+    [HttpPost("lineup/validate"), EnableRateLimiting(RateLimitPolicies.WizardChecks)]
+    public async Task<IActionResult> ValidateLineup(LineupCheckRequest request, CancellationToken ct) =>
+        Ok(await wizard.CheckLineupAsync(await MeAsync(readOnly: true, ct), request, ct));
+
+    /// <summary>Wizard step check for a transfer set in progress (Out and In may differ in length): bank, positions, clubs, cost and hit. Never saves.</summary>
+    [HttpPost("transfers/validate"), EnableRateLimiting(RateLimitPolicies.WizardChecks)]
+    public async Task<IActionResult> ValidateTransfers(TransferCheckRequest request, CancellationToken ct) =>
+        Ok(await wizard.CheckTransfersAsync(await MeAsync(readOnly: true, ct), request, ct));
 
     /// <summary>Chip entitlements this season and what can be done with each now.</summary>
     [HttpGet("chips"), ETag]

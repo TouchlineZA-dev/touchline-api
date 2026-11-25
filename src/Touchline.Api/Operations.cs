@@ -31,6 +31,8 @@ public sealed class RateLimitOptions
     public int AccountChangesPerMinute { get; set; } = 10;   // username, team rename, league create/join, notifications
     public int FantasyWritesPerMinute { get; set; } = 30;    // squad, lineup, transfers, chips
     public int StandingsPerMinute { get; set; } = 60;        // league standings and history (the expensive reads)
+    public int DraftSavesPerMinute { get; set; } = 60;       // wizard draft autosave (debounced in the app)
+    public int WizardChecksPerMinute { get; set; } = 120;    // wizard step validation (never saves)
     public int AnonymousPerMinute { get; set; } = 300;       // everything public, per IP
 }
 
@@ -39,6 +41,8 @@ public static class RateLimitPolicies
     public const string Account = "account";
     public const string FantasyWrites = "fantasy-writes";
     public const string Standings = "standings";
+    public const string Drafts = "drafts";
+    public const string WizardChecks = "wizard-checks";
 
     public static IServiceCollection AddTouchlineRateLimits(this IServiceCollection services, IConfiguration config)
     {
@@ -59,6 +63,8 @@ public static class RateLimitPolicies
             limiter.AddPolicy(Account, ctx => PerCaller(ctx, o.AccountChangesPerMinute));
             limiter.AddPolicy(FantasyWrites, ctx => PerCaller(ctx, o.FantasyWritesPerMinute));
             limiter.AddPolicy(Standings, ctx => PerCaller(ctx, o.StandingsPerMinute));
+            limiter.AddPolicy(Drafts, ctx => PerCaller(ctx, o.DraftSavesPerMinute));
+            limiter.AddPolicy(WizardChecks, ctx => PerCaller(ctx, o.WizardChecksPerMinute));
             limiter.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(ctx =>
                 ctx.Request.Headers.Authorization.Count > 0
                     ? RateLimitPartition.GetNoLimiter("signed-in")

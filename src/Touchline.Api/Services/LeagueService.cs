@@ -68,7 +68,7 @@ public sealed class LeagueService(
     {
         var team = ctx.RequireTeam();
         var name = request.Name?.Trim() ?? "";
-        if (name.Length is < 1 or > 50) throw new RuleViolationException("Give the league a name of 1 to 50 characters.");
+        if (name.Length is < 1 or > 50) throw new RuleViolationException("league_name_length", "Give the league a name of 1 to 50 characters.");
 
         var code = await _leagueRules.GenerateUniqueJoinCodeAsync(c => db.Leagues.AnyAsync(l => l.JoinCode == c, ct), Random.Shared);
 
@@ -108,7 +108,7 @@ public sealed class LeagueService(
         var code = request.Code?.Trim() ?? "";
         if (!_leagueRules.IsValidJoinCode(code))
         {
-            throw new RuleViolationException("That isn't a league code. Codes look like TL-482#91!3.");
+            throw new RuleViolationException("league_code_format", "That isn't a league code. Codes look like TL-482#91!3.");
         }
 
         await using var transaction = await db.Database.BeginTransactionAsync(ct);
@@ -124,7 +124,7 @@ public sealed class LeagueService(
         var active = await db.LeagueMembers.CountAsync(m => m.LeagueId == league.Id && m.LeftAt == null, ct);
 
         var check = _leagueRules.CanJoin(active, league.MaxMembers, alreadyMember: membership is { LeftAt: null });
-        if (!check.IsValid) throw new ConflictException(check.Errors[0], "Can't join");
+        if (!check.IsValid) throw new ConflictException(check.Errors[0], "Can't join", code: check.Violations[0].Rule);
 
         if (membership is null)
         {
@@ -218,7 +218,7 @@ public sealed class LeagueService(
             ?? throw new NotFoundException("Your team isn't in that league.");
 
         var check = LeagueRules.CanLeave(isOwner: league.OwnerUserId == ctx.User.Id);
-        if (!check.IsValid) throw new RuleViolationException(check.Errors);
+        if (!check.IsValid) throw new RuleViolationException(check, "Can't leave");
 
         membership.LeftAt = ctx.Now;
         await db.SaveChangesAsync(ct);

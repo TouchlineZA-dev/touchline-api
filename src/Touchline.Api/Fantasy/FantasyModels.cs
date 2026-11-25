@@ -83,19 +83,35 @@ public static class Chips
     public static bool IsValid(string? chip) => chip is not null && All.Contains(chip);
 }
 
+/// <summary>One broken rule: a stable machine-readable name (docs/api/errors.md, "Rule names") and the plain-language message.</summary>
+public sealed record RuleViolationItem(string Rule, string Message);
+
 /// <summary>The outcome of a rule check: every broken rule, in plain language, plus non-blocking warnings.</summary>
 public sealed class RuleCheck
 {
+    /// <summary>The rule name used when a check doesn't name one.</summary>
+    public const string GenericRule = "rule";
+
     private readonly List<string> _errors = [];
+    private readonly List<RuleViolationItem> _violations = [];
     private readonly List<string> _warnings = [];
 
+    /// <summary>Plain-language messages, one per broken rule (unchanged for existing clients).</summary>
     public IReadOnlyList<string> Errors => _errors;
+    /// <summary>The same problems with a machine-readable rule name each (e.g. club_limit, over_budget), for wizards.</summary>
+    public IReadOnlyList<RuleViolationItem> Violations => _violations;
     public IReadOnlyList<string> Warnings => _warnings;
     public bool IsValid => _errors.Count == 0;
 
-    public RuleCheck Fail(string error)
+    public RuleCheck Fail(string error) => Fail(GenericRule, error);
+
+    public RuleCheck Fail(string rule, string error)
     {
-        if (!_errors.Contains(error)) _errors.Add(error);
+        if (!_errors.Contains(error))
+        {
+            _errors.Add(error);
+            _violations.Add(new RuleViolationItem(rule, error));
+        }
         return this;
     }
 
@@ -107,7 +123,7 @@ public sealed class RuleCheck
 
     public RuleCheck Merge(RuleCheck other)
     {
-        foreach (var e in other.Errors) Fail(e);
+        foreach (var v in other.Violations) Fail(v.Rule, v.Message);
         foreach (var w in other.Warnings) Warn(w);
         return this;
     }

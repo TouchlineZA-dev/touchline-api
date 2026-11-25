@@ -184,7 +184,8 @@ public static class TestDatabase
     /// server, so creation is made conditional; the passwords in V001 are replaced by the test's own.
     /// </summary>
     private static string GuardRoleCreation(string sql) =>
-        Regex.Replace(sql, @"CREATE USER (\w+) WITH PASSWORD '[^']*';", m =>
+        // V001 had "CREATE USER x WITH PASSWORD '…';" until touchline-sync removed the passwords (24 Nov 2026): "CREATE USER x;".
+        Regex.Replace(sql, @"CREATE USER (\w+)(?: WITH PASSWORD '[^']*')?;", m =>
             $"DO $$ BEGIN IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = '{m.Groups[1].Value}') THEN " +
             $"CREATE ROLE {m.Groups[1].Value} LOGIN PASSWORD '{ApiRolePassword}'; END IF; END $$;");
 

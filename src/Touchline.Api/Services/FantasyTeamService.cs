@@ -33,7 +33,7 @@ public sealed class FantasyTeamService(
         var ctx = await contexts.LoadAsync(user, trackTeam: false, ct);
         if (ctx.Team is not null)
         {
-            throw new ConflictException("You already have a team for this season. Each user has one team per season.", "Team exists");
+            throw new ConflictException("You already have a team for this season. Each user has one team per season.", "Team exists", code: ErrorCodes.TeamExists);
         }
 
         var name = ValidTeamName(request.Name);
@@ -46,7 +46,7 @@ public sealed class FantasyTeamService(
         }
         catch (DbUpdateException ex) when (FantasyContextService.IsUniqueViolation(ex))
         {
-            throw new ConflictException("You already have a team for this season. Each user has one team per season.", "Team exists");
+            throw new ConflictException("You already have a team for this season. Each user has one team per season.", "Team exists", code: ErrorCodes.TeamExists);
         }
         return await TeamViewAsync(ctx, team, ct);
     }
@@ -55,7 +55,7 @@ public sealed class FantasyTeamService(
     public static string ValidTeamName(string? input)
     {
         var name = (input ?? "").Trim();
-        if (name.Length is < 3 or > 30) throw new RuleViolationException("Give your team a name of 3 to 30 characters.");
+        if (name.Length is < 3 or > 30) throw new RuleViolationException("team_name_length", "Give your team a name of 3 to 30 characters.");
         return name;
     }
 
@@ -109,7 +109,7 @@ public sealed class FantasyTeamService(
                 "You've already picked your squad. Use PUT /api/v1/fantasy/team/lineup to rearrange it or POST /transfers to change players.",
                 "Squad already picked", code: ErrorCodes.SquadAlreadyPicked);
         }
-        if (!check.IsValid) throw new RuleViolationException(check.Errors, "Your squad breaks some rules");
+        if (!check.IsValid) throw new RuleViolationException(check, "Your squad breaks some rules");
         var picks = selection.AllPlayers.Select(id => new FantasySquadPick
         {
             FantasyTeamId = team.Id,
@@ -153,7 +153,7 @@ public sealed class FantasyTeamService(
         var proposed = request.ToSelection();
         var players = await data.LoadPlayersAsync(ctx.Season.Id, current.AllPlayers.Concat(proposed.AllPlayers), ct);
         var check = _squadRules.ValidateLineupChange(current, proposed, players);
-        if (!check.IsValid) throw new RuleViolationException(check.Errors, "Your lineup breaks some rules");
+        if (!check.IsValid) throw new RuleViolationException(check, "Your lineup breaks some rules");
 
         await squads.ApplySelectionAsync(squad.Picks, proposed, ct);
         squad.Entry.Formation = proposed.Formation;
@@ -180,7 +180,7 @@ public sealed class FantasyTeamService(
         var current = squad.ToSelection();
         var players = await data.LoadPlayersAsync(ctx.Season.Id, current.AllPlayers.Concat(inIds), ct);
         var outcome = _squadRules.ApplyTransfers(current, outIds, inIds, players, team.BudgetRemaining);
-        if (!outcome.Check.IsValid) throw new RuleViolationException(outcome.Check.Errors, "These transfers break some rules");
+        if (!outcome.Check.IsValid) throw new RuleViolationException(outcome.Check, "These transfers break some rules");
 
         // Unlimited free transfers before the Gameweek 1 deadline and with Wildcard active.
         var unlimited = TransferRules.UnlimitedFreeTransfers(gameweek.IsFirst, squad.Entry.Chip, await IsTeamsFirstGameweekAsync(team.Id, gameweek, ctx.Calendar, ct));
@@ -232,7 +232,7 @@ public sealed class FantasyTeamService(
 
         var rows = await ChipRowsAsync(team.Id, ctx.Season.Id, ct);
         var check = ChipRules.CanActivate(request.Chip, rows.Where(r => !r.Cancelled).Select(r => new ChipUse(r.Chip, r.GameweekId)).ToList(), gameweek.Id);
-        if (!check.IsValid) throw new RuleViolationException(check.Errors, "That chip can't be played");
+        if (!check.IsValid) throw new RuleViolationException(check, "That chip can't be played");
 
         var sameChip = rows.FirstOrDefault(r => r.Cancelled && r.Chip == request.Chip);
         var sameWeek = rows.FirstOrDefault(r => r.Cancelled && r.GameweekId == gameweek.Id);

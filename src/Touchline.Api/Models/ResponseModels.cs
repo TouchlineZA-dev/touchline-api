@@ -52,7 +52,12 @@ public record GameweekSummary(
     bool IsActive,
     int? SeasonId,
     bool ReadyToScore,
-    int? Number = null);
+    int? Number = null,
+    DateTimeOffset? Deadline = null)
+{
+    /// <summary>The same deadline in South African time (UTC+02:00), ISO 8601.</summary>
+    public string? DeadlineSast => Deadline?.ToOffset(TimeSpan.FromHours(2)).ToString("yyyy-MM-dd'T'HH:mm:sszzz", System.Globalization.CultureInfo.InvariantCulture);
+}
 
 public record HealthReport(bool DatabaseReachable, string? DatabaseError, LastSyncJob? LastSyncJob);
 

@@ -197,6 +197,9 @@ public sealed class SafeWriteService(
 
         await using var transaction = await db.Database.BeginTransactionAsync(ct);
         await FantasyContextService.LockTeamAsync(db, team, ct);
+        // A duplicate of this request (double tap, retry) that was waiting on the lock: the first one has
+        // committed its receipt by now, so answer with that receipt instead of 409 stale_squad.
+        if (await StoredReceiptAsync(user.Id, key, hash, ct) is { } replay) return replay;
         var squad = await squads.EnsureAsync(team.Id, gameweek, ctx.Calendar, ctx.Now, ct)
             ?? throw new NotFoundException("Pick your squad first with PUT /api/v1/fantasy/team/squad.");
 
