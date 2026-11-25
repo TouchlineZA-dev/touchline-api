@@ -56,6 +56,8 @@
 | 413 | `request_too_large` | The body is over 64 KB | Send less (drafts: keep payloads small) |
 | 429 | `rate_limited` | Too many requests from this manager in a minute (checked before the token, so it can come first) | Wait and retry. **Never a sign-out** |
 | 503 | `drafts_unavailable` | Drafts need migration 015 (touchline-sync V051), not applied yet | Keep the draft on the device; everything else works |
+| 400 | `unknown_category` | `GET /news?category=` with an id that isn't in `/news/categories` | Use an id from `/news/categories` |
+| 503 | `news_unavailable` | The news feed has never been written (no `sync.news_cache` row). An empty or stale feed is 200 with `status` instead | "News isn't available"; the rest of the app works |
 
 **Which errors mean "sign in again"?** Only 401 with `retry: "sign_in"` (`token_missing`, `token_invalid`), and 403 `account_deleted`. 401 `token_expired` means refresh and retry. Every other status (400, 403, 404, 409, 413, 429, 5xx) is about the request or the data, never the session: show the message, keep what the manager typed, and never sign them out.
 
