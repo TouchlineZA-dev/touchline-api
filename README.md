@@ -55,6 +55,33 @@ Notes on these settings:
 - **Fantasy budget (`Fantasy__Budget`).** The starting budget is R100.0m, set in one place: the default of `FantasyRules.Budget` (`src/Touchline.Api/Fantasy/FantasyRules.cs`). It is deliberately not in `appsettings.json`. The only way to override it is the environment variable **`Fantasy__Budget`** (config key `Fantasy:Budget`), which beats everything else, including `.env`. **It should not be set on Railway or any other host**; if it is, delete it. The API logs the effective value once at startup as `Fantasy budget: 100.0`; check that line after every deploy. Team creation, squad validation, transfers, autopick, `GET /api/v1/rules` (`squad.budget`) and the team snapshot (`budgetRemaining` = budget − squad cost) all read this one value.
 - **Legacy JWT secret.** If the Supabase project still signs tokens with the legacy shared secret instead of JWT signing keys, also set `Supabase:JwtSecret`.
 
+## Health check
+
+`scripts/api-health-check.ps1` calls the main public routes against a running API and prints one line per check. Run it from the repo root on Windows PowerShell 5.1 or PowerShell 7:
+
+```powershell
+# Public routes only (Railway production by default)
+powershell -ExecutionPolicy Bypass -File .\scripts\api-health-check.ps1 -NoAuth
+# Against a local API (dotnet run --project src/Touchline.Api)
+powershell -ExecutionPolicy Bypass -File .\scripts\api-health-check.ps1 -NoAuth -BaseUrl http://localhost:5147
+# Also the signed-in and admin routes, as a test account
+powershell -ExecutionPolicy Bypass -File .\scripts\api-health-check.ps1 -Email test@example.com
+```
+
+| State | Meaning |
+|---|---|
+| UP | The route answered as expected |
+| WARN | The route works, but the data isn't right. For example: football data isn't fresh, fixtures past kickoff are still `Scheduled`, or `/health` reports `degraded` |
+| DOWN | No response, a 5xx, a 404, or an unexpected status. The note says why; for a 500 it gives the traceId to search for in the Railway logs |
+| SKIP | Not tested: nothing to test with, `-NoAuth`, or admin routes for a non-admin account |
+
+The exit code is 0 when nothing is DOWN and 1 otherwise.
+
+**Signing in.** Without `-NoAuth`, the script signs in to Supabase itself, so you never copy a token by hand:
+- **Key:** it needs the project's **publishable** key (`sb_publishable_…`, or the legacy anon key). It reads `SUPABASE_PUBLISHABLE_KEY` from `.env`, or asks for it at a prompt.
+- **Never the secret key.** The script refuses `sb_secret_…` and `service_role` keys. Never put a secret key in `.env` for this.
+- **Password:** typed in hidden. The password and token are never printed or saved.
+
 ## Endpoints (v1)
 
 | Method and path | Auth | What it returns |
