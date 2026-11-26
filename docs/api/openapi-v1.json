@@ -8191,6 +8191,65 @@
         }
       }
     },
+    "/api/v1/health/live": {
+      "get": {
+        "tags": [
+          "Health"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Validation failed (code: rule_violation, invalid_request, target_gameweek_required, insufficient_funds, username_cooldown, ...). \u0027violations\u0027 names each broken rule (docs/api/errors.md, Rule names).",
+            "content": {
+              "application/problem\u002Bjson": {
+                "example": {
+                  "type": "https://tools.ietf.org/html/rfc9110",
+                  "title": "Some rules aren\u0027t met",
+                  "status": 400,
+                  "detail": "Human-readable explanation.",
+                  "code": "rule_violation",
+                  "violations": [
+                    {
+                      "rule": "club_limit",
+                      "message": "Max 3 players from Orlando Pirates; you have 4."
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found (code: not_found, draft_not_found)",
+            "content": {
+              "application/problem\u002Bjson": {
+                "example": {
+                  "type": "https://tools.ietf.org/html/rfc9110",
+                  "title": "Not found",
+                  "status": 404,
+                  "detail": "Human-readable explanation.",
+                  "code": "not_found"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Data or schema not available (code: drafts_unavailable for drafts before migration 015)",
+            "content": {
+              "application/problem\u002Bjson": {
+                "example": {
+                  "type": "https://tools.ietf.org/html/rfc9110",
+                  "title": "Schema not ready",
+                  "status": 503,
+                  "detail": "Human-readable explanation."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/health": {
       "get": {
         "tags": [

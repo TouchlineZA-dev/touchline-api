@@ -11,13 +11,36 @@ namespace Touchline.Api.Controllers;
 [Route("api/v1/health")]
 public sealed class HealthController(HealthService health, TimeProvider time) : ControllerBase
 {
-    /// <summary>Liveness plus database reachability. 200 "ok" or 503 "degraded".</summary>
+    /// <summary>
+    /// Liveness for the host's health check (railway.toml): 200 whenever the process is up. No database call and
+    /// no freshness check, so a database outage or stale data never fails a deploy or restarts the container.
+    /// </summary>
+    [HttpGet("live")]
+    public IActionResult Live() => Ok(new { status = "live", checkedAtUtc = time.GetUtcNow() });
+
+    /// <summary>
+    /// Uptime summary. 200 "ok" when the database answers and football data is fresh; 200 "degraded" when the
+    /// database answers but the data is stale (or a live fixture's poller has stalled); 503 "unavailable" only
+    /// when the database can't be reached.
+    /// </summary>
     [HttpGet]
     public async Task<IActionResult> Get(CancellationToken ct)
     {
-        var ready = await health.ReadyAsync(ct);
-        var body = new { status = ready ? "ok" : "degraded", checkedAtUtc = time.GetUtcNow() };
-        return ready ? Ok(body) : StatusCode(StatusCodes.Status503ServiceUnavailable, body);
+        if (!await health.ReadyAsync(ct))
+        {
+            return StatusCode(StatusCodes.Status503ServiceUnavailable, new { status = "unavailable", checkedAtUtc = time.GetUtcNow() });
+        }
+        bool fresh;
+        try
+        {
+            fresh = (await health.FreshnessAsync(ct)).Fresh && !(await health.StalledLiveFixturesAsync(ct)).Alert;
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            fresh = false;   // the database answered; the freshness query didn't (details in the log)
+            HttpContext.RequestServices.GetRequiredService<ILogger<HealthController>>().LogWarning(ex, "Freshness check failed during /health");
+        }
+        return Ok(new { status = fresh ? "ok" : "degraded", checkedAtUtc = time.GetUtcNow() });
     }
 
     /// <summary>Readiness for a load balancer: 200 when the database answers, 503 otherwise.</summary>

@@ -3,7 +3,9 @@ builder = "DOCKERFILE"
 dockerfilePath = "Dockerfile"
 
 [deploy]
-healthcheckPath = "/api/v1/health"
+# Liveness only: 200 while the process is up, no database call. A database outage or stale football data
+# must not stop a deploy or restart the container (/api/v1/health and /health/ready report those).
+healthcheckPath = "/api/v1/health/live"
 healthcheckTimeout = 100
 restartPolicyType = "ON_FAILURE"
 restartPolicyMaxRetries = 5
