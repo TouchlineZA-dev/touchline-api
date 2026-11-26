@@ -181,7 +181,9 @@ public sealed class WizardAndDraftTests(FootballDbFixture f) : IClassFixture<Foo
         Skip.If(f.SkipReason is not null, f.SkipReason);
         var client = NewManager(f, out var sub);
         await Ok(await client.PutAsJsonAsync("/api/v1/me/drafts/transfers", new { payload = new { @out = new[] { 1 } }, version = 0 }));
-        await f.Db.ExecAsync($"UPDATE app.wizard_drafts SET expires_at = now() - interval '1 minute' WHERE user_id = (SELECT id FROM app.users WHERE auth_user_id = '{sub}')");
+        // Expired by the API's clock (the test clock), not the database's: the test clock is fixed when the class starts.
+        await f.Db.ExecAsync($"UPDATE app.wizard_drafts SET expires_at = $1 WHERE user_id = (SELECT id FROM app.users WHERE auth_user_id = '{sub}')",
+            f.Clock.Now.AddMinutes(-1).UtcDateTime);
         AssertError(await Send(client.GetAsync("/api/v1/me/drafts/transfers")), HttpStatusCode.NotFound, "draft_not_found");
         Assert.Empty((await Ok(await client.GetAsync("/api/v1/me/drafts"))).GetProperty("drafts").EnumerateArray());
         await Ok(await client.PutAsJsonAsync("/api/v1/me/drafts/transfers", new { payload = new { }, version = 0 }));   // expired = start again

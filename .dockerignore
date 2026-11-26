@@ -1,8 +1,14 @@
+# Keep the build context small. Everything the Dockerfile COPYs must stay in:
+# Directory.Build.props (TargetFramework for every project) and src/Touchline.Api/.
+# CI runs "docker build" (job "docker"), so excluding a needed file fails the PR.
 **/.git
 **/.vs
+**/.vscode
 **/bin
 **/obj
 tests
 docs
-*.md
+scripts
+.github
 .env*
+**/*.user

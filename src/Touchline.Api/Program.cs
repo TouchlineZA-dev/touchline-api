@@ -107,6 +107,13 @@ builder.Services.AddCors(o => o.AddPolicy(FrontendCors, p => p
     .AllowAnyMethod()
     .WithExposedHeaders("ETag")));
 
+// Port: an explicit URL setting wins (launchSettings, ASPNETCORE_URLS, --urls). Otherwise listen on PORT when the
+// host sets it (Railway does), else 8080. The host's public domain must target the same port (docs/api/deployment.md).
+if (string.IsNullOrWhiteSpace(builder.Configuration["urls"]))
+{
+    builder.WebHost.UseUrls($"http://+:{ListenPort.From(Environment.GetEnvironmentVariable("PORT"))}");
+}
+
 var app = builder.Build();
 
 // The effective budget, after appsettings and environment variables (Fantasy__Budget), so a deploy
@@ -151,3 +158,11 @@ app.Run();
 
 /// <summary>Exposed for integration tests (WebApplicationFactory).</summary>
 public partial class Program { }
+
+/// <summary>The port to listen on when no URL is configured: PORT if it's a valid port number, else 8080.</summary>
+public static class ListenPort
+{
+    public const int Default = 8080;
+
+    public static int From(string? port) => int.TryParse(port, out var p) && p is > 0 and <= 65535 ? p : Default;
+}

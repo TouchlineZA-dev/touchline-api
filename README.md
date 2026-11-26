@@ -86,7 +86,8 @@ The exit code is 0 when nothing is DOWN and 1 otherwise.
 
 | Method and path | Auth | What it returns |
 |---|---|---|
-| `GET /api/v1/health` | none | Whether the database is reachable, plus the latest sync job |
+| `GET /api/v1/health/live` | none | 200 whenever the process is up (no database call); the Railway health check |
+| `GET /api/v1/health` | none | 200 `ok`, 200 `degraded` (data stale), or 503 `unavailable` (database unreachable). Also `/health/ready` and `/health/freshness` |
 | `GET /api/v1/seasons/current` | none | The current PSL season (Sportmonks competition 806) |
 | `GET /api/v1/teams` | none | Clubs playing in the current PSL season (teams with a fixture in it) |
 | `GET /api/v1/players` | none | Players with position, current club, price and `available` (pickable this season) |

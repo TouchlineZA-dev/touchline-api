@@ -173,10 +173,13 @@ Write-Host "Touchline API health check -> $BaseUrl" -ForegroundColor Cyan
 Write-Host ("Started " + (Get-Date).ToString("yyyy-MM-dd HH:mm:ss") + " | PowerShell " + $PSVersionTable.PSVersion) -ForegroundColor DarkGray
 Write-Host ""
 
-# /health: 200 {status:"ok"} or 503 {status:"degraded"} when the database doesn't answer.
-$health = Test-Route "Public" "Health" "/api/v1/health" @(200, 503) @() $null { param($j, $r) "status=" + $j.status }
+# /health/live: 200 whenever the process is up (the Railway health check; no database call).
+[void](Test-Route "Public" "Health: live" "/api/v1/health/live" @(200) @() $null { param($j, $r) "status=" + $j.status })
+
+# /health: 200 "ok", 200 "degraded" (database up, football data stale), 503 "unavailable" (database unreachable).
+$health = Test-Route "Public" "Health" "/api/v1/health" @(200) @() $null { param($j, $r) "status=" + $j.status }
 if ($health -and [string]$health.status -ne "ok") {
-  Set-LastResult "WARN" ("status=" + $health.status + " (the API is up but its database check failed; see /health/ready and the Railway logs)")
+  Set-LastResult "WARN" ("status=" + $health.status + " (database up, football data stale; see /health/freshness)")
 }
 
 # /health/ready: 200 {ready:true} or 503 {ready:false}.
